@@ -167,10 +167,12 @@ async def client_dashboard(request: Request):
 
 @asgi_app.get("/admin", response_class=HTMLResponse)
 async def owner_admin_console(request: Request):
-    """Render the ADX Group Owner Command Center."""
+    """Render the ADX Group Owner Command Center (Strictly Admin Only)."""
     user = _current_user(request)
     if not user:
         return RedirectResponse(url="/login", status_code=302)
+    if user.get("role") != "admin":
+        return RedirectResponse(url="/dashboard", status_code=302)
     admin_data = get_admin_command_center_data()
     leads = get_all_leads()
     return templates.TemplateResponse(

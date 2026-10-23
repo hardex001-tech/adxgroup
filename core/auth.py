@@ -18,8 +18,6 @@ DB_PATH = DATA_DIR / "adxgroup.db"
 
 OWNER_EMAILS = {
     "abdulrasaqadeyemi12@gmail.com",
-    "hardexmarley340@gmail.com",
-    "abdulrazaqaa.25@student.funaab.edu.ng",
     "contact@adxgroup.tech",
     "security@adxgroup.tech",
 }
