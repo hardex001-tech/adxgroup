@@ -3,41 +3,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Client Console | ADX Group</title>
+  <title>Workspace Console | ADX Group</title>
   <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
-  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/style.css?v=4" />
   <style>
-    .dash-header {
-      padding: 32px 0 24px;
-      border-bottom: 1px solid var(--border-subtle);
-      margin-bottom: 32px;
+    .console-layout {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 28px;
+      padding: 32px 0 64px;
+      min-height: calc(100vh - 160px);
     }
-    .dash-welcome {
+    .console-sidebar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 20px 14px;
+      height: fit-content;
+      position: sticky;
+      top: 90px;
+    }
+    .identity-card-mini {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
+      gap: 12px;
+      padding: 10px 12px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 14px;
     }
-    .user-chip {
-      display: inline-flex;
+    .avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #38bdf8);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .side-nav-btn {
+      display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(56, 189, 248, 0.08);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      border-radius: 999px;
-      padding: 6px 14px;
-      font-size: 0.84rem;
-      font-family: var(--font-mono);
+      width: 100%;
+      text-align: left;
+      padding: 11px 14px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: 4px;
+    }
+    .side-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+    }
+    .side-nav-btn.active {
+      background: rgba(37, 99, 235, 0.18);
+      color: var(--accent-cyan);
+      font-weight: 600;
     }
     .domain-pill-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 16px;
       margin-top: 16px;
     }
     .domain-card {
-      background: #060911;
+      background: var(--bg-primary);
       border: 1px solid var(--border-subtle);
       border-radius: 12px;
       padding: 18px;
@@ -56,256 +96,452 @@
       font-family: var(--font-mono);
       font-weight: 800;
       font-size: 1.15rem;
-      background: rgba(56, 189, 248, 0.14);
+      background: rgba(56, 189, 248, 0.12);
       color: var(--accent-cyan);
-      border: 1px solid rgba(56, 189, 248, 0.35);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .identity-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .identity-field {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .identity-field span {
+      display: block;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 4px;
+    }
+    .identity-field strong {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      word-break: break-all;
+    }
+    @media (max-width: 900px) {
+      .console-layout {
+        grid-template-columns: 1fr;
+      }
+      .console-sidebar {
+        position: static;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Console Navbar -->
+  <!-- Top Console Header -->
   <header class="navbar">
     <div class="container nav-inner">
       <a href="/dashboard" class="brand">
-        <img src="/static/logo.svg" alt="ADX Group Emblem" style="width: 38px; height: 38px; border-radius: 9px;" />
+        <img src="/static/logo.svg" alt="ADX Group Logo" style="width: 36px; height: 36px; border-radius: 8px;" />
         <div>
-          <span class="brand-text">ADX CONSOLE</span>
-          <span class="brand-sub">CLIENT SECURITY &amp; AI WORKSPACE</span>
+          <span class="brand-text">ADX GROUP</span>
+          <span class="brand-motto">Silent Innovation. Absolute Defense.</span>
         </div>
       </a>
+
       <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
         {% if user.role == 'admin' %}
         <a href="/admin" class="btn btn-primary" style="padding: 8px 14px; font-size: 0.82rem;">
-          ⚡ Owner Command Center
+          Owner Command Center
         </a>
         {% endif %}
-        <a href="/" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem;">Public Site</a>
-        <a href="/logout" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem; color: #f87171;">Sign Out</a>
+        <button type="button" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem;" onclick="switchConsoleTab('settings')">
+          Settings ({{ user.name }})
+        </button>
+        <a href="/logout" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem; color: #f87171;">
+          Sign Out
+        </a>
       </div>
     </div>
   </header>
 
-  <main class="container" style="padding-bottom: 64px;">
-    <!-- Welcome Banner -->
-    <div class="dash-header">
-      <div class="dash-welcome">
-        <div>
-          <span class="div-tag">AUTHENTICATED WORKSPACE // FULL REMEDIATION UNLOCKED</span>
-          <h1 style="font-size: 1.85rem; font-weight: 800;">Welcome, {{ user.name }}</h1>
-          <p style="color: var(--text-muted); font-size: 0.94rem;">
-            Manage your monitored domains, inspect full 5-vector remediation snippets, and consult with the ADX AI Engine.
+  <!-- Main Console Grid -->
+  <div class="container console-layout">
+
+    <!-- Left Navigation & Identity Sidebar -->
+    <aside class="console-sidebar">
+      <div class="identity-card-mini">
+        <div class="avatar-circle">{{ user.name[:1] | upper }}</div>
+        <div style="overflow: hidden;">
+          <div style="font-weight: 700; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="sidebar-user-name">
+            {{ user.name }}
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            {{ user.email }}
+          </div>
+          <span style="display: inline-block; margin-top: 4px; font-size: 0.68rem; font-family: var(--font-mono); padding: 2px 7px; border-radius: 4px; background: rgba(56, 189, 248, 0.14); color: var(--accent-cyan);">
+            ID #ADX-00{{ user.id }} • {{ user.provider | upper }}
+          </span>
+        </div>
+      </div>
+
+      <button type="button" id="nav-scanner" class="side-nav-btn active" onclick="switchConsoleTab('scanner')">
+        1. Security Scanner &amp; Assets
+      </button>
+      <button type="button" id="nav-ai" class="side-nav-btn" onclick="switchConsoleTab('ai')">
+        2. AI Systems Consultant
+      </button>
+      <button type="button" id="nav-architecture" class="side-nav-btn" onclick="switchConsoleTab('architecture')">
+        3. Divisions &amp; 4-Layer Standard
+      </button>
+      <button type="button" id="nav-dispatch" class="side-nav-btn" onclick="switchConsoleTab('dispatch')">
+        4. Request Engineering Scope
+      </button>
+      <button type="button" id="nav-settings" class="side-nav-btn" onclick="switchConsoleTab('settings')">
+        5. Account &amp; Identity Settings
+      </button>
+    </aside>
+
+    <!-- Right Workspace Content -->
+    <main>
+
+      <!-- TAB 1: Security Scanner & Monitored Assets -->
+      <div id="tab-view-scanner" class="console-tab-view">
+        <div class="scanner-card" style="margin-bottom: 28px;">
+          <span class="section-eyebrow">5-Vector Diagnostic Engine</span>
+          <h2 style="font-size: 1.55rem; margin-bottom: 8px;">Website &amp; Infrastructure Security Scanner</h2>
+          <p style="color: var(--text-muted); font-size: 0.93rem; margin-bottom: 20px;">
+            Inspect SSL/TLS encryption, SPF and DMARC anti-spoofing records, HTTP defensive headers, CORS rules, and exposed server files.
           </p>
-        </div>
-        <div class="user-chip">
-          <span class="pulse-dot"></span>
-          {{ user.email }} ({{ user.provider | upper }})
-        </div>
-      </div>
-    </div>
 
-    <!-- Section 1: Monitored Domains -->
-    <div class="panel-card" style="margin-bottom: 32px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
-        <div>
-          <span class="div-tag">ASSET WATCHLIST</span>
-          <h3>Monitored Domains &amp; Web Assets</h3>
-        </div>
-        <form id="add-domain-form" style="display: flex; gap: 10px;">
-          <input type="text" id="new-domain-input" class="form-control" placeholder="Add domain (e.g. company.com)" required style="min-width: 240px;" />
-          <button type="submit" class="btn btn-outline">+ Add Domain</button>
-        </form>
-      </div>
-
-      <div class="domain-pill-grid">
-        {% if monitored_domains %}
-          {% for d in monitored_domains %}
-          <div class="domain-card">
-            <div>
-              <div style="font-family: var(--font-mono); font-weight: 700; font-size: 0.98rem;">{{ d.domain }}</div>
-              <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
-                Score: {{ d.last_score }}/100 • {{ d.last_risk }}
-              </div>
-              <button
-                type="button"
-                class="btn btn-outline"
-                style="padding: 4px 10px; font-size: 0.75rem; margin-top: 8px;"
-                onclick="triggerQuickScan('{{ d.domain }}')"
-              >
-                ↻ Run Live Audit
-              </button>
-            </div>
-            <div class="grade-circle">{{ d.last_grade }}</div>
-          </div>
-          {% endfor %}
-        {% else %}
-          <div style="color: var(--text-muted); font-size: 0.9rem; padding: 12px 0;">
-            No domains added yet. Run a scan below or add your company domain above to start tracking.
-          </div>
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- Section 2: Full Unlocked 5-Vector Security Scanner -->
-    <div class="scanner-card" style="margin-bottom: 32px;">
-      <div class="scanner-header">
-        <div>
-          <span class="div-tag">PRO CONSOLE SCANNER // FULL CODE REMEDIATION UNLOCKED</span>
-          <h2>5-Vector Deep Security &amp; Infrastructure Diagnostic</h2>
-          <p>Run a live assessment on any domain to view the complete Truth Table, exact server configuration fixes, and executive advisory.</p>
-        </div>
-      </div>
-
-      <form id="scan-form" class="scanner-form">
-        <input
-          type="text"
-          id="scan-domain-input"
-          class="scanner-input"
-          placeholder="Enter domain to audit (e.g., github.com or yourcompany.com)"
-          required
-        />
-        <button type="submit" id="scan-submit-btn" class="btn btn-primary">
-          Run Deep Diagnostic
-        </button>
-      </form>
-
-      <div id="scan-results" class="scan-results hidden">
-        <div class="score-banner">
-          <div>
-            <div id="scan-domain-title" style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-muted);"></div>
-            <div id="scan-grade-badge" style="font-weight: 700; font-size: 1.15rem; margin-top: 4px;"></div>
-          </div>
-          <div style="text-align: right;">
-            <span style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono); display: block;">PERIMETER SCORE</span>
-            <span id="scan-score-val" class="score-number">100/100</span>
-          </div>
-        </div>
-
-        <div id="scan-ai-summary" class="ai-summary-box"></div>
-
-        <div class="truth-table-wrap">
-          <table class="truth-table">
-            <thead>
-              <tr>
-                <th style="width: 110px;">Gate ID</th>
-                <th style="width: 240px;">Security Vector</th>
-                <th style="width: 140px;">Logic State</th>
-                <th>Diagnostic Finding &amp; Unlocked Code Remediation</th>
-              </tr>
-            </thead>
-            <tbody id="gates-table-body"></tbody>
-          </table>
-        </div>
-
-        <div class="outreach-box">
-          <div class="outreach-header">
-            <div>
-              <strong style="font-size: 0.95rem;">Executive Security Report / Advisory Export</strong>
-              <p style="font-size: 0.82rem; color: var(--text-muted);">Share this diagnostic brief with your engineering team or client.</p>
-            </div>
-            <button type="button" id="copy-outreach-btn" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem;">
-              Copy Report Text
+          <form id="scan-form" class="scanner-form">
+            <input
+              type="text"
+              id="scan-domain-input"
+              class="scanner-input"
+              placeholder="Enter domain to inspect (e.g., github.com or yourcompany.com)"
+              required
+            />
+            <button type="submit" id="scan-submit-btn" class="btn btn-primary" style="white-space: nowrap;">
+              Run Deep Diagnostic
             </button>
+          </form>
+
+          <div id="scan-results" class="scan-results hidden">
+            <div class="score-banner">
+              <div>
+                <div id="scan-domain-title" style="font-family: var(--font-mono); font-size: 0.86rem; color: var(--text-muted);"></div>
+                <div id="scan-grade-badge" style="font-weight: 700; font-size: 1.15rem; margin-top: 4px;"></div>
+              </div>
+              <div style="text-align: right;">
+                <span style="font-size: 0.74rem; color: var(--text-muted); font-family: var(--font-mono); display: block;">SECURITY SCORE</span>
+                <span id="scan-score-val" class="score-number">100/100</span>
+              </div>
+            </div>
+
+            <div id="scan-ai-summary" class="ai-summary-box"></div>
+
+            <div class="truth-table-wrap">
+              <table class="truth-table">
+                <thead>
+                  <tr>
+                    <th style="width: 105px;">Gate</th>
+                    <th style="width: 230px;">Security Vector</th>
+                    <th style="width: 130px;">State</th>
+                    <th>Diagnostic Finding &amp; Remediation Code</th>
+                  </tr>
+                </thead>
+                <tbody id="gates-table-body"></tbody>
+              </table>
+            </div>
+
+            <div class="outreach-box">
+              <div class="outreach-header">
+                <div>
+                  <strong style="font-size: 0.94rem;">Executive Diagnostic Report Export</strong>
+                  <p style="font-size: 0.82rem; color: var(--text-muted);">Copy this structured advisory report for your engineering team or client.</p>
+                </div>
+                <button type="button" id="copy-outreach-btn" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem;">
+                  Copy Report
+                </button>
+              </div>
+              <textarea id="outreach-email-text" class="outreach-textarea" readonly></textarea>
+            </div>
           </div>
-          <textarea id="outreach-email-text" class="outreach-textarea" readonly></textarea>
         </div>
-      </div>
-    </div>
 
-    <!-- Section 3: Recent Scans + 24/7 AI Consultant & Engineer Dispatch -->
-    <div class="split-grid">
-      <!-- Left: Scan History -->
-      <div class="panel-card">
-        <span class="div-tag">AUDIT LEDGER</span>
-        <h3>Your Recent Diagnostic Scans</h3>
-        <div class="truth-table-wrap" style="margin-top: 12px;">
-          <table class="truth-table">
-            <thead>
-              <tr>
-                <th>Domain</th>
-                <th>Score</th>
-                <th>Grade</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% if recent_scans %}
-                {% for s in recent_scans %}
+        <!-- Monitored Domains Watchlist -->
+        <div class="panel-card" style="margin-bottom: 28px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <span class="section-eyebrow">Asset Watchlist</span>
+              <h3>Monitored Domains</h3>
+            </div>
+            <form id="add-domain-form" style="display: flex; gap: 10px;">
+              <input type="text" id="new-domain-input" class="form-control" placeholder="Add domain (e.g. company.com)" required style="min-width: 230px;" />
+              <button type="submit" class="btn btn-outline">+ Add Domain</button>
+            </form>
+          </div>
+
+          <div class="domain-pill-grid">
+            {% if monitored_domains %}
+              {% for d in monitored_domains %}
+              <div class="domain-card">
+                <div>
+                  <div style="font-family: var(--font-mono); font-weight: 700; font-size: 0.96rem;">{{ d.domain }}</div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                    Score: {{ d.last_score }}/100 | {{ d.last_risk }}
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-outline"
+                    style="padding: 4px 10px; font-size: 0.75rem; margin-top: 8px;"
+                    onclick="triggerQuickScan('{{ d.domain }}')"
+                  >
+                    Re-Scan Now
+                  </button>
+                </div>
+                <div class="grade-circle">{{ d.last_grade }}</div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div style="color: var(--text-muted); font-size: 0.9rem; padding: 12px 0;">
+                No domains saved yet. Run a scan above or add a domain to track its security score.
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Recent Audit History -->
+        <div class="panel-card">
+          <span class="section-eyebrow">Audit Ledger</span>
+          <h3>Recent Diagnostic Scans</h3>
+          <div class="truth-table-wrap" style="margin-top: 12px; margin-bottom: 0;">
+            <table class="truth-table">
+              <thead>
                 <tr>
-                  <td style="font-family: var(--font-mono); font-weight: 600;">{{ s.domain }}</td>
-                  <td>{{ s.score }}/100</td>
-                  <td><span class="badge-true">{{ s.grade }}</span></td>
-                  <td style="font-size: 0.78rem; color: var(--text-muted);">{{ s.created_at }}</td>
+                  <th>Domain</th>
+                  <th>Score</th>
+                  <th>Grade</th>
+                  <th>Timestamp</th>
                 </tr>
-                {% endfor %}
-              {% else %}
-                <tr>
-                  <td colspan="4" style="color: var(--text-muted);">No scans run in this session yet.</td>
-                </tr>
-              {% endif %}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {% if recent_scans %}
+                  {% for s in recent_scans %}
+                  <tr>
+                    <td style="font-family: var(--font-mono); font-weight: 600;">{{ s.domain }}</td>
+                    <td>{{ s.score }}/100</td>
+                    <td><span class="badge-true">{{ s.grade }}</span></td>
+                    <td style="font-size: 0.8rem; color: var(--text-muted);">{{ s.created_at }}</td>
+                  </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="4" style="color: var(--text-muted);">No diagnostic scans recorded yet.</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <!-- Right: 24/7 AI Systems Consultant -->
-      <div class="panel-card">
-        <span class="div-tag">24/7 AI ENGINEERING DESK</span>
-        <h3>ADX AI Systems Consultant</h3>
-        <div id="ai-chat-log" class="chat-log">
-          <div class="chat-msg chat-bot">Welcome to your ADX Console, {{ user.name }}! Ask me how to apply any of the security fixes above, or request our team to harden your server for a flat $350 fee.</div>
+      <!-- TAB 2: AI Systems Consultant -->
+      <div id="tab-view-ai" class="console-tab-view hidden">
+        <div class="panel-card">
+          <span class="section-eyebrow">Autonomous Systems Desk</span>
+          <h2 style="font-size: 1.5rem; margin-bottom: 6px;">24/7 ADX AI Systems Consultant</h2>
+          <p style="color: var(--text-muted); font-size: 0.92rem;">
+            Ask technical questions about server hardening, DMARC/SPF configuration, private enterprise AI (RAG), or fixed-scope ADX Group services.
+          </p>
+          <div id="ai-chat-log" class="chat-log" style="min-height: 340px;">
+            <div class="chat-msg chat-bot">Hello {{ user.name }}! Welcome to the ADX AI Systems Desk. Ask me how to remediate any vulnerability, configure cloud infrastructure, or deploy private AI automation for your organization.</div>
+          </div>
+          <form id="ai-chat-form" style="display: flex; gap: 10px;">
+            <input type="text" id="ai-chat-input" class="form-control" placeholder="Ask about security fixes, cloud deployment, or AI automation..." required />
+            <button type="submit" class="btn btn-primary">Send Message</button>
+          </form>
         </div>
-        <form id="ai-chat-form" style="display: flex; gap: 10px;">
-          <input type="text" id="ai-chat-input" class="form-control" placeholder="Ask about remediation, AI bots, or cloud setup..." required />
-          <button type="submit" class="btn btn-primary">Send</button>
-        </form>
       </div>
+
+      <!-- TAB 3: Operating Divisions & Four-Layer Security Standard -->
+      <div id="tab-view-architecture" class="console-tab-view hidden">
+        <div class="panel-card" style="margin-bottom: 24px;">
+          <span class="section-eyebrow">Operating Divisions</span>
+          <h2 style="font-size: 1.5rem; margin-bottom: 18px;">ADX Group Engineering Divisions</h2>
+          <div class="grid-3">
+            <div class="feature-card" style="padding: 22px;">
+              <h3>1. ADX Cyber</h3>
+              <p>Perimeter vulnerability assessments, anti-spoofing DNS enforcement (SPF, DKIM, DMARC), and WAF protection.</p>
+            </div>
+            <div class="feature-card" style="padding: 22px;">
+              <h3>2. ADX Cloud &amp; Systems</h3>
+              <p>Production FastAPI and Docker deployments, Azure and AWS cost optimization, and automated off-site backups.</p>
+            </div>
+            <div class="feature-card" style="padding: 22px;">
+              <h3>3. ADX Intelligence</h3>
+              <p>Private enterprise document search (RAG), autonomous customer agents, and prompt-injection security guardrails.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <span class="section-eyebrow">Four-Layer Security Standard</span>
+          <h2 style="font-size: 1.5rem; margin-bottom: 18px;">How We Protect Client Infrastructure</h2>
+          <div class="grid-4">
+            <div class="feature-card" style="padding: 20px;">
+              <div class="card-icon">L1</div>
+              <h3>Edge Firewall</h3>
+              <p>Blocks SQL injection, XSS, and automated bot traffic before reaching the web server.</p>
+            </div>
+            <div class="feature-card" style="padding: 20px;">
+              <div class="card-icon">L2</div>
+              <h3>Network Isolation</h3>
+              <p>Databases remain locked inside private internal subnets unreachable from the public internet.</p>
+            </div>
+            <div class="feature-card" style="padding: 20px;">
+              <div class="card-icon">L3</div>
+              <h3>Continuous Patching</h3>
+              <p>Weekly automated checks detect outdated packages and SSL expiration early.</p>
+            </div>
+            <div class="feature-card" style="padding: 20px;">
+              <div class="card-icon">L4</div>
+              <h3>Encrypted Backups</h3>
+              <p>Daily encrypted off-site snapshots ensure rapid recovery with zero data loss.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: Request Engineering Scope -->
+      <div id="tab-view-dispatch" class="console-tab-view hidden">
+        <div class="panel-card">
+          <span class="section-eyebrow">Engineering Dispatch</span>
+          <h2 style="font-size: 1.5rem; margin-bottom: 6px;">Request Done-For-You Remediation or Custom AI Build</h2>
+          <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">
+            Assign ADX Group engineers to remediate vulnerabilities, configure your cloud architecture, or build a custom AI assistant.
+          </p>
+
+          <form id="lead-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label>Your Name or Company *</label>
+              <input type="text" id="lead-name" class="form-control" value="{{ user.company or user.name }}" required />
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label>Verified Contact Email *</label>
+              <input type="email" id="lead-email" class="form-control" value="{{ user.email }}" required />
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label>Service Division</label>
+              <select id="lead-division" class="form-control">
+                <option value="ADX Cyber: Full Security Hardening ($350)">ADX Cyber: Full Security Hardening ($350)</option>
+                <option value="ADX Cloud: 24/7 Cloud Sentinel Retainer ($350/mo)">ADX Cloud: 24/7 Cloud Sentinel Retainer ($350/mo)</option>
+                <option value="ADX Intelligence: Private AI / RAG System">ADX Intelligence: Private AI &amp; Automation</option>
+                <option value="White-Label Agency Partnership">White-Label Agency Partnership</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label>Target Domain</label>
+              <input type="text" id="lead-domain" class="form-control" placeholder="https://company.com" />
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1; margin-bottom: 0;">
+              <label>Project Brief or Security Requirement</label>
+              <textarea id="lead-message" class="form-control" rows="3" placeholder="Describe the infrastructure, security fixes, or AI system you want our team to deliver..."></textarea>
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <button type="submit" class="btn btn-primary">Submit Scope to ADX Engineering</button>
+              <span id="lead-status" style="margin-left: 14px; font-size: 0.88rem; font-weight: 600;"></span>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 5: Account & Identity Settings -->
+      <div id="tab-view-settings" class="console-tab-view hidden">
+        <div class="panel-card" style="margin-bottom: 24px;">
+          <span class="section-eyebrow">Verified Account Identity</span>
+          <h2 style="font-size: 1.5rem; margin-bottom: 6px;">Account Creator Identity &amp; Profile Settings</h2>
+          <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 22px;">
+            Your registered identity and authentication credentials associated with this ADX Group workspace.
+          </p>
+
+          <div class="identity-grid">
+            <div class="identity-field">
+              <span>Account ID</span>
+              <strong>#ADX-00{{ user.id }}</strong>
+            </div>
+            <div class="identity-field">
+              <span>Account Holder Name</span>
+              <strong id="id-card-name">{{ user.name }}</strong>
+            </div>
+            <div class="identity-field">
+              <span>Verified Email Address</span>
+              <strong style="color: var(--accent-cyan);">{{ user.email }}</strong>
+            </div>
+            <div class="identity-field">
+              <span>Organization / Company</span>
+              <strong id="id-card-company">{{ user.company or 'Personal Workspace' }}</strong>
+            </div>
+            <div class="identity-field">
+              <span>Authentication Provider</span>
+              <strong>{{ user.provider | upper }} OAuth / Verified</strong>
+            </div>
+            <div class="identity-field">
+              <span>Access Level &amp; Created Date</span>
+              <strong>{{ user.role | upper }} ({{ user.created_at }})</strong>
+            </div>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 24px 0;" />
+
+          <h3 style="margin-bottom: 14px;">Update Profile Information</h3>
+          <form id="profile-settings-form" style="max-width: 520px;">
+            <div class="form-group">
+              <label>Full Name *</label>
+              <input type="text" id="settings-name" class="form-control" value="{{ user.name }}" required />
+            </div>
+            <div class="form-group">
+              <label>Company / Organization Name</label>
+              <input type="text" id="settings-company" class="form-control" value="{{ user.company }}" placeholder="e.g., ADX Group or Acme Corp" />
+            </div>
+            <div class="form-group">
+              <label>Primary Email (Verified &amp; Locked)</label>
+              <input type="email" class="form-control" value="{{ user.email }}" disabled style="opacity: 0.65;" />
+            </div>
+            <button type="submit" class="btn btn-primary">Save Identity Settings</button>
+            <span id="settings-save-msg" style="margin-left: 12px; font-size: 0.88rem; color: var(--accent-emerald); font-weight: 600;"></span>
+          </form>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Clean Corporate Footer -->
+  <footer class="site-footer" style="margin-top: 0; padding: 32px 0;">
+    <div class="container footer-bottom" style="border-top: none; padding-top: 0;">
+      <div>&copy; 2026 ADX Group. All rights reserved. | Silent Innovation. Absolute Defense.</div>
+      <div><a href="mailto:contact@adxgroup.tech" style="color: var(--accent-cyan); text-decoration: none;">contact@adxgroup.tech</a></div>
     </div>
+  </footer>
 
-    <!-- Section 4: Direct Engineering & Audit Dispatch Form (Inside Authenticated Console) -->
-    <div id="contact" class="panel-card" style="margin-top: 32px;">
-      <span class="div-tag">DIRECT DISPATCH // CONTACT@ADXGROUP.TECH</span>
-      <h3>Request Done-For-You Security Remediation or Custom AI Build</h3>
-      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
-        Want ADX Group engineers to apply these security fixes, harden your server, or build a custom AI assistant? Submit your scope below:
-      </p>
-
-      <form id="lead-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
-        <div class="form-group" style="margin-bottom: 0;">
-          <label>Your Name or Company *</label>
-          <input type="text" id="lead-name" class="form-control" value="{{ user.company or user.name }}" required />
-        </div>
-        <div class="form-group" style="margin-bottom: 0;">
-          <label>Verified Contact Email *</label>
-          <input type="email" id="lead-email" class="form-control" value="{{ user.email }}" required />
-        </div>
-        <div class="form-group" style="margin-bottom: 0;">
-          <label>Service Division</label>
-          <select id="lead-division" class="form-control">
-            <option value="ADX Cyber — Full Remediation & Hardening ($350)">ADX Cyber — Full Remediation &amp; Hardening ($350)</option>
-            <option value="ADX Cloud — 24/7 Cloud Sentinel Retainer ($350/mo)">ADX Cloud — 24/7 Cloud Sentinel Retainer ($350/mo)</option>
-            <option value="ADX Intelligence — Private AI / RAG System">ADX Intelligence — Private AI &amp; Automation</option>
-            <option value="White-Label Agency Partnership">White-Label Agency Partnership</option>
-          </select>
-        </div>
-        <div class="form-group" style="margin-bottom: 0;">
-          <label>Target Domain</label>
-          <input type="text" id="lead-domain" class="form-control" placeholder="https://company.com" />
-        </div>
-        <div class="form-group" style="grid-column: 1 / -1; margin-bottom: 0;">
-          <label>Engineering Scope or Security Requirement</label>
-          <textarea id="lead-message" class="form-control" rows="2" placeholder="Tell us which vulnerabilities or systems you want our engineers to handle..."></textarea>
-        </div>
-        <div style="grid-column: 1 / -1;">
-          <button type="submit" class="btn btn-primary">Dispatch Request to ADX Engineering Desk →</button>
-          <span id="lead-status" style="margin-left: 14px; font-size: 0.88rem; font-weight: 600;"></span>
-        </div>
-      </form>
-    </div>
-  </main>
-
-  <script src="/static/js/main.js?v=3"></script>
+  <script src="/static/js/main.js?v=4"></script>
   <script>
+    function switchConsoleTab(tabName) {
+      const views = ["scanner", "ai", "architecture", "dispatch", "settings"];
+      views.forEach((v) => {
+        const el = document.getElementById("tab-view-" + v);
+        const btn = document.getElementById("nav-" + v);
+        if (v === tabName) {
+          el.classList.remove("hidden");
+          btn.classList.add("active");
+        } else {
+          el.classList.add("hidden");
+          btn.classList.remove("active");
+        }
+      });
+    }
+
     const addDomainForm = document.getElementById("add-domain-form");
     if (addDomainForm) {
       addDomainForm.addEventListener("submit", async (e) => {
@@ -326,6 +562,7 @@
     }
 
     function triggerQuickScan(domain) {
+      switchConsoleTab("scanner");
       const input = document.getElementById("scan-domain-input");
       const btn = document.getElementById("scan-submit-btn");
       input.value = domain;
@@ -333,7 +570,33 @@
       btn.click();
     }
 
-    // Auto-run scan if redirected from landing page with ?scan=domain
+    const profileForm = document.getElementById("profile-settings-form");
+    if (profileForm) {
+      profileForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("settings-name").value.trim();
+        const company = document.getElementById("settings-company").value.trim();
+        const msg = document.getElementById("settings-save-msg");
+        msg.textContent = "";
+
+        const res = await fetch("/api/auth/profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, company }),
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          document.getElementById("id-card-name").textContent = data.user.name;
+          document.getElementById("id-card-company").textContent = data.user.company || "Personal Workspace";
+          document.getElementById("sidebar-user-name").textContent = data.user.name;
+          msg.textContent = "Identity updated successfully!";
+          setTimeout(() => { msg.textContent = ""; }, 3000);
+        } else {
+          alert(data.detail || "Could not update profile.");
+        }
+      });
+    }
+
     window.addEventListener("load", () => {
       const params = new URLSearchParams(window.location.search);
       const scanTarget = params.get("scan");

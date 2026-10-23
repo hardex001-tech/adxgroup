@@ -47,10 +47,10 @@ def generate_ai_executive_summary(scan_result: Dict[str, Any]) -> str:
 
     if not failed:
         return (
-            f"ADX AI Assessment for {domain} (Grade {grade} — {score}/100): "
+            f"ADX AI Assessment for {domain} (Grade {grade}, Score {score}/100): "
             f"All 5 external diagnostic gates returned TRUE. SSL/TLS encryption, anti-spoofing DNS records (SPF/DMARC), "
             f"HTTP defensive headers, and asset exposure controls meet enterprise baseline standards. "
-            f"Recommended Next Step: Deploy automated uptime & drift monitoring or integrate internal AI document search (RAG)."
+            f"Recommended Next Step: Deploy automated uptime and drift monitoring or integrate internal AI document search (RAG)."
         )
 
     failed_names = ", ".join(g["vector"] for g in failed)
@@ -75,10 +75,10 @@ def generate_ai_executive_summary(scan_result: Dict[str, Any]) -> str:
 
     impact_str = " ".join(critical_notes[:2])
     return (
-        f"ADX AI Root-Cause Brief for {domain} (Grade {grade} — {score}/100): "
+        f"ADX AI Root-Cause Brief for {domain} (Grade {grade}, Score {score}/100): "
         f"{len(failed)} of 5 diagnostic gates returned FALSE ({failed_names}). "
         f"Business Impact: {impact_str} "
-        f"ADX Group can remediate all identified gaps and lock down the perimeter within 24–48 hours."
+        f"ADX Group can remediate all identified gaps and lock down the perimeter within 24 to 48 hours."
     )
 
 

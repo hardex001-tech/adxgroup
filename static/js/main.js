@@ -37,9 +37,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const isAuth = Boolean(data.is_authenticated);
 
         resultsBox.classList.remove("hidden");
-        domainTitle.textContent = `${data.domain} — Diagnostic Truth Table (${data.timestamp})`;
+        domainTitle.textContent = `${data.domain} | Diagnostic Report (${data.timestamp})`;
         scoreValue.textContent = `${data.score}/100`;
-        gradeBadge.textContent = `GRADE ${data.grade} • ${data.risk_level}`;
+        gradeBadge.textContent = `GRADE ${data.grade} | ${data.risk_level}`;
         aiSummaryText.textContent = data.ai_executive_summary;
 
         if (outreachTextarea) {

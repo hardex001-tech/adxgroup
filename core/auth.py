@@ -223,6 +223,25 @@ def delete_session(token: Optional[str]) -> None:
         conn.commit()
 
 
+def update_user_profile(user_id: int, name: str, company: str) -> Dict[str, Any]:
+    """Update a user's display name and company in Account Settings."""
+    init_db()
+    clean_name = name.strip()
+    if not clean_name:
+        raise ValueError("Name cannot be empty.")
+    with _get_conn() as conn:
+        conn.execute(
+            "UPDATE users SET name = ?, company = ? WHERE id = ?",
+            (clean_name, company.strip(), user_id),
+        )
+        user = conn.execute(
+            "SELECT id, name, email, company, provider, role, created_at FROM users WHERE id = ?",
+            (user_id,),
+        ).fetchone()
+        conn.commit()
+    return dict(user)
+
+
 def record_scan_event(scan_data: Dict[str, Any], user: Optional[Dict[str, Any]] = None) -> int:
     """Save every domain scan to the database and update monitored_domains if logged in."""
     init_db()

@@ -30,6 +30,7 @@ from core.auth import (
     login_email_user,
     record_scan_event,
     register_email_user,
+    update_user_profile,
 )
 from core.notifier import get_all_leads, record_client_lead
 from core.scanner import normalize_domain, run_full_diagnostic
@@ -96,6 +97,23 @@ class OAuthQuickRequest(BaseModel):
 
 class AddDomainRequest(BaseModel):
     domain: str
+
+
+class ProfileUpdateRequest(BaseModel):
+    name: str
+    company: Optional[str] = ""
+
+
+@asgi_app.post("/api/auth/profile")
+async def api_update_profile(request: Request, payload: ProfileUpdateRequest):
+    user = _current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    try:
+        updated = update_user_profile(user["id"], payload.name, payload.company or "")
+        return {"ok": True, "user": updated}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
 
 
 @asgi_app.get("/", response_class=HTMLResponse)

@@ -36,12 +36,12 @@
       <a href="/admin" class="brand">
         <img src="/static/logo.svg" alt="ADX Group Emblem" style="width: 38px; height: 38px; border-radius: 9px;" />
         <div>
-          <span class="brand-text">ADX COMMAND CENTER</span>
-          <span class="brand-sub">EXECUTIVE OWNER TELEMETRY &amp; LEADS</span>
+          <span class="brand-text">ADX GROUP</span>
+          <span class="brand-motto">Silent Innovation. Absolute Defense.</span>
         </div>
       </a>
       <div style="display: flex; align-items: center; gap: 12px;">
-        <a href="/dashboard" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem;">Client View</a>
+        <a href="/dashboard" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem;">Workspace &amp; Settings</a>
         <a href="/" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem;">Public Site</a>
         <a href="/logout" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem; color: #f87171;">Sign Out</a>
       </div>
@@ -50,32 +50,32 @@
 
   <main class="container" style="padding: 36px 24px 64px;">
     <div>
-      <span class="div-tag">PRIVATE EXECUTIVE DESK // ADX GROUP HOLDING</span>
+      <span class="section-eyebrow">Executive Telemetry</span>
       <h1 style="font-size: 1.9rem; font-weight: 800;">ADX Group Owner Command Center</h1>
       <p style="color: var(--text-muted); font-size: 0.95rem;">
-        Live radar of every user who signed up, every domain scanned on your platform, and all inbound client project briefs.
+        Live directory of every registered account, every domain scanned on your platform, and all inbound client project requests.
       </p>
     </div>
 
     <!-- KPI Row -->
     <div class="kpi-grid">
       <div class="kpi-card">
-        <span class="div-tag">REGISTERED ACCOUNTS</span>
+        <span class="section-eyebrow">Registered Accounts</span>
         <div class="kpi-val">{{ admin_data.total_users }}</div>
         <div style="font-size: 0.8rem; color: var(--text-muted);">Google, GitHub &amp; Email Sign-ups</div>
       </div>
       <div class="kpi-card">
-        <span class="div-tag">TOTAL DOMAINS SCANNED</span>
+        <span class="section-eyebrow">Total Domains Scanned</span>
         <div class="kpi-val">{{ admin_data.total_scans }}</div>
         <div style="font-size: 0.8rem; color: var(--text-muted);">Live 5-Vector Diagnostics Run</div>
       </div>
       <div class="kpi-card">
-        <span class="div-tag">VULNERABLE TARGETS (&lt;75)</span>
+        <span class="section-eyebrow">Vulnerable Targets (&lt;75)</span>
         <div class="kpi-val" style="color: var(--accent-amber);">{{ admin_data.high_risk_scans }}</div>
         <div style="font-size: 0.8rem; color: var(--text-muted);">Ready for $350 Audit Outreach</div>
       </div>
       <div class="kpi-card">
-        <span class="div-tag">DIRECT AUDIT INQUIRIES</span>
+        <span class="section-eyebrow">Direct Audit Inquiries</span>
         <div class="kpi-val" style="color: var(--accent-emerald);">{{ leads | length }}</div>
         <div style="font-size: 0.8rem; color: var(--text-muted);">Routed to contact@adxgroup.tech</div>
       </div>
@@ -83,7 +83,7 @@
 
     <!-- 1. Registered Users Table -->
     <div class="panel-card" style="margin-bottom: 32px;">
-      <span class="div-tag">VERIFIED ACCOUNTS // LEAD DATABASE</span>
+      <span class="section-eyebrow">Verified Accounts &amp; Identities</span>
       <h3>Registered Clients &amp; Users</h3>
       <div class="truth-table-wrap" style="margin-top: 14px;">
         <table class="truth-table">
@@ -102,10 +102,10 @@
             {% if admin_data.users %}
               {% for u in admin_data.users %}
               <tr>
-                <td style="font-family: var(--font-mono);">#{{ u.id }}</td>
+                <td style="font-family: var(--font-mono);">#ADX-00{{ u.id }}</td>
                 <td><strong>{{ u.name }}</strong></td>
                 <td style="font-family: var(--font-mono); color: var(--accent-cyan);">{{ u.email }}</td>
-                <td>{{ u.company or '—' }}</td>
+                <td>{{ u.company or 'Personal' }}</td>
                 <td><span class="badge-true">{{ u.provider | upper }}</span></td>
                 <td>{{ u.role | upper }}</td>
                 <td style="font-size: 0.8rem; color: var(--text-muted);">{{ u.created_at }}</td>
@@ -123,10 +123,10 @@
 
     <!-- 2. Global Domain Scan Radar -->
     <div class="panel-card" style="margin-bottom: 32px;">
-      <span class="div-tag">GLOBAL SCAN TELEMETRY // 1-CLICK OUTREACH</span>
+      <span class="section-eyebrow">Global Scan Telemetry</span>
       <h3>All Domains Scanned Across ADX Group</h3>
       <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 12px;">
-        Every domain scanned by visitors or logged-in clients appears here. Click <strong>Copy Advisory</strong> to copy the ready-to-send B2B outreach email for that company.
+        Every domain scanned by logged-in users appears here. Click <strong>Copy Advisory Email</strong> to copy the ready-to-send B2B outreach email for that company.
       </p>
       <div class="truth-table-wrap">
         <table class="truth-table">
@@ -176,8 +176,8 @@
 
     <!-- 3. Direct Client Audit & Project Requests -->
     <div class="panel-card">
-      <span class="div-tag">INBOUND DISPATCHES // CONTACT@ADXGROUP.TECH</span>
-      <h3>Submitted Project &amp; Security Audit Requests</h3>
+      <span class="section-eyebrow">Inbound Project Requests</span>
+      <h3>Submitted Project &amp; Security Audit Scopes</h3>
       <div class="truth-table-wrap" style="margin-top: 14px;">
         <table class="truth-table">
           <thead>
@@ -199,8 +199,8 @@
                 <td><strong>{{ l.company_or_name }}</strong></td>
                 <td style="font-family: var(--font-mono); color: var(--accent-cyan);">{{ l.email }}</td>
                 <td>{{ l.division }}</td>
-                <td style="font-family: var(--font-mono);">{{ l.domain or '—' }}</td>
-                <td style="font-size: 0.85rem;">{{ l.message or '—' }}</td>
+                <td style="font-family: var(--font-mono);">{{ l.domain or 'N/A' }}</td>
+                <td style="font-size: 0.85rem;">{{ l.message or 'N/A' }}</td>
                 <td style="font-size: 0.78rem; color: var(--text-muted);">{{ l.timestamp }}</td>
               </tr>
               {% endfor %}
@@ -214,6 +214,13 @@
       </div>
     </div>
   </main>
+
+  <footer class="site-footer" style="margin-top: 0; padding: 32px 0;">
+    <div class="container footer-bottom" style="border-top: none; padding-top: 0;">
+      <div>&copy; 2026 ADX Group. All rights reserved. | Silent Innovation. Absolute Defense.</div>
+      <div>adxgroup.tech</div>
+    </div>
+  </footer>
 
   <script>
     function copyAdvisory(id, btn) {
