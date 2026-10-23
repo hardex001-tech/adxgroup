@@ -286,6 +286,22 @@
       document.getElementById("oauth-modal").classList.add("hidden");
     }
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const pendingScan = urlParams.get("scan") || "";
+    if (pendingScan) {
+      const subText = document.querySelector(".auth-header p");
+      if (subText) {
+        subText.innerHTML = `Sign in to unlock the live 5-Vector Security Report for <strong style="color: var(--accent-cyan); font-family: var(--font-mono);">${pendingScan}</strong>`;
+      }
+    }
+
+    function getRedirectUrl(defaultUrl) {
+      if (pendingScan) {
+        return `/dashboard?scan=${encodeURIComponent(pendingScan)}`;
+      }
+      return defaultUrl || "/dashboard";
+    }
+
     document.getElementById("oauth-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const provider = document.getElementById("oauth-provider").value;
@@ -300,7 +316,7 @@
       });
       const data = await res.json();
       if (res.ok && data.ok) {
-        window.location.href = data.redirect || "/dashboard";
+        window.location.href = getRedirectUrl(data.redirect);
       } else {
         alert(data.detail || "Authentication failed.");
       }
@@ -320,7 +336,7 @@
       });
       const data = await res.json();
       if (res.ok && data.ok) {
-        window.location.href = data.redirect || "/dashboard";
+        window.location.href = getRedirectUrl(data.redirect);
       } else {
         errBox.textContent = data.detail || "Invalid email or password.";
       }
@@ -342,7 +358,7 @@
       });
       const data = await res.json();
       if (res.ok && data.ok) {
-        window.location.href = data.redirect || "/dashboard";
+        window.location.href = getRedirectUrl(data.redirect);
       } else {
         errBox.textContent = data.detail || "Could not create account.";
       }

@@ -259,13 +259,18 @@ async def health_check():
 
 @asgi_app.post("/api/scan")
 async def api_scan_domain(request: Request, payload: ScanRequest):
-    """Run the 5-vector security diagnostic and log to telemetry database."""
+    """Run the 5-vector security diagnostic inside the authenticated Console."""
     user = _current_user(request)
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Please sign in with Google, GitHub, or Work Email to run the 5-Vector Security Diagnostic.",
+        )
     try:
         scan_data = await run_full_diagnostic(payload.domain)
         scan_data["ai_executive_summary"] = generate_ai_executive_summary(scan_data)
         record_scan_event(scan_data, user=user)
-        scan_data["is_authenticated"] = bool(user)
+        scan_data["is_authenticated"] = True
         return JSONResponse(content={"ok": True, "data": scan_data})
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
@@ -277,7 +282,10 @@ async def api_scan_domain(request: Request, payload: ScanRequest):
 
 
 @asgi_app.post("/api/chat")
-async def api_ai_consultant(payload: ChatRequest):
+async def api_ai_consultant(request: Request, payload: ChatRequest):
+    user = _current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Please sign in to access the ADX AI Consultant.")
     result = await ask_adx_ai_consultant(payload.message)
     return JSONResponse(content={"ok": True, "data": result})
 

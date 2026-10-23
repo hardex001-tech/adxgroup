@@ -6,7 +6,7 @@
   <title>ADX Group | Enterprise AI, Cloud Infrastructure & Cybersecurity Systems</title>
   <meta name="description" content="ADX Group engineers autonomous AI workflows, hardened cloud infrastructure, and deep cybersecurity diagnostics for global enterprises." />
   <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
-  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/style.css?v=3" />
 </head>
 <body>
 
@@ -21,29 +21,28 @@
         </div>
       </a>
       <nav class="nav-links">
-        <a href="#diagnostic">Live Security Scanner</a>
-        <a href="#divisions">Divisions</a>
-        <a href="#protection">4-Layer Defense</a>
-        <a href="#consultant">AI Consultant</a>
+        <a href="#divisions">Operating Divisions</a>
+        <a href="#protection">4-Layer Security Standard</a>
+        <a href="#architecture">How It Works</a>
         {% if user %}
           {% if user.role == 'admin' %}
-          <a href="/admin" style="color: var(--accent-cyan); font-weight: 700;">⚡ Owner Console</a>
+          <a href="/admin" style="color: var(--accent-cyan); font-weight: 700;">⚡ Owner Command Center</a>
           {% endif %}
-          <a href="/dashboard" class="btn btn-primary">Open Client Console →</a>
+          <a href="/dashboard" class="btn btn-primary">Enter ADX Console →</a>
         {% else %}
           <a href="/login" style="color: var(--text-main); font-weight: 600;">Sign In</a>
-          <a href="/login" class="btn btn-primary">Get Started Free</a>
+          <a href="/login" class="btn btn-primary">Get Started →</a>
         {% endif %}
       </nav>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="hero">
+  <!-- Hero Section (Front Door Only — Redirects to Auth Gate to Use Tools) -->
+  <section class="hero" style="padding: 96px 0 72px;">
     <div class="container">
       <div class="status-pill">
         <span class="pulse-dot"></span>
-        ADX GLOBAL SYSTEMS • OPERATIONAL 24/7
+        ADX GLOBAL SYSTEMS • ENTERPRISE AI &amp; CYBER DEFENSE
       </div>
       <h1>
         Autonomous <span class="gradient-text">AI Engineering</span> &amp; Multi-Layer Cyber Defense
@@ -51,85 +50,32 @@
       <p>
         ADX Group builds private enterprise AI systems, fault-tolerant cloud infrastructure, and automated security protection for high-growth companies worldwide.
       </p>
-      <div class="hero-actions">
-        <a href="#diagnostic" class="btn btn-primary">Run Free AI Domain Diagnostic</a>
-        {% if user %}
-          <a href="/dashboard" class="btn btn-outline">Go to My Console ({{ user.name }})</a>
-        {% else %}
-          <a href="/login" class="btn btn-outline">Sign In with Google / GitHub</a>
-        {% endif %}
-      </div>
-    </div>
-  </section>
 
-  <!-- Interactive 5-Vector AI Security & Infrastructure Scanner -->
-  <section id="diagnostic" class="scanner-section">
-    <div class="container">
-      <div class="scanner-card">
-        <div class="scanner-header">
-          <div>
-            <span class="div-tag">LIVE DIAGNOSTIC ENGINE // 5-VECTOR TRUTH TABLE</span>
-            <h2>Instant Website &amp; Infrastructure Security Troubleshooter</h2>
-            <p>Enter any company domain to inspect SSL/TLS encryption, email spoofing defenses (SPF/DMARC), HTTP security headers, and exposed configurations in real time.</p>
-          </div>
+      <!-- Domain Gate Prompt: Typing a domain here sends the visitor to /login before running the scan -->
+      <div style="max-width: 640px; margin: 36px auto 0; background: var(--bg-card); border: 1px solid var(--border-accent); border-radius: 14px; padding: 18px;">
+        <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-cyan); margin-bottom: 10px; text-align: left;">
+          🔒 PROTECTED CONSOLE TOOL // SIGN IN REQUIRED TO RUN DIAGNOSTIC
         </div>
-
-        <form id="scan-form" class="scanner-form">
+        <form id="landing-gate-form" class="scanner-form" style="margin-bottom: 0;">
           <input
             type="text"
-            id="scan-domain-input"
+            id="landing-domain-input"
             class="scanner-input"
-            placeholder="Enter target domain (e.g., example.com or startup.io)"
+            placeholder="Enter your company domain (e.g., company.com)"
             required
           />
-          <button type="submit" id="scan-submit-btn" class="btn btn-primary">
-            Run Deep Diagnostic
+          <button type="submit" class="btn btn-primary">
+            Sign In to Audit Domain →
           </button>
         </form>
+      </div>
 
-        <!-- Dynamic Results Container -->
-        <div id="scan-results" class="scan-results hidden">
-          <div class="score-banner">
-            <div>
-              <div id="scan-domain-title" style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-muted);"></div>
-              <div id="scan-grade-badge" style="font-weight: 700; font-size: 1.15rem; margin-top: 4px;"></div>
-            </div>
-            <div style="text-align: right;">
-              <span style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono); display: block;">PERIMETER SCORE</span>
-              <span id="scan-score-val" class="score-number">100/100</span>
-            </div>
-          </div>
-
-          <div id="scan-ai-summary" class="ai-summary-box"></div>
-
-          <div class="truth-table-wrap">
-            <table class="truth-table">
-              <thead>
-                <tr>
-                  <th style="width: 110px;">Gate ID</th>
-                  <th style="width: 240px;">Security Vector</th>
-                  <th style="width: 140px;">Logic State</th>
-                  <th>Diagnostic Finding &amp; Automated Remediation</th>
-                </tr>
-              </thead>
-              <tbody id="gates-table-body"></tbody>
-            </table>
-          </div>
-
-          <!-- Ready-to-Send Client Advisory Generator -->
-          <div class="outreach-box">
-            <div class="outreach-header">
-              <div>
-                <strong style="font-size: 0.95rem;">Generated Executive Security Advisory</strong>
-                <p style="font-size: 0.82rem; color: var(--text-muted);">Ready-to-send technical briefing with remediation steps for this domain.</p>
-              </div>
-              <button type="button" id="copy-outreach-btn" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem;">
-                Copy Advisory Email
-              </button>
-            </div>
-            <textarea id="outreach-email-text" class="outreach-textarea" readonly></textarea>
-          </div>
-        </div>
+      <div class="hero-actions" style="margin-top: 24px;">
+        {% if user %}
+          <a href="/dashboard" class="btn btn-primary">Open My ADX Console ({{ user.name }}) →</a>
+        {% else %}
+          <a href="/login" class="btn btn-outline">Continue with Google or GitHub</a>
+        {% endif %}
       </div>
     </div>
   </section>
@@ -140,7 +86,7 @@
       <div class="section-title">
         <span class="div-tag">CORPORATE ARCHITECTURE</span>
         <h2>Three Specialized Operating Divisions</h2>
-        <p>Integrated engineering units delivering security compliance, cloud reliability, and private AI automation.</p>
+        <p>Integrated engineering units delivering security compliance, cloud reliability, and private AI automation inside the ADX Console.</p>
       </div>
 
       <div class="grid-3">
@@ -217,72 +163,20 @@
     </div>
   </section>
 
-  <!-- 24/7 AI Consultant & Direct Contact Desk -->
-  <section id="consultant" class="section-Block">
+  <!-- How the Console Works CTA -->
+  <section id="architecture" class="section-Block" style="padding-top: 10px;">
     <div class="container">
-      <div class="split-grid">
-
-        <!-- Left: 24/7 ADX AI Consultant -->
-        <div class="panel-card">
-          <span class="div-tag">AUTONOMOUS DESK // GATE-03 PROTECTED</span>
-          <h3>24/7 ADX AI Systems Consultant</h3>
-          <p style="color: var(--text-muted); font-size: 0.9rem;">Ask about fixed-scope audit pricing, AI automation, white-label agency partnerships, or cloud security.</p>
-
-          <div id="ai-chat-log" class="chat-log">
-            <div class="chat-msg chat-bot">Hello! I am the ADX Group AI Systems Consultant. Ask me about our security audits, private AI assistants, cloud deployments, or white-label agency partnerships.</div>
-          </div>
-
-          <form id="ai-chat-form" style="display: flex; gap: 10px;">
-            <input
-              type="text"
-              id="ai-chat-input"
-              class="form-control"
-              placeholder="Ask about pricing, AI systems, or security audits..."
-              required
-            />
-            <button type="submit" class="btn btn-primary">Send</button>
-          </form>
+      <div class="scanner-card" style="text-align: center; padding: 48px 28px;">
+        <span class="div-tag">CLIENT WORKSPACE ACCESS</span>
+        <h2 style="font-size: 2rem; margin-bottom: 12px;">Unlock the ADX Security Scanner &amp; AI Consultant</h2>
+        <p style="color: var(--text-muted); max-width: 640px; margin: 0 auto 28px;">
+          Sign in with your Google, GitHub, or Work Email account to enter the ADX Client Console—where you can run live 5-vector domain diagnostics, view exact remediation code, monitor your web assets 24/7, and consult with our AI Systems Desk.
+        </p>
+        <div class="hero-actions">
+          <a href="/login" class="btn btn-primary" style="padding: 14px 32px; font-size: 1rem;">
+            Sign In / Create Free Account →
+          </a>
         </div>
-
-        <!-- Right: Institutional Contact & Audit Request Form -->
-        <div id="contact" class="panel-card">
-          <span class="div-tag">DIRECT DISPATCH // CONTACT@ADXGROUP.TECH</span>
-          <h3>Request an Audit or Engineering Scope</h3>
-          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
-            Direct inquiries are routed immediately to our engineering desk at <strong>contact@adxgroup.tech</strong>.
-          </p>
-
-          <form id="lead-form">
-            <div class="form-group">
-              <label>Your Name or Company Name *</label>
-              <input type="text" id="lead-name" class="form-control" placeholder="e.g., Acme FinTech Ltd" required />
-            </div>
-            <div class="form-group">
-              <label>Work Email Address *</label>
-              <input type="email" id="lead-email" class="form-control" placeholder="you@company.com" required />
-            </div>
-            <div class="form-group">
-              <label>Service Division</label>
-              <select id="lead-division" class="form-control">
-                <option value="ADX Cyber — Perimeter Security Audit ($350)">ADX Cyber — External Security Audit</option>
-                <option value="ADX Cloud — Cloud Sentinel Retainer ($350/mo)">ADX Cloud — 24/7 Cloud Sentinel Retainer</option>
-                <option value="ADX Intelligence — Private AI / RAG System">ADX Intelligence — Private AI &amp; Automation</option>
-                <option value="White-Label Agency Partnership">White-Label Agency Partnership</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Target Website / Domain (Optional)</label>
-              <input type="text" id="lead-domain" class="form-control" placeholder="https://company.com" />
-            </div>
-            <div class="form-group">
-              <label>Project Brief or Security Requirement</label>
-              <textarea id="lead-message" class="form-control" rows="3" placeholder="Tell us what you need secured, automated, or deployed..."></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Dispatch Request to ADX Group</button>
-            <div id="lead-status" style="margin-top: 12px; font-size: 0.88rem; font-weight: 600;"></div>
-          </form>
-        </div>
-
       </div>
     </div>
   </section>
@@ -295,6 +189,21 @@
     </div>
   </footer>
 
-  <script src="/static/js/main.js"></script>
+  <script>
+    const gateForm = document.getElementById("landing-gate-form");
+    if (gateForm) {
+      gateForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const domain = document.getElementById("landing-domain-input").value.trim();
+        if (!domain) return;
+        const encoded = encodeURIComponent(domain);
+        {% if user %}
+          window.location.href = `/dashboard?scan=${encoded}`;
+        {% else %}
+          window.location.href = `/login?scan=${encoded}`;
+        {% endif %}
+      });
+    }
+  </script>
 </body>
 </html>

@@ -261,9 +261,50 @@
         </form>
       </div>
     </div>
+
+    <!-- Section 4: Direct Engineering & Audit Dispatch Form (Inside Authenticated Console) -->
+    <div id="contact" class="panel-card" style="margin-top: 32px;">
+      <span class="div-tag">DIRECT DISPATCH // CONTACT@ADXGROUP.TECH</span>
+      <h3>Request Done-For-You Security Remediation or Custom AI Build</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+        Want ADX Group engineers to apply these security fixes, harden your server, or build a custom AI assistant? Submit your scope below:
+      </p>
+
+      <form id="lead-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Your Name or Company *</label>
+          <input type="text" id="lead-name" class="form-control" value="{{ user.company or user.name }}" required />
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Verified Contact Email *</label>
+          <input type="email" id="lead-email" class="form-control" value="{{ user.email }}" required />
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Service Division</label>
+          <select id="lead-division" class="form-control">
+            <option value="ADX Cyber — Full Remediation & Hardening ($350)">ADX Cyber — Full Remediation &amp; Hardening ($350)</option>
+            <option value="ADX Cloud — 24/7 Cloud Sentinel Retainer ($350/mo)">ADX Cloud — 24/7 Cloud Sentinel Retainer ($350/mo)</option>
+            <option value="ADX Intelligence — Private AI / RAG System">ADX Intelligence — Private AI &amp; Automation</option>
+            <option value="White-Label Agency Partnership">White-Label Agency Partnership</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Target Domain</label>
+          <input type="text" id="lead-domain" class="form-control" placeholder="https://company.com" />
+        </div>
+        <div class="form-group" style="grid-column: 1 / -1; margin-bottom: 0;">
+          <label>Engineering Scope or Security Requirement</label>
+          <textarea id="lead-message" class="form-control" rows="2" placeholder="Tell us which vulnerabilities or systems you want our engineers to handle..."></textarea>
+        </div>
+        <div style="grid-column: 1 / -1;">
+          <button type="submit" class="btn btn-primary">Dispatch Request to ADX Engineering Desk →</button>
+          <span id="lead-status" style="margin-left: 14px; font-size: 0.88rem; font-weight: 600;"></span>
+        </div>
+      </form>
+    </div>
   </main>
 
-  <script src="/static/js/main.js"></script>
+  <script src="/static/js/main.js?v=3"></script>
   <script>
     const addDomainForm = document.getElementById("add-domain-form");
     if (addDomainForm) {
@@ -291,6 +332,15 @@
       input.scrollIntoView({ behavior: "smooth", block: "center" });
       btn.click();
     }
+
+    // Auto-run scan if redirected from landing page with ?scan=domain
+    window.addEventListener("load", () => {
+      const params = new URLSearchParams(window.location.search);
+      const scanTarget = params.get("scan");
+      if (scanTarget) {
+        triggerQuickScan(scanTarget);
+      }
+    });
   </script>
 </body>
 </html>
