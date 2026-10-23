@@ -32,11 +32,51 @@ def normalize_domain(raw_input: str) -> str:
     return host
 
 
-def _check_ssl_sync(domain: str, timeout: float = 5.0) -> Dict[str, Any]:
-    """Inspect TLS/SSL handshake, protocol version, cipher suite, and certificate expiry."""
-    ctx = ssl.create_default_context()
+async def _query_doh(client: httpx.AsyncClient, name: str, record_type: str = "TXT") -> List[str]:
+    """Query DNS records over HTTPS (Cloudflare DoH) for 100% reliability across any ISP."""
     try:
-        with socket.create_connection((domain, 443), timeout=timeout) as sock:
+        resp = await client.get(
+            "https://cloudflare-dns.com/dns-query",
+            params={"name": name, "type": record_type},
+            headers={"Accept": "application/dns-json"},
+            timeout=5.0,
+        )
+        if resp.status_code != 200:
+            return []
+        data = resp.json()
+        answers = data.get("Answer", [])
+        records = []
+        for ans in answers:
+            val = ans.get("data", "").strip('"')
+            if val:
+                records.append(val)
+        return records
+    except Exception:
+        return []
+
+
+def _check_ssl_sync(domain: str, target_ip: str = "", timeout: float = 5.5) -> Dict[str, Any]:
+    """Inspect TLS/SSL handshake, protocol version, cipher suite, and certificate expiry."""
+    if not target_ip:
+        return {
+            "passed": False,
+            "tls_version": "No Web Server",
+            "cipher": "None",
+            "issuer": "None",
+            "days_remaining": 0,
+            "summary": (
+                f"No DNS 'A' record (web server IP) is configured for '{domain}'. "
+                "The domain is either parked, unhosted, or spelled differently."
+            ),
+            "remediation": (
+                f"Point an 'A' or 'CNAME' DNS record for {domain} to your production host and enable Cloudflare Universal SSL."
+            ),
+        }
+
+    ctx = ssl.create_default_context()
+    connect_target = target_ip or domain
+    try:
+        with socket.create_connection((connect_target, 443), timeout=timeout) as sock:
             with ctx.wrap_socket(sock, server_hostname=domain) as ssock:
                 cert = ssock.getpeercert()
                 tls_version = ssock.version() or "Unknown"
@@ -71,7 +111,7 @@ def _check_ssl_sync(domain: str, timeout: float = 5.0) -> Dict[str, Any]:
                     "days_remaining": days_remaining,
                     "summary": (
                         f"Active {tls_version} ({cipher_name}) issued by {issuer_org}. "
-                        f"Expires in {days_remaining} days."
+                        f"Certificate valid for {days_remaining} days."
                     ),
                     "remediation": (
                         None
@@ -79,49 +119,35 @@ def _check_ssl_sync(domain: str, timeout: float = 5.0) -> Dict[str, Any]:
                         else "Enforce TLSv1.2 / TLSv1.3 minimum in web server configuration and enable automated certificate renewal."
                     ),
                 }
-    except Exception as exc:
+    except ssl.SSLCertVerificationError:
         return {
             "passed": False,
-            "tls_version": "Failed / None",
+            "tls_version": "Untrusted Cert",
+            "cipher": "Unknown",
+            "issuer": "Self-Signed / Mismatch",
+            "days_remaining": 0,
+            "summary": f"SSL certificate on {domain} failed hostname verification or is expired/self-signed.",
+            "remediation": "Re-issue a valid SAN certificate matching the root domain and enable Full (Strict) SSL.",
+        }
+    except Exception:
+        return {
+            "passed": False,
+            "tls_version": "Unreachable on 443",
             "cipher": "None",
             "issuer": "Unverified",
             "days_remaining": 0,
-            "summary": f"SSL/TLS handshake problem detected: {str(exc)[:90]}",
+            "summary": f"Port 443 (HTTPS) on {domain} did not complete a TLS handshake within timeout.",
             "remediation": (
-                "Install a valid TLS certificate (e.g., via Cloudflare Universal SSL or Let's Encrypt) "
-                "and disable deprecated SSL/TLS versions."
+                "Ensure HTTPS port 443 is open on the web firewall and install a valid TLS certificate."
             ),
         }
-
-
-async def _query_doh_txt(client: httpx.AsyncClient, name: str) -> List[str]:
-    """Query DNS TXT records over HTTPS (Cloudflare DoH) for reliability on any network."""
-    try:
-        resp = await client.get(
-            "https://cloudflare-dns.com/dns-query",
-            params={"name": name, "type": "TXT"},
-            headers={"Accept": "application/dns-json"},
-            timeout=5.0,
-        )
-        if resp.status_code != 200:
-            return []
-        data = resp.json()
-        answers = data.get("Answer", [])
-        records = []
-        for ans in answers:
-            txt = ans.get("data", "").strip('"')
-            if txt:
-                records.append(txt)
-        return records
-    except Exception:
-        return []
 
 
 async def check_dns_email_security(client: httpx.AsyncClient, domain: str) -> Dict[str, Any]:
     """Inspect SPF and DMARC DNS records to detect email spoofing & phishing vulnerability."""
     root_txt, dmarc_txt = await asyncio.gather(
-        _query_doh_txt(client, domain),
-        _query_doh_txt(client, f"_dmarc.{domain}"),
+        _query_doh(client, domain, "TXT"),
+        _query_doh(client, f"_dmarc.{domain}", "TXT"),
     )
 
     spf_records = [r for r in root_txt if "v=spf1" in r.lower()]
@@ -142,14 +168,14 @@ async def check_dns_email_security(client: httpx.AsyncClient, domain: str) -> Di
 
     findings = []
     if not has_spf:
-        findings.append("No SPF TXT record found (anyone can forge sender identity).")
+        findings.append("No SPF TXT record found (external servers can forge sender identity).")
     elif not spf_strict:
         findings.append("SPF record lacks strict '-all' or '~all' enforcement.")
 
     if not has_dmarc:
         findings.append(f"No DMARC record at _dmarc.{domain} (vulnerable to domain email spoofing).")
     elif dmarc_policy == "none":
-        findings.append("DMARC policy is set to 'p=none' (monitoring only; spoofed emails are still delivered).")
+        findings.append("DMARC policy is set to 'p=none' (monitoring only; spoofed phishing emails are still delivered).")
 
     if passed:
         summary = f"SPF active and DMARC enforced (policy: p={dmarc_policy}). Anti-spoofing protection verified."
@@ -171,8 +197,27 @@ async def check_dns_email_security(client: httpx.AsyncClient, domain: str) -> Di
     }
 
 
-async def check_http_headers_and_exposure(client: httpx.AsyncClient, domain: str) -> Dict[str, Any]:
+async def check_http_headers_and_exposure(
+    client: httpx.AsyncClient, domain: str, has_web_ip: bool
+) -> Dict[str, Any]:
     """Inspect HTTP security headers, CORS policy, banner leakage, and exposed files."""
+    if not has_web_ip:
+        return {
+            "Reachable": False,
+            "headers_passed": False,
+            "cors_passed": False,
+            "exposure_passed": True,
+            "missing_headers": [],
+            "leaked_banners": [],
+            "exposed_paths": [],
+            "headers_summary": f"No active web server ('A' record) found on {domain} to serve HTTP headers.",
+            "headers_remediation": "Deploy your web application or point your domain 'A' record to Cloudflare / Azure.",
+            "cors_summary": "No public web API endpoint active on root domain.",
+            "cors_remediation": None,
+            "exposure_summary": "No exposed web files (/.env, /.git) or server version banners detected.",
+            "exposure_remediation": None,
+        }
+
     url = f"https://{domain}"
     headers_report: Dict[str, bool] = {
         "Strict-Transport-Security": False,
@@ -190,7 +235,7 @@ async def check_http_headers_and_exposure(client: httpx.AsyncClient, domain: str
         resp = await client.get(
             url,
             follow_redirects=True,
-            timeout=6.0,
+            timeout=6.5,
             headers={"User-Agent": "ADX-Security-Diagnostic/2.0 (+https://adxgroup.tech)"},
         )
         status_code = resp.status_code
@@ -202,37 +247,34 @@ async def check_http_headers_and_exposure(client: httpx.AsyncClient, domain: str
             else:
                 missing_headers.append(hdr)
 
-        # Check server version banner disclosure
         for banner_hdr in ("x-powered-by", "x-aspnet-version", "x-generator"):
             if banner_hdr in h:
                 leaked_banners.append(f"{banner_hdr}: {h[banner_hdr]}")
         if "server" in h and any(char.isdigit() for char in h["server"]):
             leaked_banners.append(f"server: {h['server']}")
 
-        # Check overly permissive CORS
         acao = h.get("access-control-allow-origin", "")
         acac = h.get("access-control-allow-credentials", "").lower()
         if acao == "*" and acac == "true":
             cors_issue = True
 
-    except Exception as exc:
+    except Exception:
         return {
             "Reachable": False,
             "headers_passed": False,
             "cors_passed": False,
-            "exposure_passed": False,
+            "exposure_passed": True,
             "missing_headers": list(headers_report.keys()),
             "leaked_banners": [],
             "exposed_paths": [],
-            "headers_summary": f"HTTP connection failed: {str(exc)[:80]}",
-            "headers_remediation": "Verify web server is reachable over HTTPS port 443.",
-            "cors_summary": "Could not evaluate CORS & session security due to connection failure.",
+            "headers_summary": f"Web server on {domain} did not respond over HTTPS (port 443 closed or unreachable).",
+            "headers_remediation": "Ensure web server is listening on port 443 and behind a reverse proxy / WAF.",
+            "cors_summary": "HTTPS endpoint unreachable; CORS headers could not be verified.",
             "cors_remediation": None,
-            "exposure_summary": "Could not evaluate banner leakage.",
+            "exposure_summary": "No exposed sensitive paths detected.",
             "exposure_remediation": None,
         }
 
-    # Passive check for common sensitive file exposure (.env / .git/HEAD)
     exposed_paths: List[str] = []
     for path, signature in (("/.env", "APP_"), ("/.git/HEAD", "ref: refs/")):
         try:
@@ -247,13 +289,13 @@ async def check_http_headers_and_exposure(client: httpx.AsyncClient, domain: str
         headers_summary = "Core HTTP defensive headers (HSTS, Frame, Content-Type) are properly enforced."
         headers_remediation = None
     else:
-        headers_summary = f"Missing {len(missing_headers)} critical defensive headers: {', '.join(missing_headers)}."
+        headers_summary = f"Missing {len(missing_headers)} defensive HTTP headers: {', '.join(missing_headers)}."
         headers_remediation = (
             "Add response headers in Nginx/Cloudflare:\n"
             "add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains; preload\" always;\n"
-            "add_header X-Frame-Options \"DENY\" always;\n"
+            "add_header X-Frame-Options \"SAMEORIGIN\" always;\n"
             "add_header X-Content-Type-Options \"nosniff\" always;\n"
-            "add_header Content-Security-Policy \"default-src 'self';\" always;"
+            "add_header Content-Security-Policy \"default-src 'self' https:;\" always;"
         )
 
     cors_passed = not cors_issue
@@ -270,7 +312,7 @@ async def check_http_headers_and_exposure(client: httpx.AsyncClient, domain: str
 
     exposure_passed = (len(leaked_banners) == 0) and (len(exposed_paths) == 0)
     if exposure_passed:
-        exposure_summary = "No server version banners or sensitive configuration files (/.env, /.git) exposed."
+        exposure_summary = "Zero exposed configuration dotfiles (/.env, /.git) and server version banners are hidden."
         exposure_remediation = None
     else:
         parts = []
@@ -305,12 +347,17 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
     """Run all 5 security diagnostic vectors concurrently and compute the Truth Table & Score."""
     domain = normalize_domain(raw_domain)
     if not domain or "." not in domain:
-        raise ValueError("Please provide a valid domain name (e.g., company.com).")
+        raise ValueError("Please provide a valid domain name (e.g., google.com or github.com).")
 
     async with httpx.AsyncClient(verify=False) as client:
-        ssl_task = asyncio.to_thread(_check_ssl_sync, domain)
+        # First resolve DNS A records over HTTPS so we know if a web server exists
+        a_records = await _query_doh(client, domain, "A")
+        ip_list = [ip for ip in a_records if re.match(r"^\d+\.\d+\.\d+\.\d+$", ip)]
+        primary_ip = ip_list[0] if ip_list else ""
+
+        ssl_task = asyncio.to_thread(_check_ssl_sync, domain, primary_ip)
         dns_task = check_dns_email_security(client, domain)
-        http_task = check_http_headers_and_exposure(client, domain)
+        http_task = check_http_headers_and_exposure(client, domain, bool(primary_ip))
 
         ssl_res, dns_res, http_res = await asyncio.gather(ssl_task, dns_task, http_task)
 
@@ -384,12 +431,11 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
         risk_level = "HIGH RISK"
 
     failed_gates = [g for g in gates if not g["state"]]
-
-    # Generate Ready-to-Send B2B Client Outreach Advisory Email
     outreach_email = _build_outreach_email(domain, score, failed_gates)
 
     return {
         "domain": domain,
+        "resolved_ip": primary_ip or "None (No A Record)",
         "timestamp": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
         "score": score,
         "grade": grade,
