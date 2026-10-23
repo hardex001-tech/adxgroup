@@ -1,0 +1,8 @@
+"""Local & Production ASGI Runner for ADX Group Portal."""
+
+import os
+import uvicorn
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run("app:asgi_app", host="0.0.0.0", port=port, reload=False)
