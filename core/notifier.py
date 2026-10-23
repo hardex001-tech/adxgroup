@@ -18,6 +18,15 @@ def _ensure_storage() -> None:
         LEADS_FILE.write_text("[]", encoding="utf-8")
 
 
+def get_all_leads() -> List[Dict[str, Any]]:
+    """Return all recorded client project and audit leads for the Owner Admin Console."""
+    _ensure_storage()
+    try:
+        return json.loads(LEADS_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+
 def record_client_lead(
     company_or_name: str,
     email: str,
@@ -41,11 +50,7 @@ def record_client_lead(
             "error": "GATE-04 FALSE: Please provide your name or company name.",
         }
 
-    _ensure_storage()
-    try:
-        existing: List[Dict[str, Any]] = json.loads(LEADS_FILE.read_text(encoding="utf-8"))
-    except Exception:
-        existing = []
+    existing = get_all_leads()
 
     entry = {
         "id": f"ADX-LEAD-{len(existing) + 101}",

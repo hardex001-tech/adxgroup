@@ -1,29 +1,46 @@
 """
 ADX Group (adxgroup.tech) — Main FastAPI Application Controller.
-Wraps FastAPI with a2wsgi for seamless compatibility on Azure App Service (Gunicorn WSGI)
-and local Uvicorn ASGI execution.
+Includes:
+1. Public Enterprise Landing Page (/)
+2. GitHub/Cloudflare-style Auth Gate (/login) with Google, GitHub & Email Sign-In
+3. Protected Client Console (/dashboard) with Domain Monitoring & Unlocked Code Fixes
+4. ADX Owner Command Center (/admin) with Full Lead & Scan Telemetry
+Wraps FastAPI with a2wsgi for seamless compatibility on Azure App Service (Gunicorn WSGI).
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from a2wsgi import ASGIMiddleware
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 from core.ai_engine import ask_adx_ai_consultant, generate_ai_executive_summary
-from core.notifier import record_client_lead
-from core.scanner import run_full_diagnostic
+from core.auth import (
+    add_monitored_domain,
+    create_or_login_oauth_user,
+    delete_session,
+    get_admin_command_center_data,
+    get_client_dashboard_data,
+    get_user_by_token,
+    init_db,
+    login_email_user,
+    record_scan_event,
+    register_email_user,
+)
+from core.notifier import get_all_leads, record_client_lead
+from core.scanner import normalize_domain, run_full_diagnostic
 
 BASE_DIR = Path(__file__).resolve().parent
+init_db()
 
 asgi_app = FastAPI(
     title="ADX Group — Enterprise AI, Cloud & Cyber Systems",
-    description="Official portal and 5-vector diagnostic engine for ADX Group (adxgroup.tech)",
-    version="2.0.0",
+    description="Official SaaS portal, client console, and 5-vector diagnostic engine for ADX Group (adxgroup.tech)",
+    version="3.0.0",
 )
 
 STATIC_DIR = BASE_DIR / "static"
@@ -33,6 +50,13 @@ TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
 
 asgi_app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
+SESSION_COOKIE = "adx_session"
+
+
+def _current_user(request: Request) -> Optional[Dict[str, Any]]:
+    token = request.cookies.get(SESSION_COOKIE)
+    return get_user_by_token(token)
 
 
 class ScanRequest(BaseModel):
@@ -51,15 +75,180 @@ class LeadRequest(BaseModel):
     message: Optional[str] = ""
 
 
+class RegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+    company: Optional[str] = ""
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class OAuthQuickRequest(BaseModel):
+    provider: str
+    email: str
+    name: Optional[str] = ""
+    company: Optional[str] = ""
+
+
+class AddDomainRequest(BaseModel):
+    domain: str
+
+
 @asgi_app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    """Render the main ADX Group Enterprise Portal."""
-    return templates.TemplateResponse(request=request, name="index.html")
+    """Render the Public ADX Group Landing Page."""
+    user = _current_user(request)
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={"user": user},
+    )
+
+
+@asgi_app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    """Render the GitHub/Cloudflare-style Sign In / Sign Up Gate."""
+    user = _current_user(request)
+    if user:
+        target = "/admin" if user.get("role") == "admin" else "/dashboard"
+        return RedirectResponse(url=target, status_code=302)
+    return templates.TemplateResponse(request=request, name="login.html")
+
+
+@asgi_app.get("/logout")
+async def logout(request: Request):
+    """Clear session cookie and return to landing page."""
+    token = request.cookies.get(SESSION_COOKIE)
+    delete_session(token)
+    resp = RedirectResponse(url="/", status_code=302)
+    resp.delete_cookie(SESSION_COOKIE)
+    return resp
+
+
+@asgi_app.get("/dashboard", response_class=HTMLResponse)
+async def client_dashboard(request: Request):
+    """Render the authenticated Client Console."""
+    user = _current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    dash_data = get_client_dashboard_data(user["id"])
+    return templates.TemplateResponse(
+        request=request,
+        name="dashboard.html",
+        context={
+            "user": user,
+            "monitored_domains": dash_data["monitored_domains"],
+            "recent_scans": dash_data["recent_scans"],
+        },
+    )
+
+
+@asgi_app.get("/admin", response_class=HTMLResponse)
+async def owner_admin_console(request: Request):
+    """Render the ADX Group Owner Command Center."""
+    user = _current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    admin_data = get_admin_command_center_data()
+    leads = get_all_leads()
+    return templates.TemplateResponse(
+        request=request,
+        name="admin.html",
+        context={
+            "user": user,
+            "admin_data": admin_data,
+            "leads": leads,
+        },
+    )
+
+
+@asgi_app.post("/api/auth/register")
+async def api_register(payload: RegisterRequest):
+    try:
+        sess = register_email_user(
+            name=payload.name,
+            email=payload.email,
+            password=payload.password,
+            company=payload.company or "",
+        )
+        redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
+        resp = JSONResponse(
+            content={"ok": True, "user": sess["user"], "redirect": redirect_to}
+        )
+        resp.set_cookie(
+            key=SESSION_COOKIE,
+            value=sess["token"],
+            httponly=True,
+            max_age=14 * 86400,
+            samesite="lax",
+        )
+        return resp
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+
+
+@asgi_app.post("/api/auth/login")
+async def api_login(payload: LoginRequest):
+    try:
+        sess = login_email_user(email=payload.email, password=payload.password)
+        redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
+        resp = JSONResponse(
+            content={"ok": True, "user": sess["user"], "redirect": redirect_to}
+        )
+        resp.set_cookie(
+            key=SESSION_COOKIE,
+            value=sess["token"],
+            httponly=True,
+            max_age=14 * 86400,
+            samesite="lax",
+        )
+        return resp
+    except ValueError as ve:
+        raise HTTPException(status_code=401, detail=str(ve))
+
+
+@asgi_app.post("/api/auth/oauth")
+async def api_oauth_signin(payload: OAuthQuickRequest):
+    if not payload.email or "@" not in payload.email:
+        raise HTTPException(status_code=400, detail="Please enter a valid email address.")
+    sess = create_or_login_oauth_user(
+        email=payload.email,
+        name=payload.name or "",
+        provider=payload.provider,
+        company=payload.company or "",
+    )
+    redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
+    resp = JSONResponse(
+        content={"ok": True, "user": sess["user"], "redirect": redirect_to}
+    )
+    resp.set_cookie(
+        key=SESSION_COOKIE,
+        value=sess["token"],
+        httponly=True,
+        max_age=14 * 86400,
+        samesite="lax",
+    )
+    return resp
+
+
+@asgi_app.post("/api/domains/add")
+async def api_add_monitored_domain(request: Request, payload: AddDomainRequest):
+    user = _current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    clean = normalize_domain(payload.domain)
+    if not clean or "." not in clean:
+        raise HTTPException(status_code=400, detail="Invalid domain name.")
+    add_monitored_domain(user["id"], clean)
+    return {"ok": True, "domain": clean}
 
 
 @asgi_app.get("/api/health")
 async def health_check():
-    """Health check endpoint for uptime monitoring and cloud readiness."""
     return {
         "status": "ONLINE",
         "entity": "ADX Group (adxgroup.tech)",
@@ -69,11 +258,14 @@ async def health_check():
 
 
 @asgi_app.post("/api/scan")
-async def api_scan_domain(payload: ScanRequest):
-    """Run the 5-vector passive security & infrastructure diagnostic on a target domain."""
+async def api_scan_domain(request: Request, payload: ScanRequest):
+    """Run the 5-vector security diagnostic and log to telemetry database."""
+    user = _current_user(request)
     try:
         scan_data = await run_full_diagnostic(payload.domain)
         scan_data["ai_executive_summary"] = generate_ai_executive_summary(scan_data)
+        record_scan_event(scan_data, user=user)
+        scan_data["is_authenticated"] = bool(user)
         return JSONResponse(content={"ok": True, "data": scan_data})
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
@@ -86,14 +278,12 @@ async def api_scan_domain(payload: ScanRequest):
 
 @asgi_app.post("/api/chat")
 async def api_ai_consultant(payload: ChatRequest):
-    """Interact with the 24/7 ADX AI Systems Consultant (protected by Gate 3 prompt guard)."""
     result = await ask_adx_ai_consultant(payload.message)
     return JSONResponse(content={"ok": True, "data": result})
 
 
 @asgi_app.post("/api/lead")
 async def api_submit_lead(payload: LeadRequest):
-    """Submit a client consultation or audit request (Gate 4)."""
     result = record_client_lead(
         company_or_name=payload.company_or_name,
         email=payload.email,

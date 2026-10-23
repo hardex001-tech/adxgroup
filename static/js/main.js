@@ -34,20 +34,41 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const data = payload.data;
+        const isAuth = Boolean(data.is_authenticated);
+
         resultsBox.classList.remove("hidden");
         domainTitle.textContent = `${data.domain} — Diagnostic Truth Table (${data.timestamp})`;
         scoreValue.textContent = `${data.score}/100`;
         gradeBadge.textContent = `GRADE ${data.grade} • ${data.risk_level}`;
         aiSummaryText.textContent = data.ai_executive_summary;
-        outreachTextarea.value = data.outreach_email;
+
+        if (outreachTextarea) {
+          if (isAuth) {
+            outreachTextarea.value = data.outreach_email;
+          } else {
+            outreachTextarea.value =
+              "🔒 Sign in to your free ADX Group Console (via Google, GitHub, or Work Email) at /login to unlock the full copy-paste remediation configurations, export executive reports, and add this domain to your 24/7 monitoring watchlist.";
+          }
+        }
 
         gatesTableBody.innerHTML = "";
         data.gates.forEach((g) => {
           const tr = document.createElement("tr");
           const badgeClass = g.state ? "badge-true" : "badge-false";
-          const remediationHtml = g.remediation
-            ? `<div class="remediation-code"><strong>Fix:</strong> ${escapeHtml(g.remediation)}</div>`
-            : "";
+          let remediationHtml = "";
+
+          if (g.remediation) {
+            if (isAuth) {
+              remediationHtml = `<div class="remediation-code"><strong>Fix:</strong> ${escapeHtml(g.remediation)}</div>`;
+            } else {
+              remediationHtml = `
+                <div class="remediation-code" style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                  <span>🔒 Exact server/DNS fix available in Client Console</span>
+                  <a href="/login" style="color: var(--accent-cyan); font-weight: 700; text-decoration: none;">Sign In to Unlock →</a>
+                </div>
+              `;
+            }
+          }
 
           tr.innerHTML = `
             <td style="font-family: var(--font-mono); font-weight: 700;">${escapeHtml(g.gate_id)}</td>
@@ -77,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
       outreachTextarea.select();
       navigator.clipboard.writeText(outreachTextarea.value);
       const original = copyOutreachBtn.textContent;
-      copyOutreachBtn.textContent = "Copied Advisory to Clipboard ✓";
+      copyOutreachBtn.textContent = "Copied to Clipboard ✓";
       setTimeout(() => {
         copyOutreachBtn.textContent = original;
       }, 2200);

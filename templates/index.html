@@ -25,7 +25,15 @@
         <a href="#divisions">Divisions</a>
         <a href="#protection">4-Layer Defense</a>
         <a href="#consultant">AI Consultant</a>
-        <a href="#contact" class="btn btn-primary">Request Audit</a>
+        {% if user %}
+          {% if user.role == 'admin' %}
+          <a href="/admin" style="color: var(--accent-cyan); font-weight: 700;">⚡ Owner Console</a>
+          {% endif %}
+          <a href="/dashboard" class="btn btn-primary">Open Client Console →</a>
+        {% else %}
+          <a href="/login" style="color: var(--text-main); font-weight: 600;">Sign In</a>
+          <a href="/login" class="btn btn-primary">Get Started Free</a>
+        {% endif %}
       </nav>
     </div>
   </header>
@@ -45,7 +53,11 @@
       </p>
       <div class="hero-actions">
         <a href="#diagnostic" class="btn btn-primary">Run Free AI Domain Diagnostic</a>
-        <a href="#contact" class="btn btn-outline">Partner With ADX Group</a>
+        {% if user %}
+          <a href="/dashboard" class="btn btn-outline">Go to My Console ({{ user.name }})</a>
+        {% else %}
+          <a href="/login" class="btn btn-outline">Sign In with Google / GitHub</a>
+        {% endif %}
       </div>
     </div>
   </section>

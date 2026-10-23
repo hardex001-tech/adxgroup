@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In | ADX Group Console</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <style>
+    .auth-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+    }
+    .auth-box {
+      width: 100%;
+      max-width: 440px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 16px;
+      padding: 36px 32px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    }
+    .auth-header {
+      text-align: center;
+      margin-bottom: 26px;
+    }
+    .auth-header img {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    .auth-header h1 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .auth-header p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+    .oauth-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .btn-oauth {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+    .btn-google {
+      background: #ffffff;
+      color: #0f172a;
+    }
+    .btn-google:hover {
+      background: #f1f5f9;
+    }
+    .btn-github {
+      background: #1e293b;
+      color: #f8fafc;
+    }
+    .btn-github:hover {
+      background: #334155;
+      border-color: var(--accent-cyan);
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+      margin: 20px 0;
+    }
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .divider:not(:empty)::before {
+      margin-right: 12px;
+    }
+    .divider:not(:empty)::after {
+      margin-left: 12px;
+    }
+    .auth-tabs {
+      display: flex;
+      background: #060911;
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 18px;
+      border: 1px solid var(--border-subtle);
+    }
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+    }
+    .auth-tab.active {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+    }
+    .oauth-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 9, 17, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 20px;
+    }
+    .oauth-modal-card {
+      width: 100%;
+      max-width: 400px;
+      background: #0f172a;
+      border: 1px solid var(--border-accent);
+      border-radius: 14px;
+      padding: 28px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-wrapper">
+    <div class="auth-box">
+      <div class="auth-header">
+        <a href="/"><img src="/static/logo.svg" alt="ADX Group Logo" /></a>
+        <h1>Sign in to ADX Group</h1>
+        <p>Access the Client Security Console, Full Remediation Reports &amp; 24/7 Domain Monitoring</p>
+      </div>
+
+      <!-- One-Click OAuth Providers (Google & GitHub) -->
+      <div class="oauth-buttons">
+        <button type="button" class="btn-oauth btn-google" onclick="openOAuthPrompt('Google')">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z"/>
+            <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/>
+            <path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 12.3s.6 3.3 1.6 5.3l3.7-2.8z"/>
+            <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5L1.6 16c1.9 3.9 5.8 7 10.4 7z"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        <button type="button" class="btn-oauth btn-github" onclick="openOAuthPrompt('GitHub')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2.9-.3 1.9-.4 2.9-.4s2 .1 2.9.4c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .4.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.65 18.35.5 12 .5z"/>
+          </svg>
+          Continue with GitHub
+        </button>
+      </div>
+
+      <div class="divider">OR CONTINUE WITH WORK EMAIL</div>
+
+      <!-- Mode Switch Tabs -->
+      <div class="auth-tabs">
+        <button type="button" id="tab-signin" class="auth-tab active" onclick="switchTab('signin')">Sign In</button>
+        <button type="button" id="tab-signup" class="auth-tab" onclick="switchTab('signup')">Create Account</button>
+      </div>
+
+      <div id="auth-error" style="color: #ef4444; font-size: 0.84rem; margin-bottom: 12px; text-align: center;"></div>
+
+      <!-- Sign In Form -->
+      <form id="signin-form">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="signin-email" class="form-control" placeholder="you@company.com" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="signin-password" class="form-control" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 6px;">Sign In to Console</button>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form id="signup-form" class="hidden">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="signup-name" class="form-control" placeholder="Alex Mercer" required />
+        </div>
+        <div class="form-group">
+          <label>Company / Organization</label>
+          <input type="text" id="signup-company" class="form-control" placeholder="Acme FinTech Ltd" />
+        </div>
+        <div class="form-group">
+          <label>Work or Personal Email *</label>
+          <input type="email" id="signup-email" class="form-control" placeholder="you@company.com" required />
+        </div>
+        <div class="form-group">
+          <label>Create Password (min. 6 chars) *</label>
+          <input type="password" id="signup-password" class="form-control" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 6px;">Create Free ADX Account</button>
+      </form>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="/" style="color: var(--text-muted); font-size: 0.84rem; text-decoration: none;">← Back to adxgroup.tech homepage</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instant OAuth Identity Modal -->
+  <div id="oauth-modal" class="oauth-modal hidden">
+    <div class="oauth-modal-card">
+      <h3 id="oauth-modal-title" style="margin-bottom: 6px;">Continue with Google</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+        Confirm your account email to authenticate into the ADX Group Console:
+      </p>
+      <form id="oauth-form">
+        <input type="hidden" id="oauth-provider" value="Google" />
+        <div class="form-group">
+          <label id="oauth-email-label">Google Email Address *</label>
+          <input type="email" id="oauth-email" class="form-control" placeholder="you@gmail.com" required />
+        </div>
+        <div class="form-group">
+          <label>Display Name</label>
+          <input type="text" id="oauth-name" class="form-control" placeholder="Your Name or GitHub Handle" />
+        </div>
+        <div class="form-group">
+          <label>Company / Project (Optional)</label>
+          <input type="text" id="oauth-company" class="form-control" placeholder="Company Name" />
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 16px;">
+          <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeOAuthPrompt()">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="flex: 1;">Continue →</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(mode) {
+      const signinForm = document.getElementById("signin-form");
+      const signupForm = document.getElementById("signup-form");
+      const tabSignin = document.getElementById("tab-signin");
+      const tabSignup = document.getElementById("tab-signup");
+      document.getElementById("auth-error").textContent = "";
+
+      if (mode === "signin") {
+        signinForm.classList.remove("hidden");
+        signupForm.classList.add("hidden");
+        tabSignin.classList.add("active");
+        tabSignup.classList.remove("active");
+      } else {
+        signinForm.classList.add("hidden");
+        signupForm.classList.remove("hidden");
+        tabSignin.classList.remove("active");
+        tabSignup.classList.add("active");
+      }
+    }
+
+    function openOAuthPrompt(provider) {
+      document.getElementById("oauth-provider").value = provider;
+      document.getElementById("oauth-modal-title").textContent = `Continue with ${provider}`;
+      document.getElementById("oauth-email-label").textContent = `${provider} Email Address *`;
+      document.getElementById("oauth-modal").classList.remove("hidden");
+      document.getElementById("oauth-email").focus();
+    }
+
+    function closeOAuthPrompt() {
+      document.getElementById("oauth-modal").classList.add("hidden");
+    }
+
+    document.getElementById("oauth-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const provider = document.getElementById("oauth-provider").value;
+      const email = document.getElementById("oauth-email").value.trim();
+      const name = document.getElementById("oauth-name").value.trim();
+      const company = document.getElementById("oauth-company").value.trim();
+
+      const res = await fetch("/api/auth/oauth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider, email, name, company }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        window.location.href = data.redirect || "/dashboard";
+      } else {
+        alert(data.detail || "Authentication failed.");
+      }
+    });
+
+    document.getElementById("signin-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("signin-email").value.trim();
+      const password = document.getElementById("signin-password").value;
+      const errBox = document.getElementById("auth-error");
+      errBox.textContent = "";
+
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        window.location.href = data.redirect || "/dashboard";
+      } else {
+        errBox.textContent = data.detail || "Invalid email or password.";
+      }
+    });
+
+    document.getElementById("signup-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("signup-name").value.trim();
+      const company = document.getElementById("signup-company").value.trim();
+      const email = document.getElementById("signup-email").value.trim();
+      const password = document.getElementById("signup-password").value;
+      const errBox = document.getElementById("auth-error");
+      errBox.textContent = "";
+
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, company, email, password }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        window.location.href = data.redirect || "/dashboard";
+      } else {
+        errBox.textContent = data.detail || "Could not create account.";
+      }
+    });
+  </script>
+</body>
+</html>
