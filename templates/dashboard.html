@@ -264,6 +264,12 @@
                   <span id="scan-domain-title" style="font-family: var(--font-mono); font-size: 0.84rem; color: var(--text-muted);"></span>
                 </div>
                 <div id="scan-grade-badge" style="font-weight: 800; font-size: 1.2rem; margin-top: 2px;"></div>
+                <div style="margin-top: 10px;">
+                  <button type="button" id="play-debrief-btn" class="btn btn-outline" style="font-size: 0.76rem; padding: 5px 12px; display: none; align-items: center; gap: 6px; background: #ffffff;" onclick="playScanDebrief()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+                    <span id="debrief-btn-label">Listen to Security Debrief</span>
+                  </button>
+                </div>
               </div>
               <div class="score-gauge-wrap">
                 <div style="text-align: right;">
@@ -286,10 +292,10 @@
               <table class="truth-table">
                 <thead>
                   <tr>
-                    <th style="width: 95px;">Gate</th>
-                    <th style="width: 260px;">Infrastructure Parameter &amp; Vector</th>
-                    <th style="width: 145px;">Verification State</th>
-                    <th>Technical Parameter Status &amp; Action</th>
+                    <th style="width: 60px;">#</th>
+                    <th style="width: 280px;">Security Inspection Parameter</th>
+                    <th style="width: 155px;">Verification State</th>
+                    <th>Technical Finding &amp; Engineering Guidance</th>
                   </tr>
                 </thead>
                 <tbody id="gates-table-body"></tbody>
@@ -683,7 +689,7 @@
     </div>
   </div>
 
-  <script src="/static/js/main.js?v=2026.25"></script>
+  <script src="/static/js/main.js?v=2026.27"></script>
   <script>
     function copyText(val, btnId, successText = "Copied!") {
       if (!navigator.clipboard) {

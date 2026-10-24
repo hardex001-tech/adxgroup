@@ -78,9 +78,9 @@ def verify_prompt_safety(user_message: str) -> Dict[str, Any]:
         if re.search(pattern, text, re.IGNORECASE):
             return {
                 "safe": False,
-                "reason": "GATE-03 FALSE: Prompt injection or unsafe instruction pattern blocked by ADX AI Guard.",
+                "reason": "Input blocked by ADX AI Guard: Prompt injection or unsafe instruction pattern detected.",
             }
-    return {"safe": True, "reason": "GATE-03 TRUE: Input verified safe."}
+    return {"safe": True, "reason": "Input verified safe by ADX AI Guard."}
 
 
 def generate_ai_executive_summary(scan_result: Dict[str, Any]) -> str:

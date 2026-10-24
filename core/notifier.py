@@ -47,12 +47,12 @@ def record_client_lead(
     if not clean_email or "@" not in clean_email or "." not in clean_email:
         return {
             "gate_4_passed": False,
-            "error": "GATE-04 FALSE: Please provide a valid business or contact email address.",
+            "error": "Please provide a valid business or contact email address.",
         }
     if not clean_name:
         return {
             "gate_4_passed": False,
-            "error": "GATE-04 FALSE: Please provide your name or company name.",
+            "error": "Please provide your name or company name.",
         }
 
     existing = get_all_leads()

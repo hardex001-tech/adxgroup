@@ -411,7 +411,7 @@ async def api_neural_tts(payload: TtsRequest):
     clean_text = re.sub(r"\b(A\s*D\s*X|ADX|Adex)\b", "A. D. X.", clean_text, flags=re.IGNORECASE)
     clean_text = re.sub(r"\bC\s*V\s*E\b", "C. V. E.", clean_text, flags=re.IGNORECASE)
 
-    communicate = edge_tts.Communicate(clean_text, "en-US-AvaMultilingualNeural", rate="+0%")
+    communicate = edge_tts.Communicate(clean_text, "en-US-AndrewMultilingualNeural", rate="+0%")
     audio_bytes = bytearray()
     async for chunk in communicate.stream():
         if chunk["type"] == "audio":

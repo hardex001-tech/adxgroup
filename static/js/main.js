@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <div class="telemetry-cell">
               <span>Audit Depth</span>
-              <strong style="color: var(--accent-primary);">6-Gate Infrastructure Hygiene</strong>
+              <strong style="color: var(--accent-primary);">6 Perimeter Parameters</strong>
             </div>
           `;
         }
@@ -97,13 +97,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const cveSection = document.querySelector(".cve-report-section");
         if (cveSection) cveSection.style.display = "none";
 
+        window.lastScanResult = data;
+        const debriefBtn = document.getElementById("play-debrief-btn");
+        if (debriefBtn) debriefBtn.style.display = "inline-flex";
+
         gatesTableBody.innerHTML = "";
         data.gates.forEach((g) => {
           const tr = document.createElement("tr");
           let badgeClass = "badge-false";
           if (g.state === true) {
             badgeClass = "badge-true";
-          } else if (g.gate_id === "GATE-06") {
+          } else if (g.status_label && g.status_label.includes("UNVERIFIED")) {
             badgeClass = "badge-warn";
           }
 
@@ -118,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
               : "";
 
             const safeDomain = escapeJsArg(data.domain);
-            const safeGate = escapeJsArg(g.gate_id);
+            const safeParam = escapeJsArg(g.gate_id);
             const safeVector = escapeJsArg(g.vector);
             const safeCve = escapeJsArg(g.cve_ref || "2026-CVE");
 
@@ -126,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <div class="locked-patch-bar">
                 <div>
                   <strong style="color: var(--text-main); display: block; margin-bottom: 3px;">
-                    🔒 Remediation Patch &amp; Verification Locked (ADX Engineering)
+                    Remediation Guidance &amp; Engineering Scope
                   </strong>
                   ${clientNote}
                 </div>
@@ -134,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   type="button"
                   class="btn btn-primary"
                   style="padding: 8px 14px; font-size: 0.78rem; white-space: nowrap;"
-                  onclick="requestPatchForGate('${safeDomain}', '${safeGate}', '${safeVector}', '${safeCve}')"
+                  onclick="requestPatchForGate('${safeDomain}', '${safeParam}', '${safeVector}', '${safeCve}')"
                 >
                   Deploy Fix with ADX ($350) &rarr;
                 </button>
@@ -143,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           tr.innerHTML = `
-            <td style="font-family: var(--font-mono); font-weight: 700;">${escapeHtml(g.gate_id)}</td>
+            <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-primary);">${escapeHtml(g.gate_id)}</td>
             <td>
               <strong>${escapeHtml(g.vector)}</strong>
               <div style="color: var(--text-muted); font-size: 0.78rem; margin-top: 2px;">${escapeHtml(g.condition)}</div>
@@ -157,12 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
           `;
           gatesTableBody.appendChild(tr);
         });
-
-        if (window.speakAdxVoice) {
-          window.speakAdxVoice(
-            `Diagnostic complete for ${data.domain}. Infrastructure parameters scored ${data.score} out of 100, Grade ${data.grade}.`
-          );
-        }
       } catch (err) {
         alert("Network error while running diagnostic scan.");
       } finally {
@@ -344,6 +342,30 @@ document.addEventListener("DOMContentLoaded", () => {
     return audio.play();
   }
 
+  window.lastScanResult = null;
+
+  window.playScanDebrief = function () {
+    if (!window.lastScanResult) return;
+    const d = window.lastScanResult;
+    const domain = d.domain;
+    const score = d.score;
+    const grade = d.grade;
+    const failed = (d.gates || []).filter((g) => !g.state);
+    let debrief = `Perimeter audit complete for ${domain}. Infrastructure score: ${score} out of 100, Grade ${grade}.`;
+    if (failed.length > 0) {
+      debrief += ` Attention required on ${failed.length} parameter: ${failed[0].vector}.`;
+    } else {
+      debrief += ` All infrastructure parameters passed verification.`;
+    }
+    const btn = document.getElementById("debrief-btn-label");
+    if (btn) btn.textContent = "Playing Brief...";
+    window.speakAdxVoice(debrief, true).finally(() => {
+      setTimeout(() => {
+        if (btn) btn.textContent = "Listen to Security Debrief";
+      }, 3500);
+    });
+  };
+
   window.speakAdxVoice = async function (text, force = false) {
     if (voiceMuted && !force) return;
     const launcher = document.getElementById("aegis-launcher-orb");
@@ -355,18 +377,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const isLogin = window.location.pathname.includes("/login");
       const p = new URLSearchParams(window.location.search);
       if (p.get("deleted") === "true") {
-        speechText = "Account permanently deleted. Welcome to A. D. X.";
+        speechText = "Account permanently erased. Identity revoked.";
       } else if (p.get("logout") === "true") {
-        speechText = "You have signed out. Welcome to A. D. X. Identity gateway is online.";
+        speechText = "Session terminated. Identity gateway active.";
       } else if (isLogin) {
-        speechText = "Welcome to A. D. X. Sign in with Apple, Google, Microsoft, GitHub, or your work email.";
+        speechText = "ADX Zero-Trust Gateway online. Secure your session.";
       } else if (isDash) {
         const orbEl = document.getElementById("adx-voice-orb");
         speechText = orbEl && orbEl.getAttribute("data-greeting")
           ? orbEl.getAttribute("data-greeting")
-          : "Welcome to A. D. X. Your infrastructure scanner and A. I. systems architect are online.";
+          : "ADX Infrastructure Console online.";
       } else {
-        speechText = "Welcome to A. D. X. Silent Innovation. Absolute Defense.";
+        speechText = "ADX Cyber Systems active. Silent Innovation. Absolute Defense.";
       }
     }
 
@@ -388,18 +410,9 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("TTS endpoint error");
       }
     } catch (e) {
-      // Browser SpeechSynthesis fallback
-      try {
-        if ("speechSynthesis" in window) {
-          const utter = new SpeechSynthesisUtterance(speechText.replace(/A\.\s*D\.\s*X\./g, "A D X"));
-          utter.rate = 1.0;
-          utter.onend = () => {
-            if (launcher) launcher.classList.remove("speaking");
-            if (orb) orb.classList.remove("speaking");
-          };
-          window.speechSynthesis.speak(utter);
-        }
-      } catch (err) {}
+      // Cleanly fail silently: Never humiliate the platform with robotic browser speech synthesis
+      if (launcher) launcher.classList.remove("speaking");
+      if (orb) orb.classList.remove("speaking");
     } finally {
       setTimeout(() => {
         if (!activeAudio) {
@@ -411,33 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   function setupAutoWelcomeVoice() {
-    const bindFallbackUnlock = () => {
-      const unlockHandler = (e) => {
-        const closeBtn = document.getElementById("aegis-close-btn");
-        if (closeBtn && closeBtn.contains(e.target)) {
-          cleanupUnlock();
-          return;
-        }
-        if (!hasWelcomed && !voiceMuted) {
-          hasWelcomed = true;
-          window.speakAdxVoice(null, false);
-        }
-        cleanupUnlock();
-      };
-      const cleanupUnlock = () => {
-        document.removeEventListener("click", unlockHandler);
-        document.removeEventListener("keydown", unlockHandler);
-        document.removeEventListener("touchstart", unlockHandler);
-      };
-      document.addEventListener("click", unlockHandler);
-      document.addEventListener("keydown", unlockHandler);
-      document.addEventListener("touchstart", unlockHandler);
-    };
-
-    // Attempt immediate playback on page load; if browser requires user gesture first, unlock on first click
-    window.speakAdxVoice(null, false).catch(() => {
-      bindFallbackUnlock();
-    });
+    // Unsolicited auto-play ambushes disabled: voice is played on intentional user interaction (e.g. clicking Debrief or Voice Orb)
   }
 
   function initAegisConciergeCard() {
