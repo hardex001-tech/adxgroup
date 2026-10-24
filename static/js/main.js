@@ -439,6 +439,159 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // 5. Extraordinary 60fps 3D Quantum Neural Constellation & Orbital Radar Background
+  function initQuantumOrbitalBackground() {
+    if (document.getElementById("adx-quantum-canvas")) return;
+    const canvas = document.createElement("canvas");
+    canvas.id = "adx-quantum-canvas";
+    document.body.prepend(canvas);
+    const ctx = canvas.getContext("2d");
+
+    let w = (canvas.width = window.innerWidth);
+    let h = (canvas.height = window.innerHeight);
+
+    window.addEventListener("resize", () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    });
+
+    const mouse = { x: w * 0.72, y: h * 0.35, active: false };
+    window.addEventListener("mousemove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      mouse.active = true;
+    });
+
+    const nodeCount = 44;
+    const nodes = [];
+    for (let i = 0; i < nodeCount; i++) {
+      nodes.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.55,
+        vy: (Math.random() - 0.5) * 0.55,
+        r: Math.random() * 1.8 + 1.1,
+        color: i % 5 === 0 ? "#10b981" : "#38bdf8",
+      });
+    }
+
+    const photons = [];
+    let angle = 0;
+
+    function drawFrame() {
+      ctx.clearRect(0, 0, w, h);
+      angle += 0.0022;
+
+      // A. Subtle Rotating Orbital Planetary Defense Rings
+      const cx = w * 0.76;
+      const cy = h * 0.38;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(angle);
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.08)";
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([18, 12, 4, 12]);
+      ctx.beginPath();
+      ctx.arc(0, 0, 270, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.rotate(-angle * 2.1);
+      ctx.strokeStyle = "rgba(37, 99, 235, 0.09)";
+      ctx.setLineDash([36, 22]);
+      ctx.beginPath();
+      ctx.arc(0, 0, 410, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      // B. Update & Connect 3D Neural Nodes
+      for (let i = 0; i < nodes.length; i++) {
+        const n = nodes[i];
+        n.x += n.vx;
+        n.y += n.vy;
+
+        if (n.x < 0 || n.x > w) n.vx *= -1;
+        if (n.y < 0 || n.y > h) n.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = n.color;
+        ctx.globalAlpha = 0.65;
+        ctx.fill();
+
+        for (let j = i + 1; j < nodes.length; j++) {
+          const m = nodes[j];
+          const dx = n.x - m.x;
+          const dy = n.y - m.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 165) {
+            const alpha = (1 - dist / 165) * 0.22;
+            ctx.beginPath();
+            ctx.moveTo(n.x, n.y);
+            ctx.lineTo(m.x, m.y);
+            ctx.strokeStyle = "#38bdf8";
+            ctx.globalAlpha = alpha;
+            ctx.lineWidth = 0.85;
+            ctx.stroke();
+
+            if (Math.random() < 0.0009 && photons.length < 18) {
+              photons.push({
+                sx: n.x,
+                sy: n.y,
+                tx: m.x,
+                ty: m.y,
+                t: 0,
+                speed: 0.022 + Math.random() * 0.02,
+                color: i % 3 === 0 ? "#10b981" : "#38bdf8",
+              });
+            }
+          }
+        }
+
+        // C. Interactive Cursor Telemetry Lock
+        if (mouse.active) {
+          const mdx = n.x - mouse.x;
+          const mdy = n.y - mouse.y;
+          const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+          if (mdist < 190) {
+            ctx.beginPath();
+            ctx.moveTo(mouse.x, mouse.y);
+            ctx.lineTo(n.x, n.y);
+            ctx.strokeStyle = "#38bdf8";
+            ctx.globalAlpha = (1 - mdist / 190) * 0.35;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // D. Render High-Speed Photon Telemetry Packets Along Neural Lines
+      ctx.globalAlpha = 0.95;
+      for (let k = photons.length - 1; k >= 0; k--) {
+        const p = photons[k];
+        p.t += p.speed;
+        if (p.t >= 1) {
+          photons.splice(k, 1);
+          continue;
+        }
+        const px = p.sx + (p.tx - p.sx) * p.t;
+        const py = p.sy + (p.ty - p.sy) * p.t;
+        ctx.beginPath();
+        ctx.arc(px, py, 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(drawFrame);
+    }
+
+    requestAnimationFrame(drawFrame);
+  }
+
+  initQuantumOrbitalBackground();
+
   function escapeHtml(str) {
     return String(str || "")
       .replace(/&/g, "&amp;")
