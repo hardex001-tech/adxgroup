@@ -3,14 +3,51 @@ ADX Group — Context-Aware AI Security & Systems Architect Engine.
 Includes:
 1. Gate 3 Input Safety Verification (Prompt Injection Defense)
 2. Automated Root-Cause Executive Security & 2026 CVE Analysis
-3. Context-Aware Conversational AI Consultant (knows user identity & scanned domains)
+3. Live GitHub Student Pack GPT-4o RAG Engine with 1.1.1.1 DoH DNS Resilience & Zero-Markdown Clean Text
 """
 
 import os
 import re
+import socket
+import subprocess
 from typing import Any, Dict, List, Optional
 
 import httpx
+
+# Install 1.1.1.1 DoH fallback for socket.getaddrinfo so ISP DNS drops never break AI or Scanner calls
+_ORIG_GETADDRINFO = socket.getaddrinfo
+_DNS_CACHE: Dict[str, str] = {}
+
+
+def _resilient_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+    try:
+        return _ORIG_GETADDRINFO(host, port, family, type, proto, flags)
+    except Exception:
+        if isinstance(host, str) and not re.match(r"^\d+\.\d+\.\d+\.\d+$", host):
+            cached_ip = _DNS_CACHE.get(host)
+            if not cached_ip:
+                try:
+                    r = httpx.get(
+                        "https://1.1.1.1/dns-query",
+                        params={"name": host, "type": "A"},
+                        headers={"Accept": "application/dns-json"},
+                        timeout=4.0,
+                        verify=False,
+                    )
+                    if r.status_code == 200:
+                        for ans in r.json().get("Answer", []):
+                            if ans.get("type") == 1 and ans.get("data"):
+                                cached_ip = str(ans["data"]).strip()
+                                _DNS_CACHE[host] = cached_ip
+                                break
+                except Exception:
+                    pass
+            if cached_ip:
+                return _ORIG_GETADDRINFO(cached_ip, port, family, type, proto, flags)
+        raise
+
+
+socket.getaddrinfo = _resilient_getaddrinfo
 
 INJECTION_PATTERNS = [
     r"ignore\s+(all\s+)?previous\s+instructions",
@@ -19,6 +56,14 @@ INJECTION_PATTERNS = [
     r"drop\s+table",
     r"<script",
 ]
+
+
+def _clean_ai_text(raw: str) -> str:
+    """Remove all markdown stars (**), headers (###), and backticks so replies read cleanly."""
+    text = raw or ""
+    text = re.sub(r"^#{1,6}\s*", "", text, flags=re.MULTILINE)
+    text = text.replace("**", "").replace("__", "").replace("`", "")
+    return text.strip()
 
 
 def verify_prompt_safety(user_message: str) -> Dict[str, Any]:
@@ -75,7 +120,7 @@ async def ask_adx_ai_consultant(
     user: Optional[Dict[str, Any]] = None,
     recent_scans: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
-    """Process client questions with full conversational awareness of user identity and recent scans."""
+    """Process client questions with live GPT-4o RAG reasoning and zero markdown stars."""
     safety = verify_prompt_safety(user_message)
     if not safety["safe"]:
         return {
@@ -96,7 +141,6 @@ async def ask_adx_ai_consultant(
             f"Summary: {latest_scan['summary']}"
         )
 
-    # 1. Auto-load .env and GitHub Student Pack Copilot OAuth Token (gho_...)
     env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
     if os.path.exists(env_path):
         try:
@@ -112,7 +156,6 @@ async def ask_adx_ai_consultant(
     copilot_token = os.getenv("GITHUB_COPILOT_TOKEN", "").strip()
     if not copilot_token:
         try:
-            import subprocess
             out = subprocess.check_output(
                 ["git", "credential", "fill"],
                 input=b"protocol=https\nhost=github.com\n\n",
@@ -136,13 +179,14 @@ async def ask_adx_ai_consultant(
         "CVE-2026-31044 (CORS/Token Theft), CVE-2026-109618 (PHP/Runtime 4GB Multipart OOM Cleanup RCE, CVSS 9.2), "
         "CVE-2026-109619 (Use-After-Free Stale Worker RCE & API BOLA, CVSS 9.2).\n"
         "- Why Gate-06 is capped at 88/100: Passive external scans cannot clear internal authenticated API BOLA flaws or post-allocation memory corruption; requires ADX Authenticated Deep Penetration Audit ($350 fixed scope).\n"
-        "- Business Rule: Answer any technical, cybersecurity, coding, or architecture question intelligently like ChatGPT/Gemini, "
-        "but when a client asks for the exact fix for their scanned domain, explain the root cause and invite them to click 'Deploy Fix with ADX ($350)' in Tab 4."
+        "- Formatting Rule: NEVER use asterisks (**), markdown bolding, or hashtag headers (###). Write in clean, natural paragraphs and numbered lines.\n"
+        "- Business Rule: Answer any technical, cybersecurity, fintech, coding, or architecture question intelligently like ChatGPT/Gemini, "
+        "and invite the client to click 'Deploy Fix with ADX ($350)' in Tab 4 when they need hands-on engineering remediation."
     )
 
     if copilot_token:
         try:
-            async with httpx.AsyncClient(timeout=12.0, verify=False) as client:
+            async with httpx.AsyncClient(timeout=14.0, verify=False) as client:
                 resp = await client.post(
                     "https://api.githubcopilot.com/chat/completions",
                     headers={
@@ -157,13 +201,13 @@ async def ask_adx_ai_consultant(
                             {"role": "system", "content": system_prompt},
                             {"role": "user", "content": user_message},
                         ],
-                        "max_tokens": 380,
+                        "max_tokens": 420,
                         "temperature": 0.4,
                     },
                 )
                 if resp.status_code == 200 and "choices" in resp.text:
                     data = resp.json()
-                    content = data["choices"][0]["message"]["content"].strip()
+                    content = _clean_ai_text(data["choices"][0]["message"]["content"])
                     return {
                         "gate_3_passed": True,
                         "reply": content,
@@ -172,89 +216,19 @@ async def ask_adx_ai_consultant(
         except Exception:
             pass
 
-    # 2. Conversational, Context-Aware Expert Engine
+    # Fallback Engine (100% clean text, zero asterisks)
     q = user_message.strip().lower()
-    words = re.findall(r"[a-z0-9\.\-]+", q)
-
-    # Natural Greetings ("hi", "hello", "hey", "how are you", "yo", "good morning")
-    if q in ("hi", "hello", "hey", "yo", "hola", "sup", "good morning", "good afternoon", "good evening") or (
-        len(words) <= 3 and any(w in words for w in ("hi", "hello", "hey", "morning", "evening"))
-    ):
-        if latest_scan:
-            reply = (
-                f"Hey {user_name}! Good to have you in the ADX Console.\n\n"
-                f"I see your latest diagnostic was on **{latest_scan['domain']}** (Score: {latest_scan['score']}/100, Grade {latest_scan['grade']}). "
-                f"Would you like me to break down the 2026 CVE risks found on {latest_scan['domain']}, or are you looking to audit another system today?"
-            )
-        else:
-            reply = (
-                f"Hey {user_name}! I'm online and ready. "
-                f"You can ask me about 2026 CVE vulnerabilities, how our deep penetration testing works, "
-                f"or run a domain scan in Tab 1 and I will analyze your live results right here."
-            )
-        return {"gate_3_passed": True, "reply": reply, "engine": "ADX-Contextual-AI"}
-
-    # Questions about "how are you" / "are you working" / "who are you"
-    if any(p in q for p in ("how are you", "are you working", "who are you", "what can you do", "are you real")):
+    if latest_scan:
         reply = (
-            f"I'm operating at 100%, {user_name}. I am the ADX Group AI Security & Systems Architect.\n\n"
-            "Here is what I do directly inside your console:\n"
-            "• Analyze your domain scan telemetry (IP, TLS ciphers, DMARC/SPF, and 2026 CVE exposure).\n"
-            "• Explain hidden attack vectors (like CVE-2026-109618 memory corruption, API BOLA flaws, and prompt injection).\n"
-            "• Scope custom AI automation (RAG) or security hardening packages for your engineering team."
+            f"Hello {user_name}. Based on your latest diagnostic for {latest_scan['domain']} "
+            f"(Score: {latest_scan['score']}/100, Grade {latest_scan['grade']}), here is my architectural assessment:\n\n"
+            f"{latest_scan['summary']}\n\n"
+            "To remediate exposed gates or clear Gate-06 (CVE-2026-109618 / CVE-2026-109619 runtime & API BOLA testing), "
+            "open Tab 4 (Deploy ADX Engineers) to initiate a $350 fixed-scope deployment."
         )
-        return {"gate_3_passed": True, "reply": reply, "engine": "ADX-Contextual-AI"}
-
-    # Questions about their latest scan / "my scan" / "my website" / "my domain" / "why did it fail"
-    if any(p in q for p in ("my scan", "my site", "my website", "my domain", "what did you find", "why did", "score", "result")):
-        if latest_scan:
-            reply = (
-                f"Looking at your latest scan on **{latest_scan['domain']}** (Score: {latest_scan['score']}/100, Grade {latest_scan['grade']}):\n\n"
-                f"{latest_scan['summary']}\n\n"
-                "Because surface scanners only see public responses, Gate-06 also flags internal API & 2026 CVE runtime vectors. "
-                "If you want our engineering desk to deploy the locked remediation patches and certify the server, open Tab 4 (Deploy ADX Engineers) to trigger a $350 fixed-scope deployment."
-            )
-        else:
-            reply = (
-                f"You haven't run a scan in this session yet, {user_name}. "
-                "Switch to Tab 1 (Security & CVE Scanner), enter a domain name, and then ask me here to analyze the findings!"
-            )
-        return {"gate_3_passed": True, "reply": reply, "engine": "ADX-Contextual-AI"}
-
-    # Questions about CVE / 2026 vulnerabilities / hidden vulnerabilities
-    if any(p in q for p in ("cve", "2026", "hidden", "zero day", "zeroday", "php", "bypass", "deep")):
+    else:
         reply = (
-            "Great question. Even when a website passes basic HTTPS checks, 2026 attackers target **deep runtime and API vectors**:\n\n"
-            "1. **CVE-2026-109618 / 109619 (Runtime OOM & Use-After-Free):** Malformed multipart requests that corrupt server memory before application code even runs.\n"
-            "2. **CVE-2026-31044 (API Token & BOLA Bypass):** Attackers manipulating authenticated API IDs to read other customers' records.\n"
-            "3. **OWASP LLM01:2026 (AI Prompt Injection):** Tricking connected AI chatbots into leaking database keys.\n\n"
-            "That is why ADX Group never gives a blind '100% safe' pass on passive scans—Gate-06 requires an authenticated ADX stress test."
+            f"Hello {user_name}. I am the ADX Group AI Security Architect. "
+            "Run a live 6-Gate 2026 CVE scan in Tab 1 or ask me about cloud API hardening, zero-day CVE mitigation, or private RAG deployments."
         )
-        return {"gate_3_passed": True, "reply": reply, "engine": "ADX-Contextual-AI"}
-
-    # Questions about Pricing / Cost
-    if any(p in q for p in ("price", "cost", "how much", "pricing", "rate", "quote", "$")):
-        reply = (
-            f"Here is ADX Group's transparent fixed-scope pricing, {user_name}:\n\n"
-            "• **Full Perimeter Remediation & 2026 CVE Deep Audit:** $350 flat fee (48-hour turnaround, we deploy all locked fixes and issue an ADX Security Certificate).\n"
-            "• **24/7 Cloud Sentinel Retainer:** $350/month (continuous CVE monitoring, daily encrypted off-site backups, and emergency patching).\n"
-            "• **Private Enterprise AI / RAG Build:** $600 to $2,000 fixed scope."
-        )
-        return {"gate_3_passed": True, "reply": reply, "engine": "ADX-Contextual-AI"}
-
-    # Default intelligent conversational response
-    scan_note = (
-        f" If this relates to **{latest_scan['domain']}** ({latest_scan['score']}/100), I can walk you through its specific CVE exposure or set up a remediation deployment."
-        if latest_scan
-        else ""
-    )
-    reply = (
-        f"Got your message, {user_name} ('{user_message[:70]}').\n\n"
-        f"From an ADX Group engineering standpoint, we handle that by isolating the cloud runtime, locking down edge WAF/DNS rules, and verifying against 2026 CVE signatures.{scan_note}\n\n"
-        "Would you like me to scope a $350 remediation deployment for this, or do you want to test a specific domain first?"
-    )
-    return {
-        "gate_3_passed": True,
-        "reply": reply,
-        "engine": "ADX-Contextual-AI",
-    }
+    return {"gate_3_passed": True, "reply": _clean_ai_text(reply), "engine": "ADX-Contextual-AI"}

@@ -190,6 +190,12 @@ document.addEventListener("DOMContentLoaded", () => {
           `;
           gatesTableBody.appendChild(tr);
         });
+
+        if (window.speakAdxVoice) {
+          window.speakAdxVoice(
+            `Diagnostic complete for ${data.domain}. Surface security posture scored ${data.score} out of 100, Grade ${data.grade}.`
+          );
+        }
       } catch (err) {
         alert("Network error while running diagnostic scan.");
       } finally {
@@ -199,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 2. Conversational ADX AI Security Architect
+  // 2. Conversational ADX AI Security Architect (Zero Markdown Stars)
   const chatForm = document.getElementById("ai-chat-form");
   const chatInput = document.getElementById("ai-chat-input");
   const chatLog = document.getElementById("ai-chat-log");
@@ -231,11 +237,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function cleanDisplayMessage(raw) {
+    return String(raw || "")
+      .replace(/^#{1,6}\s*/gm, "")
+      .replace(/\*\*/g, "")
+      .replace(/__/g, "")
+      .replace(/`/g, "")
+      .trim();
+  }
+
   function appendChatMessage(text, className) {
     const div = document.createElement("div");
     div.className = `chat-msg ${className}`;
     div.style.whiteSpace = "pre-line";
-    div.textContent = text;
+    div.textContent = cleanDisplayMessage(text);
     chatLog.appendChild(div);
     chatLog.scrollTop = chatLog.scrollHeight;
   }
@@ -271,6 +286,116 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (err) {
         leadStatus.style.color = "#ef4444";
         leadStatus.textContent = "Could not submit form. Email contact@adxgroup.tech directly.";
+      }
+    });
+  }
+
+  // 4. AEGIS — ADX Executive Neural Voice Concierge (Speaker Welcome & Alerts)
+  const voiceOrb = document.getElementById("adx-voice-orb");
+  const voiceLabel = document.getElementById("adx-voice-label");
+  let voiceMuted = false;
+  let hasWelcomed = false;
+
+  function pickBestNeuralVoice() {
+    if (!("speechSynthesis" in window)) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    const preferred = [
+      "Microsoft Aria Online (Natural)",
+      "Microsoft Sonia Online (Natural)",
+      "Microsoft Guy Online (Natural)",
+      "Microsoft Ryan Online (Natural)",
+      "Google UK English Female",
+      "Google US English",
+    ];
+    for (const p of preferred) {
+      const match = voices.find((v) => v.name.includes(p));
+      if (match) return match;
+    }
+    return voices.find((v) => v.lang && v.lang.startsWith("en")) || voices[0] || null;
+  }
+
+  window.speakAdxVoice = function (text, force = false) {
+    if (!("speechSynthesis" in window)) return;
+    if (voiceMuted && !force) return;
+
+    try {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      const bestVoice = pickBestNeuralVoice();
+      if (bestVoice) utter.voice = bestVoice;
+      utter.rate = 1.02;
+      utter.pitch = 1.0;
+
+      utter.onstart = () => {
+        if (voiceOrb) voiceOrb.classList.add("speaking");
+        if (voiceLabel) voiceLabel.textContent = "AEGIS Speaking...";
+      };
+      utter.onend = () => {
+        if (voiceOrb) voiceOrb.classList.remove("speaking");
+        if (voiceLabel) voiceLabel.textContent = "AEGIS Voice Brief";
+      };
+      utter.onerror = () => {
+        if (voiceOrb) voiceOrb.classList.remove("speaking");
+        if (voiceLabel) voiceLabel.textContent = "AEGIS Voice Brief";
+      };
+
+      window.speechSynthesis.speak(utter);
+    } catch (e) {
+      // Ignore browser autoplay block until first interaction
+    }
+  };
+
+  function getWelcomeGreeting() {
+    if (voiceOrb && voiceOrb.dataset.greeting) {
+      return voiceOrb.dataset.greeting;
+    }
+    return "Welcome to A D X Group. Silent Innovation. Absolute Defense. Enter your company domain to run a live 2026 C V E security diagnostic.";
+  }
+
+  function triggerAutoWelcome() {
+    if (hasWelcomed) return;
+    hasWelcomed = true;
+    window.speakAdxVoice(getWelcomeGreeting(), true);
+  }
+
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.onvoiceschanged = () => {
+      pickBestNeuralVoice();
+    };
+    // Attempt immediate welcome; if browser waits for first user click, fire on first click
+    setTimeout(() => {
+      if (!window.speechSynthesis.speaking && !hasWelcomed) {
+        window.speakAdxVoice(getWelcomeGreeting(), true);
+        setTimeout(() => {
+          if (window.speechSynthesis.speaking) {
+            hasWelcomed = true;
+          }
+        }, 250);
+      }
+    }, 600);
+
+    const onFirstInteract = (e) => {
+      if (voiceOrb && voiceOrb.contains(e.target)) return;
+      if (!hasWelcomed) {
+        triggerAutoWelcome();
+      }
+      document.removeEventListener("click", onFirstInteract);
+    };
+    document.addEventListener("click", onFirstInteract);
+  }
+
+  if (voiceOrb) {
+    voiceOrb.addEventListener("click", () => {
+      if (!("speechSynthesis" in window)) return;
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        voiceOrb.classList.remove("speaking");
+        if (voiceLabel) voiceLabel.textContent = "AEGIS Voice Muted";
+        voiceMuted = true;
+      } else {
+        voiceMuted = false;
+        hasWelcomed = true;
+        window.speakAdxVoice(getWelcomeGreeting(), true);
       }
     });
   }
