@@ -349,6 +349,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!("speechSynthesis" in window)) return;
     if (voiceMuted && !force) return;
 
+    // Force explicit letter-by-letter pronunciation ("A, D, X,") and strip "Group" so TTS never slurs "Adex Group"
+    const spokenText = String(text || "")
+      .replace(/\b(A\s*D\s*X|ADX|Adex)\s+Group\b/gi, "A, D, X,")
+      .replace(/\b(A\s*D\s*X|ADX|Adex)\b/gi, "A, D, X,")
+      .replace(/\bC\s*V\s*E\b/gi, "C, V, E,");
+
     try {
       if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
         window.speechSynthesis.cancel();
@@ -356,12 +362,12 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         try {
           window.speechSynthesis.resume();
-          const utter = new SpeechSynthesisUtterance(text);
+          const utter = new SpeechSynthesisUtterance(spokenText);
           window._adxActiveUtterance = utter; // Prevent Chrome GC from dropping audio mid-speech
           const bestVoice = pickBestNeuralVoice();
           if (bestVoice) utter.voice = bestVoice;
           utter.lang = "en-US";
-          utter.rate = 1.0;
+          utter.rate = 0.96;
           utter.pitch = 1.0;
           utter.volume = 1.0;
 
@@ -388,7 +394,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (voiceOrb && voiceOrb.dataset.greeting) {
       return voiceOrb.dataset.greeting;
     }
-    return "Welcome to A D X Group. Silent Innovation. Absolute Defense. Enter your company domain to run a live 2026 C V E security diagnostic.";
+    return "Welcome to A, D, X. Silent Innovation. Absolute Defense. Enter your company domain to run a live 2026 C, V, E, security diagnostic.";
   }
 
   function triggerAutoWelcome() {
