@@ -13,7 +13,7 @@ from typing import Any, Dict, Optional
 
 from a2wsgi import ASGIMiddleware
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -133,6 +133,32 @@ async def api_update_profile(request: Request, payload: ProfileUpdateRequest):
         return {"ok": True, "user": updated}
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
+
+
+@asgi_app.get("/robots.txt", response_class=Response)
+async def robots_txt():
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(
+        "User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /dashboard\n\nSitemap: https://adxgroup.tech/sitemap.xml\n"
+    )
+
+
+@asgi_app.get("/sitemap.xml", response_class=Response)
+async def sitemap_xml():
+    xml_content = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://adxgroup.tech/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://adxgroup.tech/login</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>"""
+    return Response(content=xml_content, media_type="application/xml")
 
 
 @asgi_app.get("/", response_class=HTMLResponse)
