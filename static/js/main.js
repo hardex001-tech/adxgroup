@@ -219,6 +219,9 @@ document.addEventListener("DOMContentLoaded", () => {
       appendChatMessage(message, "chat-user");
       chatInput.value = "";
 
+      // Show immediate 3-dot AI Thinking bubble
+      const thinkingDiv = createThinkingBubble();
+
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
@@ -227,12 +230,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const payload = await res.json();
         if (payload.ok && payload.data) {
-          appendChatMessage(payload.data.reply, "chat-bot");
+          streamBotReply(thinkingDiv, payload.data.reply);
         } else {
-          appendChatMessage("Please reach our engineering desk at contact@adxgroup.tech.", "chat-bot");
+          streamBotReply(thinkingDiv, "Please reach our engineering desk at contact@adxgroup.tech.");
         }
       } catch (err) {
-        appendChatMessage("Connection interrupted. Email contact@adxgroup.tech for immediate support.", "chat-bot");
+        streamBotReply(thinkingDiv, "Connection interrupted. Email contact@adxgroup.tech for immediate support.");
       }
     });
   }
@@ -244,6 +247,42 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/__/g, "")
       .replace(/`/g, "")
       .trim();
+  }
+
+  function createThinkingBubble() {
+    const div = document.createElement("div");
+    div.className = "chat-msg chat-bot";
+    div.style.whiteSpace = "pre-line";
+    div.innerHTML = `
+      <div class="ai-thinking-wrap">
+        <span>ADX Neural Core is thinking</span>
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+      </div>
+    `;
+    chatLog.appendChild(div);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return div;
+  }
+
+  function streamBotReply(targetDiv, rawText) {
+    const cleanText = cleanDisplayMessage(rawText);
+    const tokens = cleanText.split(/(?=[ \n])/);
+    targetDiv.innerHTML = "";
+    targetDiv.classList.add("ai-typing-cursor");
+
+    let idx = 0;
+    const stepSize = tokens.length > 90 ? 3 : 2;
+
+    const timer = setInterval(() => {
+      if (idx < tokens.length) {
+        targetDiv.textContent += tokens.slice(idx, idx + stepSize).join("");
+        idx += stepSize;
+        chatLog.scrollTop = chatLog.scrollHeight;
+      } else {
+        clearInterval(timer);
+        targetDiv.classList.remove("ai-typing-cursor");
+      }
+    }, 24);
   }
 
   function appendChatMessage(text, className) {
