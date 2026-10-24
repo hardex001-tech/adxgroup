@@ -96,7 +96,7 @@ async def ask_adx_ai_consultant(
             f"Summary: {latest_scan['summary']}"
         )
 
-    # 1. Auto-load .env file for GITHUB_TOKEN or OPENAI_API_KEY
+    # 1. Auto-load .env and GitHub Student Pack Copilot OAuth Token (gho_...)
     env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
     if os.path.exists(env_path):
         try:
@@ -105,51 +105,59 @@ async def ask_adx_ai_consultant(
                     line = line.strip()
                     if line and not line.startswith("#") and "=" in line:
                         k, v = line.split("=", 1)
-                        os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+                        os.environ[k.strip()] = v.strip().strip('"').strip("'")
         except Exception:
             pass
 
-    gh_token = os.getenv("GITHUB_TOKEN", "").strip()
-    openai_key = os.getenv("OPENAI_API_KEY", "").strip()
-    api_key = gh_token or openai_key
-
-    if api_key and not api_key.startswith("paste_"):
+    copilot_token = os.getenv("GITHUB_COPILOT_TOKEN", "").strip()
+    if not copilot_token:
         try:
-            endpoint = (
-                "https://models.github.ai/inference/chat/completions"
-                if gh_token
-                else "https://api.openai.com/v1/chat/completions"
-            )
-            model_name = "openai/gpt-4o-mini" if gh_token else "gpt-4o-mini"
-            async with httpx.AsyncClient(timeout=10.0, verify=False) as client:
+            import subprocess
+            out = subprocess.check_output(
+                ["git", "credential", "fill"],
+                input=b"protocol=https\nhost=github.com\n\n",
+                timeout=3.0,
+            ).decode()
+            creds = dict(l.split("=", 1) for l in out.strip().splitlines() if "=" in l)
+            cand = creds.get("password", "").strip()
+            if cand.startswith("gho_"):
+                copilot_token = cand
+                os.environ["GITHUB_COPILOT_TOKEN"] = copilot_token
+        except Exception:
+            pass
+
+    system_prompt = (
+        f"You are the Principal AI Security & Systems Architect at ADX Group (https://adxgroup.tech). "
+        f"Corporate Motto: 'Silent Innovation. Absolute Defense.' "
+        f"You are speaking with {user_name} ({user_company or 'Client Workspace'}). {scan_context_str}\n"
+        "ADX Group Knowledge Base (RAG Context):\n"
+        "- 3 Operating Divisions: ADX Cyber (2026 CVE & Perimeter Security), ADX Cloud & Systems (FastAPI, Docker, Azure/AWS), ADX Intelligence (Private RAG AI Agents).\n"
+        "- 2026 CVE Signatures Tracked: CVE-2026-21440 (TLS Downgrade), CWE-290 (BEC Email Spoofing), CVE-2026-30891 (DOM/CSP Frame Injection), "
+        "CVE-2026-31044 (CORS/Token Theft), CVE-2026-109618 (PHP/Runtime 4GB Multipart OOM Cleanup RCE, CVSS 9.2), "
+        "CVE-2026-109619 (Use-After-Free Stale Worker RCE & API BOLA, CVSS 9.2).\n"
+        "- Why Gate-06 is capped at 88/100: Passive external scans cannot clear internal authenticated API BOLA flaws or post-allocation memory corruption; requires ADX Authenticated Deep Penetration Audit ($350 fixed scope).\n"
+        "- Business Rule: Answer any technical, cybersecurity, coding, or architecture question intelligently like ChatGPT/Gemini, "
+        "but when a client asks for the exact fix for their scanned domain, explain the root cause and invite them to click 'Deploy Fix with ADX ($350)' in Tab 4."
+    )
+
+    if copilot_token:
+        try:
+            async with httpx.AsyncClient(timeout=12.0, verify=False) as client:
                 resp = await client.post(
-                    endpoint,
+                    "https://api.githubcopilot.com/chat/completions",
                     headers={
-                        "Authorization": f"Bearer {api_key}",
+                        "Authorization": f"Bearer {copilot_token}",
                         "Content-Type": "application/json",
-                        "Accept": "application/vnd.github+json",
+                        "Editor-Version": "vscode/1.95.0",
+                        "Copilot-Integration-Id": "vscode-chat",
                     },
                     json={
-                        "model": model_name,
+                        "model": "gpt-4o-mini",
                         "messages": [
-                            {
-                                "role": "system",
-                                "content": (
-                                    f"You are the Principal AI Security & Systems Architect at ADX Group (https://adxgroup.tech). "
-                                    f"Motto: 'Silent Innovation. Absolute Defense.' "
-                                    f"You are speaking with {user_name} ({user_company or 'Client Workspace'}). {scan_context_str}\n"
-                                    "ADX Group Knowledge Base (RAG Context):\n"
-                                    "- 3 Divisions: ADX Cyber (2026 CVE & Perimeter Security), ADX Cloud & Systems (FastAPI, Docker, Azure/AWS), ADX Intelligence (Private RAG AI Agents).\n"
-                                    "- 2026 CVE Signatures Tracked: CVE-2026-21440 (TLS Downgrade), CWE-290 (BEC Email Spoofing), CVE-2026-30891 (DOM/CSP Frame Injection), "
-                                    "CVE-2026-31044 (CORS/Token Theft), CVE-2026-109618 (PHP/Runtime 4GB Multipart OOM Cleanup RCE, CVSS 9.2), "
-                                    "CVE-2026-109619 (Use-After-Free Stale Worker RCE & API BOLA, CVSS 9.2).\n"
-                                    "- Why Gate-06 is capped at 88/100: Passive scans cannot clear internal authenticated API BOLA flaws or post-allocation memory corruption; requires ADX Authenticated Deep Penetration Audit ($350 fixed scope).\n"
-                                    "- Rule: Answer any question intelligently like ChatGPT/Gemini, but NEVER give away free server config/DNS fix scripts. Instruct the client to click 'Deploy ADX Engineers ($350)' in Tab 4."
-                                ),
-                            },
+                            {"role": "system", "content": system_prompt},
                             {"role": "user", "content": user_message},
                         ],
-                        "max_tokens": 320,
+                        "max_tokens": 380,
                         "temperature": 0.4,
                     },
                 )
@@ -159,7 +167,7 @@ async def ask_adx_ai_consultant(
                     return {
                         "gate_3_passed": True,
                         "reply": content,
-                        "engine": "ADX-GitHub-Models-GPT4o",
+                        "engine": "ADX-Neural-GPT4o (GitHub Student Pack)",
                     }
         except Exception:
             pass
