@@ -340,21 +340,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let activeAudio = null;
 
   const botAvatarSvg = `
-    <svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="botHeadGrad" cx="35%" cy="25%" r="70%">
-          <stop offset="0%" stop-color="#93c5fd"/>
-          <stop offset="55%" stop-color="#2563eb"/>
-          <stop offset="100%" stop-color="#1e3a8a"/>
-        </radialGradient>
-      </defs>
-      <line x1="32" y1="6" x2="32" y2="14" stroke="#93c5fd" stroke-width="3" stroke-linecap="round"/>
-      <circle cx="32" cy="5" r="3.5" fill="#38bdf8"/>
-      <rect x="12" y="14" width="40" height="34" rx="16" fill="url(#botHeadGrad)" stroke="#bfdbfe" stroke-width="2"/>
-      <rect x="17" y="21" width="30" height="16" rx="8" fill="#091540"/>
-      <circle cx="25.5" cy="29" r="3.2" fill="#38bdf8"/>
-      <circle cx="38.5" cy="29" r="3.2" fill="#38bdf8"/>
-      <path d="M26 41C28 43 36 43 38 41" stroke="#e0f2fe" stroke-width="2.5" stroke-linecap="round"/>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
     </svg>
   `;
 
@@ -457,12 +444,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function initAegisConciergeCard() {
     if (document.getElementById("aegis-concierge-card")) return;
 
-    const isDashboard = window.location.pathname.includes("/dashboard");
+    // Do NOT display floating popup assistant on the dashboard console.
+    // Dashboard users have the dedicated "ADX AI Systems Architect" tab (Tab 2) in the left sidebar!
+    if (window.location.pathname.includes("/dashboard")) return;
 
-    // 1. Create the WIT-h style White & Royal-Blue Assistant Card
     const card = document.createElement("div");
     card.id = "aegis-concierge-card";
-    card.className = "aegis-concierge-card";
+    card.className = "aegis-concierge-card closed";
 
     card.innerHTML = `
       <div class="aegis-card-header">
@@ -539,7 +527,7 @@ document.addEventListener("DOMContentLoaded", () => {
     launcher.type = "button";
     launcher.id = "aegis-launcher-orb";
     launcher.className = "aegis-launcher-orb";
-    launcher.title = "Open / Close ADX's BFF";
+    launcher.title = "ADX Assistant";
     launcher.innerHTML = botAvatarSvg;
     document.body.appendChild(launcher);
 
