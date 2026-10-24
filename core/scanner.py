@@ -451,9 +451,17 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
 
         ssl_res, dns_res, http_res = await asyncio.gather(ssl_task, dns_task, http_task)
 
-    if not http_res.get("Reachable") and not ssl_res.get("passed") and not mx_records:
+    if not http_res.get("Reachable"):
         raise ValueError(
             f"Target domain '{domain}' (Host IP: {primary_ip}) is offline. Web ports 80 and 443 refused connection with zero active listeners."
+        )
+
+    # Reject non-operational or error status codes on root (401, 403, 404, 500, 502, 503, 504)
+    http_status = http_res.get("http_status", 0)
+    if http_status in (401, 403, 404, 500, 502, 503, 504) or (http_status >= 400 and not ssl_res.get("passed")):
+        raise ValueError(
+            f"Target domain '{domain}' is not a live or operational website (Server returned HTTP {http_status} with no active application). "
+            "ADX Group audits operational web applications, software platforms, and active business services."
         )
 
     if http_res.get("is_parked"):
