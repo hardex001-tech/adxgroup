@@ -23,6 +23,7 @@ from core.auth import (
     add_monitored_domain,
     create_or_login_oauth_user,
     delete_session,
+    delete_user_account,
     get_admin_command_center_data,
     get_client_dashboard_data,
     get_user_by_token,
@@ -133,6 +134,21 @@ async def api_update_profile(request: Request, payload: ProfileUpdateRequest):
         return {"ok": True, "user": updated}
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
+
+
+@asgi_app.post("/api/auth/delete-account")
+async def api_delete_account(request: Request):
+    """Permanently delete user account and invalidate session."""
+    user = _current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    delete_user_account(user["id"])
+    token = request.cookies.get(SESSION_COOKIE)
+    if token:
+        delete_session(token)
+    resp = JSONResponse(content={"ok": True, "redirect": "/login?deleted=true"})
+    resp.delete_cookie(SESSION_COOKIE, path="/")
+    return resp
 
 
 @asgi_app.api_route("/robots.txt", methods=["GET", "HEAD"], response_class=Response)

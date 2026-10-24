@@ -137,6 +137,11 @@ def init_db() -> None:
                 full_json TEXT NOT NULL,
                 created_at TEXT NOT NULL
             );
+
+            CREATE TABLE IF NOT EXISTS deleted_accounts (
+                email TEXT PRIMARY KEY,
+                deleted_at TEXT NOT NULL
+            );
             """
         )
 
@@ -167,6 +172,10 @@ def create_or_login_oauth_user(email: str, name: str, provider: str, company: st
     role = "admin" if clean_email in OWNER_EMAILS else "client"
 
     with _get_conn() as conn:
+        deleted = conn.execute("SELECT 1 FROM deleted_accounts WHERE email = ?", (clean_email,)).fetchone()
+        if deleted:
+            raise ValueError("This account was permanently deleted. Please register for a new account.")
+
         row = conn.execute("SELECT * FROM users WHERE email = ?", (clean_email,)).fetchone()
         if row:
             user_id = row["id"]
@@ -201,6 +210,7 @@ def register_email_user(name: str, email: str, password: str, company: str = "")
     pw_hash = _hash_password(password)
 
     with _get_conn() as conn:
+        conn.execute("DELETE FROM deleted_accounts WHERE email = ?", (clean_email,))
         existing = conn.execute("SELECT id FROM users WHERE email = ?", (clean_email,)).fetchone()
         if existing:
             raise ValueError("An account with this email already exists. Please sign in instead.")
@@ -231,6 +241,10 @@ def login_email_user(email: str, password: str) -> Dict[str, Any]:
     clean_name = clean_email.split("@")[0].title()
 
     with _get_conn() as conn:
+        deleted = conn.execute("SELECT 1 FROM deleted_accounts WHERE email = ?", (clean_email,)).fetchone()
+        if deleted:
+            raise ValueError("This account was permanently deleted. Please register for a new account.")
+
         row = conn.execute("SELECT * FROM users WHERE email = ?", (clean_email,)).fetchone()
         if row:
             if not _verify_password(password, row["password_hash"]):
@@ -304,12 +318,19 @@ def get_user_by_token(token: Optional[str]) -> Optional[Dict[str, Any]]:
     if not token:
         return None
 
+    init_db()
     # Fast-path: Cryptographic verification works across all serverless containers with zero DB dependency
     signed_user = decode_signed_token(token)
     if signed_user:
+        with _get_conn() as conn:
+            is_del = conn.execute(
+                "SELECT 1 FROM deleted_accounts WHERE email = ?",
+                (signed_user.get("email", "").lower(),),
+            ).fetchone()
+            if is_del:
+                return None
         return _format_user(signed_user)
 
-    init_db()
     with _get_conn() as conn:
         row = conn.execute(
             """
@@ -348,7 +369,25 @@ def update_user_profile(user_id: int, name: str, company: str) -> Dict[str, Any]
             (user_id,),
         ).fetchone()
         conn.commit()
-    return dict(user)
+    return _format_user(dict(user)) if user else {}
+
+
+def delete_user_account(user_id: int) -> bool:
+    """Permanently delete a user account, sessions, monitored domains, and diagnostic records."""
+    init_db()
+    with _get_conn() as conn:
+        user = conn.execute("SELECT email FROM users WHERE id = ?", (user_id,)).fetchone()
+        if user:
+            conn.execute(
+                "INSERT OR REPLACE INTO deleted_accounts (email, deleted_at) VALUES (?, ?)",
+                (user["email"].lower(), _now_str()),
+            )
+        conn.execute("DELETE FROM sessions WHERE user_id = ?", (user_id,))
+        conn.execute("DELETE FROM monitored_domains WHERE user_id = ?", (user_id,))
+        conn.execute("DELETE FROM scans WHERE user_id = ?", (user_id,))
+        conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        conn.commit()
+    return True
 
 
 def record_scan_event(scan_data: Dict[str, Any], user: Optional[Dict[str, Any]] = None) -> int:

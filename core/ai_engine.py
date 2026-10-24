@@ -84,7 +84,7 @@ def verify_prompt_safety(user_message: str) -> Dict[str, Any]:
 
 
 def generate_ai_executive_summary(scan_result: Dict[str, Any]) -> str:
-    """Synthesize the 6-gate diagnostic & 2026 CVE results into a high-credibility Executive Brief."""
+    """Synthesize verifiable infrastructure and perimeter telemetry into a clean executive summary."""
     domain = scan_result["domain"]
     score = scan_result["score"]
     grade = scan_result["grade"]
@@ -92,33 +92,28 @@ def generate_ai_executive_summary(scan_result: Dict[str, Any]) -> str:
     ip_str = tel.get("resolved_ip", "Unknown")
     tls_str = tel.get("tls_protocol", "Unknown")
     latency = tel.get("latency_ms", 0)
+    issuer = tel.get("cert_issuer", "Unknown CA")
 
-    failed_surface = [
-        g for g in scan_result["gates"] if not g["state"] and g["gate_id"] != "GATE-06"
-    ]
+    failed_gates = [g for g in scan_result["gates"] if not g["state"]]
 
-    if score >= 95:
+    if score >= 90:
         return (
-            f"ADX Threat Intelligence Brief for {domain} (Host {ip_str} | {tls_str} in {latency}ms | Grade {grade}, {score}/100): "
-            f"All 6 external and internal defense gates passed verification. This asset is protected by ADX Zero-Trust Edge, "
-            f"strict SPF/DMARC anti-spoofing, full HSTS/CSP browser isolation, and has completed authenticated GATE-06 2026 CVE stress certification."
+            f"Infrastructure Audit for {domain} (Host: {ip_str} | {tls_str} via {issuer} in {latency}ms | Grade {grade}, {score}/100): "
+            f"All perimeter hygiene gates passed verification. Strong TLS cipher negotiation, strict SPF and DMARC domain protection, "
+            f"and defensive HTTP browser isolation headers are properly enforced."
         )
 
-    if not failed_surface:
+    if not failed_gates:
         return (
-            f"ADX Threat Intelligence Brief for {domain} (Host {ip_str} | {tls_str} in {latency}ms | Grade {grade}, {score}/100): "
-            f"All 5 external surface gates passed verification. However, GATE-06 (Deep Internal & 2026 Zero-Day Runtime Surface, "
-            f"including CVE-2026-109618/109619 memory corruption and authenticated API BOLA vectors) cannot be cleared by passive "
-            f"inspection alone. Recommend scheduling an ADX Authenticated Deep Penetration Audit ($350) to certify internal endpoints."
+            f"Infrastructure Audit for {domain} (Host: {ip_str} | {tls_str} in {latency}ms | Grade {grade}, {score}/100): "
+            f"Core transport and domain hygiene gates verified. Primary edge proxy routing confirmed."
         )
 
-    cves = ", ".join(g["cve_ref"].split("/")[0].strip() for g in failed_surface[:3])
-    vectors = ", ".join(g["vector"] for g in failed_surface)
+    vectors = ", ".join(g["vector"] for g in failed_gates)
     return (
-        f"ADX Threat Intelligence Brief for {domain} (Host {ip_str} | Grade {grade}, {score}/100): "
-        f"Detected {len(failed_surface)} active external security gap(s) across {vectors} "
-        f"(Mapped to 2026 Threat Advisories: {cves}), plus unverified deep runtime exposure (GATE-06). "
-        f"Remediation configurations are locked to prevent unauthorized tampering. Dispatch ADX Engineering below to patch and certify this asset."
+        f"Infrastructure Audit for {domain} (Host: {ip_str} | {tls_str} in {latency}ms | Grade {grade}, {score}/100): "
+        f"Detected {len(failed_gates)} configuration gap(s) requiring remediation across: {vectors}. "
+        f"Review the technical parameter details below to harden domain headers, DNS authentication, or transport settings."
     )
 
 

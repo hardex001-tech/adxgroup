@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const tel = data.telemetry || {};
 
         resultsBox.classList.remove("hidden");
-        domainTitle.textContent = `${data.domain} | Live Telemetry & 2026 CVE Audit (${data.timestamp})`;
+        domainTitle.textContent = `${data.domain} | Infrastructure & Network Telemetry (${data.timestamp})`;
         scoreValue.textContent = `${data.score}/100`;
         gradeBadge.textContent = `GRADE ${data.grade} | ${data.risk_level}`;
         aiSummaryText.textContent = data.ai_executive_summary;
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (pct >= 80) {
             scoreRingCircle.style.stroke = "#10b981";
           } else if (pct >= 60) {
-            scoreRingCircle.style.stroke = "#38bdf8";
+            scoreRingCircle.style.stroke = "#2563eb";
           } else {
             scoreRingCircle.style.stroke = "#ef4444";
           }
@@ -88,47 +88,14 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <div class="telemetry-cell">
               <span>Audit Depth</span>
-              <strong style="color: var(--accent-cyan);">6-Gate Surface + 2026 CVE</strong>
+              <strong style="color: var(--accent-primary);">6-Gate Infrastructure Hygiene</strong>
             </div>
           `;
         }
 
-        if (cveReportMatrix && Array.isArray(data.cve_2026_report)) {
-          const mitigatedCount = data.cve_2026_report.filter((c) => c.passed).length;
-          const openCount = data.cve_2026_report.length - mitigatedCount;
-          if (cveSummaryBadge) {
-            cveSummaryBadge.textContent = `${mitigatedCount} MITIGATED | ${openCount} OPEN / UNVERIFIED 2026 CVEs`;
-          }
-
-          cveReportMatrix.innerHTML = data.cve_2026_report
-            .map((c) => {
-              let statusClass = "badge-false";
-              if (c.passed) {
-                statusClass = "badge-true";
-              } else if (c.gate_id === "GATE-06") {
-                statusClass = "badge-warn";
-              }
-              return `
-                <div class="cve-report-card">
-                  <div class="cve-card-top">
-                    <span class="cve-id-pill">${escapeHtml(c.cve_id)}</span>
-                    <span class="cvss-pill">CVSS ${escapeHtml(c.cvss)}</span>
-                  </div>
-                  <div style="font-weight: 700; font-size: 0.86rem; color: var(--text-main); margin-bottom: 4px;">
-                    ${escapeHtml(c.title)}
-                  </div>
-                  <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px;">
-                    Target Surface: ${escapeHtml(c.surface)}
-                  </div>
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted);">${escapeHtml(c.gate_id)}</span>
-                    <span class="${statusClass}" style="padding: 2px 8px; font-size: 0.68rem;">${escapeHtml(c.status)}</span>
-                  </div>
-                </div>
-              `;
-            })
-            .join("");
-        }
+        // Hide CVE exposure section from search results (CVEs belong exclusively to Tab 3 Threat Intelligence Radar)
+        const cveSection = document.querySelector(".cve-report-section");
+        if (cveSection) cveSection.style.display = "none";
 
         gatesTableBody.innerHTML = "";
         data.gates.forEach((g) => {
@@ -193,14 +160,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (window.speakAdxVoice) {
           window.speakAdxVoice(
-            `Diagnostic complete for ${data.domain}. Surface security posture scored ${data.score} out of 100, Grade ${data.grade}.`
+            `Diagnostic complete for ${data.domain}. Infrastructure parameters scored ${data.score} out of 100, Grade ${data.grade}.`
           );
         }
       } catch (err) {
         alert("Network error while running diagnostic scan.");
       } finally {
         scanBtn.disabled = false;
-        scanBtn.textContent = "Run 6-Gate CVE Audit";
+        scanBtn.textContent = "Audit Infrastructure Parameters";
       }
     });
   }
@@ -379,37 +346,71 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.speakAdxVoice = async function (text, force = false) {
     if (voiceMuted && !force) return;
-    if (!text) {
+    const launcher = document.getElementById("aegis-launcher-orb");
+    const orb = document.getElementById("adx-voice-orb");
+
+    let speechText = text;
+    if (!speechText) {
       const isDash = window.location.pathname.includes("/dashboard");
-      const welcomeUrl = isDash
-        ? "/static/audio/welcome_console.mp3?v=2026.18"
-        : "/static/audio/welcome_home.mp3?v=2026.18";
-      playAudioUrl(welcomeUrl).catch(() => {
-        const launcher = document.getElementById("aegis-launcher-orb");
-        if (launcher) launcher.classList.remove("speaking");
-      });
-      return;
+      const isLogin = window.location.pathname.includes("/login");
+      const p = new URLSearchParams(window.location.search);
+      if (p.get("deleted") === "true") {
+        speechText = "Account permanently deleted. Welcome to A. D. X.";
+      } else if (p.get("logout") === "true") {
+        speechText = "You have signed out. Welcome to A. D. X. Identity gateway is online.";
+      } else if (isLogin) {
+        speechText = "Welcome to A. D. X. Sign in with Apple, Google, Microsoft, GitHub, or your work email.";
+      } else if (isDash) {
+        const orbEl = document.getElementById("adx-voice-orb");
+        speechText = orbEl && orbEl.getAttribute("data-greeting")
+          ? orbEl.getAttribute("data-greeting")
+          : "Welcome to A. D. X. Your infrastructure scanner and A. I. systems architect are online.";
+      } else {
+        speechText = "Welcome to A. D. X. Silent Innovation. Absolute Defense.";
+      }
     }
+
     try {
       stopActiveVoice();
+      if (launcher) launcher.classList.add("speaking");
+      if (orb) orb.classList.add("speaking");
+
       const res = await fetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text: speechText }),
       });
-      if (!res.ok) return;
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      playAudioUrl(url).catch(() => {});
-    } catch (e) {}
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        await playAudioUrl(url);
+      } else {
+        throw new Error("TTS endpoint error");
+      }
+    } catch (e) {
+      // Browser SpeechSynthesis fallback
+      try {
+        if ("speechSynthesis" in window) {
+          const utter = new SpeechSynthesisUtterance(speechText.replace(/A\.\s*D\.\s*X\./g, "A D X"));
+          utter.rate = 1.0;
+          utter.onend = () => {
+            if (launcher) launcher.classList.remove("speaking");
+            if (orb) orb.classList.remove("speaking");
+          };
+          window.speechSynthesis.speak(utter);
+        }
+      } catch (err) {}
+    } finally {
+      setTimeout(() => {
+        if (!activeAudio) {
+          if (launcher) launcher.classList.remove("speaking");
+          if (orb) orb.classList.remove("speaking");
+        }
+      }, 3500);
+    }
   };
 
   function setupAutoWelcomeVoice() {
-    const isDash = window.location.pathname.includes("/dashboard");
-    const welcomeUrl = isDash
-      ? "/static/audio/welcome_console.mp3?v=2026.18"
-      : "/static/audio/welcome_home.mp3?v=2026.18";
-
     const bindFallbackUnlock = () => {
       const unlockHandler = (e) => {
         const closeBtn = document.getElementById("aegis-close-btn");
@@ -419,7 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (!hasWelcomed && !voiceMuted) {
           hasWelcomed = true;
-          playAudioUrl(welcomeUrl).catch(() => {});
+          window.speakAdxVoice(null, false);
         }
         cleanupUnlock();
       };
@@ -433,20 +434,14 @@ document.addEventListener("DOMContentLoaded", () => {
       document.addEventListener("touchstart", unlockHandler);
     };
 
-    // Attempt immediate playback on login/load; if browser requires gesture first, unlock on first click
-    playAudioUrl(welcomeUrl).catch(() => {
-      const launcher = document.getElementById("aegis-launcher-orb");
-      if (launcher) launcher.classList.remove("speaking");
+    // Attempt immediate playback on page load; if browser requires user gesture first, unlock on first click
+    window.speakAdxVoice(null, false).catch(() => {
       bindFallbackUnlock();
     });
   }
 
   function initAegisConciergeCard() {
     if (document.getElementById("aegis-concierge-card")) return;
-
-    // Do NOT display floating popup assistant on the dashboard console.
-    // Dashboard users have the dedicated "ADX AI Systems Architect" tab (Tab 2) in the left sidebar!
-    if (window.location.pathname.includes("/dashboard")) return;
 
     const card = document.createElement("div");
     card.id = "aegis-concierge-card";

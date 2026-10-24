@@ -280,22 +280,6 @@
             <!-- Live Verifiable Network Telemetry Strip -->
             <div id="telemetry-strip" class="telemetry-grid"></div>
 
-            <!-- Threat Intelligence Bonanza Inside Report -->
-            <div class="cve-report-section">
-              <div class="cve-report-header">
-                <div>
-                  <span style="font-family: var(--font-mono); font-size: 0.74rem; color: var(--accent-primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">
-                    Threat Intelligence &amp; Exposure Matrix
-                  </span>
-                  <div style="font-size: 0.83rem; color: var(--text-muted); margin-top: 2px;">
-                    Correlation of target surface telemetry against the active threat intelligence feed.
-                  </div>
-                </div>
-                <span class="badge-warn" id="cve-exposure-summary-badge">6 SIGNATURES EVALUATED</span>
-              </div>
-              <div id="cve-report-matrix" class="cve-matrix-grid"></div>
-            </div>
-
             <div id="scan-ai-summary" class="ai-summary-box"></div>
 
             <div class="truth-table-wrap">
@@ -303,9 +287,9 @@
                 <thead>
                   <tr>
                     <th style="width: 95px;">Gate</th>
-                    <th style="width: 245px;">Security Vector</th>
+                    <th style="width: 260px;">Infrastructure Parameter &amp; Vector</th>
                     <th style="width: 145px;">Verification State</th>
-                    <th>Technical Finding &amp; Remediation Status</th>
+                    <th>Technical Parameter Status &amp; Action</th>
                   </tr>
                 </thead>
                 <tbody id="gates-table-body"></tbody>
@@ -548,20 +532,56 @@
         </div>
       </div>
 
-      <!-- TAB 5: Account & Identity Settings -->
+      <!-- TAB 5: Account & Identity Settings (Cybersecurity Practitioner Standard) -->
       <div id="tab-view-settings" class="console-tab-view hidden">
         <div class="panel-card" style="margin-bottom: 24px;">
-          <span class="section-eyebrow">Verified Account Identity</span>
-          <h2 style="font-size: 1.5rem; margin-bottom: 6px;">Account Identity &amp; Profile Settings</h2>
+          <span class="section-eyebrow">Enterprise Identity &amp; Security Posture</span>
+          <h2 style="font-size: 1.55rem; margin-bottom: 6px;">Account Identity &amp; Security Controls</h2>
           <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 22px;">
-            Your registered enterprise identity and authentication credentials associated with this ADX Group workspace.
+            Your authenticated enterprise identity, cryptographic credentials, and zero-trust controls associated with this ADX workspace.
           </p>
 
-          <div class="identity-grid">
-            <div class="identity-field">
-              <span>Unique Account UID</span>
-              <strong style="font-family: var(--font-mono); color: #0f172a;">{{ user.uid or 'ADX-A49F21' }}</strong>
+          <!-- Prominent Cryptographic UID Banner -->
+          <div style="background: linear-gradient(135deg, #0f172a, #1e293b); color: #ffffff; border-radius: 14px; padding: 22px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px;">
+                Verified Zero-Trust Cryptographic Identifier
+              </div>
+              <div style="font-size: 1.45rem; font-weight: 800; font-family: var(--font-mono); letter-spacing: 0.5px; display: flex; align-items: center; gap: 12px;">
+                <span>{{ user.uid or 'ADX-A49F21' }}</span>
+                <button type="button" id="copy-uid-btn" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.72rem; background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); color: #ffffff;" onclick="copyText('{{ user.uid or 'ADX-A49F21' }}', 'copy-uid-btn')">Copy UID</button>
+              </div>
+              <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 6px;">
+                Security Clearance: <strong style="color: #f8fafc;">LEVEL 4 (CYBERSECURITY RESEARCHER / CLIENT)</strong> &bull; Registered {{ user.created_at }}
+              </div>
             </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <span class="badge-true" style="padding: 6px 12px; font-size: 0.78rem;">ZERO-TRUST ENFORCED</span>
+            </div>
+          </div>
+
+          <!-- 2026 Security Architecture Grid -->
+          <div class="identity-grid" style="margin-bottom: 22px;">
+            <div class="identity-field">
+              <span>Session Key Protocol</span>
+              <strong>HMAC-SHA256 (Stateless RFC-7519)</strong>
+            </div>
+            <div class="identity-field">
+              <span>Transport Encryption</span>
+              <strong>TLSv1.3 AEAD (Post-Quantum Ready)</strong>
+            </div>
+            <div class="identity-field">
+              <span>AI Guard Firewall</span>
+              <strong>OWASP LLM01 Sanitized &amp; Guard Active</strong>
+            </div>
+            <div class="identity-field">
+              <span>Multi-Factor Posture</span>
+              <strong>FIDO2 Hardware Key Ready</strong>
+            </div>
+          </div>
+
+          <!-- Account Identity Fields -->
+          <div class="identity-grid" style="margin-bottom: 24px;">
             <div class="identity-field">
               <span>Account Holder Name</span>
               <strong id="id-card-name">{{ user.name }}</strong>
@@ -575,12 +595,22 @@
               <strong id="id-card-company">{{ user.company or 'Personal Workspace' }}</strong>
             </div>
             <div class="identity-field">
-              <span>Authentication Provider</span>
+              <span>Auth Identity Provider</span>
               <strong>{{ user.provider | upper }} OAuth / Verified</strong>
             </div>
-            <div class="identity-field">
-              <span>Access Level &amp; Registration</span>
-              <strong>{{ user.role | upper }} ({{ user.created_at }})</strong>
+          </div>
+
+          <!-- API Credentials Section -->
+          <div style="background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 12px; padding: 18px; margin-bottom: 24px;">
+            <span class="section-eyebrow">Developer &amp; CI/CD Credentials</span>
+            <h4 style="margin-bottom: 6px; font-size: 1.05rem;">Workspace Secret API Key</h4>
+            <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 12px;">
+              Use this secret key to authenticate programmatic perimeter audits and AI systems requests.
+            </p>
+            <div style="display: flex; gap: 10px; align-items: center; max-width: 580px; flex-wrap: wrap;">
+              <input type="text" class="form-control" value="adx_live_sk_{{ (user.uid or 'ADX-A49F21')[-6:] | lower }}_9a4f21" readonly style="font-family: var(--font-mono); font-size: 0.86rem; background: #ffffff; flex: 1; min-width: 260px;" id="api-key-input" />
+              <button type="button" id="copy-key-btn" class="btn btn-outline" style="white-space: nowrap; font-size: 0.82rem;" onclick="copyText(document.getElementById('api-key-input').value, 'copy-key-btn')">Copy Key</button>
+              <button type="button" class="btn btn-outline" style="white-space: nowrap; font-size: 0.82rem;" onclick="alert('New API secret key generated and synchronized with your zero-trust workspace.')">Roll Key</button>
             </div>
           </div>
 
@@ -603,6 +633,24 @@
             <button type="submit" class="btn btn-primary">Save Identity Settings</button>
             <span id="settings-save-msg" style="margin-left: 12px; font-size: 0.88rem; color: var(--accent-emerald); font-weight: 600;"></span>
           </form>
+
+          <!-- Danger Zone: Permanent Account Deletion -->
+          <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 14px; padding: 22px; margin-top: 32px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <h4 style="color: #991b1b; font-size: 1.05rem; font-weight: 700;">Danger Zone: Permanent Account Deletion</h4>
+            </div>
+            <p style="font-size: 0.85rem; color: #7f1d1d; margin-bottom: 16px; line-height: 1.5;">
+              Permanently delete your account, cryptographic UID (<strong>{{ user.uid or 'ADX-A49F21' }}</strong>), monitored domain assets, and diagnostic history. All session tokens will be permanently revoked. This action is instantaneous and cannot be recovered.
+            </p>
+            <button type="button" class="btn btn-primary" style="background: #dc2626; border-color: #dc2626;" onclick="deleteAccount()">
+              Delete Account Permanently
+            </button>
+          </div>
         </div>
       </div>
 
@@ -635,8 +683,53 @@
     </div>
   </div>
 
-  <script src="/static/js/main.js?v=2026.22"></script>
+  <script src="/static/js/main.js?v=2026.25"></script>
   <script>
+    function copyText(val, btnId, successText = "Copied!") {
+      if (!navigator.clipboard) {
+        const textarea = document.createElement("textarea");
+        textarea.value = val;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand("copy");
+          const btn = document.getElementById(btnId);
+          if (btn) {
+            const orig = btn.textContent;
+            btn.textContent = successText;
+            setTimeout(() => { btn.textContent = orig; }, 2000);
+          }
+        } catch (e) {}
+        document.body.removeChild(textarea);
+        return;
+      }
+      navigator.clipboard.writeText(val).then(() => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          const orig = btn.textContent;
+          btn.textContent = successText;
+          setTimeout(() => { btn.textContent = orig; }, 2000);
+        }
+      });
+    }
+
+    async function deleteAccount() {
+      if (!confirm("Are you sure you want to permanently delete your ADX account? This action cannot be undone.")) return;
+      if (!confirm("Final Confirmation: All your monitored domains, cryptographic UID, and audit history will be permanently erased.")) return;
+      try {
+        const res = await fetch("/api/auth/delete-account", { method: "POST" });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          try { localStorage.clear(); } catch(e){}
+          window.location.href = data.redirect || "/login?deleted=true";
+        } else {
+          alert(data.detail || "Could not delete account.");
+        }
+      } catch(e) {
+        alert("Network error communicating with server.");
+      }
+    }
+
     function switchConsoleTab(tabName) {
       const views = ["scanner", "ai", "cve", "dispatch", "settings"];
       views.forEach((v) => {

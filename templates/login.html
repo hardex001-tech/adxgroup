@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.24" />
   <style>
     :root {
       --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -810,6 +811,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const pendingScan = urlParams.get("scan") || "";
     const isLogout = urlParams.get("logout") === "true";
+    const isDeleted = urlParams.get("deleted") === "true";
 
     function getRedirectUrl(defaultUrl) {
       if (pendingScan) {
@@ -818,11 +820,25 @@
       return defaultUrl || "/dashboard";
     }
 
-    if (isLogout) {
+    if (isDeleted) {
+      try {
+        localStorage.clear();
+      } catch (e) {}
+      const errBox = document.getElementById("auth-error");
+      if (errBox) {
+        errBox.style.color = "#059669";
+        errBox.textContent = "Your account and workspace data have been permanently deleted.";
+      }
+    } else if (isLogout) {
       try {
         localStorage.removeItem("adx_session_token");
         localStorage.removeItem("adx_user");
       } catch (e) {}
+      const errBox = document.getElementById("auth-error");
+      if (errBox) {
+        errBox.style.color = "#0284c7";
+        errBox.textContent = "You have successfully signed out of ADX.";
+      }
     } else {
       window.addEventListener("DOMContentLoaded", async () => {
         try {
@@ -917,5 +933,6 @@
       }
     });
   </script>
+  <script src="/static/js/main.js?v=2026.24"></script>
 </body>
 </html>
