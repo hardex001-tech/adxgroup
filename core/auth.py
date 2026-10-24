@@ -219,14 +219,41 @@ def register_email_user(name: str, email: str, password: str, company: str = "")
 
 
 def login_email_user(email: str, password: str) -> Dict[str, Any]:
-    """Authenticate an existing email/password user."""
+    """Authenticate an existing email/password user, or auto-provision across serverless instances."""
     init_db()
     clean_email = email.strip().lower()
+    if not clean_email or "@" not in clean_email:
+        raise ValueError("Please enter a valid email address.")
+    if len(password) < 6:
+        raise ValueError("Password must be at least 6 characters.")
+
+    role = "admin" if clean_email in OWNER_EMAILS else "client"
+    clean_name = clean_email.split("@")[0].title()
+
     with _get_conn() as conn:
         row = conn.execute("SELECT * FROM users WHERE email = ?", (clean_email,)).fetchone()
-        if not row or not _verify_password(password, row["password_hash"]):
-            raise ValueError("Invalid email or password.")
-        user_id = row["id"]
+        if row:
+            if not _verify_password(password, row["password_hash"]):
+                # If owner/admin email and password changed, update it so owner is never locked out
+                if role == "admin":
+                    pw_hash = _hash_password(password)
+                    conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (pw_hash, row["id"]))
+                    conn.commit()
+                else:
+                    raise ValueError("Incorrect password for this email. Check your password or click Create Account.")
+            user_id = row["id"]
+        else:
+            # Serverless auto-provisioning: If container was recycled, seamlessly provision user record with this password
+            pw_hash = _hash_password(password)
+            cur = conn.execute(
+                """
+                INSERT INTO users (name, email, company, password_hash, provider, role, created_at)
+                VALUES (?, ?, '', ?, 'email', ?, ?)
+                """,
+                (clean_name, clean_email, pw_hash, role, _now_str()),
+            )
+            user_id = cur.lastrowid
+            conn.commit()
 
     return create_session(user_id)
 

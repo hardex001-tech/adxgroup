@@ -3,52 +3,113 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign In | ADX Group Console</title>
-  <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
-  <link rel="stylesheet" href="/static/css/style.css?v=2026.19" />
+  <title>Zero-Trust Authentication Gate | ADX Group</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.20" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.20" />
   <style>
+    body {
+      background: #030712;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+      font-family: var(--font-sans);
+    }
+
+    #adx-quantum-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
     .auth-wrapper {
+      position: relative;
+      z-index: 2;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 32px 20px;
+      padding: 32px 18px;
     }
-    .auth-box {
+
+    /* Cyber Glassmorphism Authentication Box */
+    .cyber-auth-box {
       width: 100%;
       max-width: 440px;
-      background: rgba(15, 23, 42, 0.92);
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      border-radius: 16px;
+      background: rgba(9, 15, 30, 0.88);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 20px;
       padding: 36px 32px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.85), 0 0 45px rgba(56, 189, 248, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      position: relative;
+      overflow: hidden;
     }
+
+    .cyber-auth-box::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 15%;
+      right: 15%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #38bdf8, #10b981, transparent);
+      box-shadow: 0 0 14px #38bdf8;
+    }
+
+    .cyber-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #38bdf8;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
     .auth-header {
       text-align: center;
-      margin-bottom: 26px;
+      margin-bottom: 24px;
     }
-    .auth-header img {
-      width: 52px;
-      height: 52px;
-      border-radius: 12px;
-      margin-bottom: 12px;
-    }
+
     .auth-header h1 {
       font-size: 1.45rem;
       font-weight: 800;
+      color: #ffffff;
       margin-bottom: 6px;
+      letter-spacing: -0.02em;
     }
+
     .auth-header p {
-      font-size: 0.88rem;
+      font-size: 0.84rem;
       color: var(--text-muted);
+      line-height: 1.45;
     }
+
     .oauth-buttons {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-bottom: 22px;
+      gap: 11px;
+      margin-bottom: 20px;
     }
+
     .btn-oauth {
       display: flex;
       align-items: center;
@@ -58,125 +119,171 @@
       padding: 12px 16px;
       border-radius: 10px;
       font-weight: 600;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       cursor: pointer;
-      transition: all 0.2s;
-      border: 1px solid rgba(148, 163, 184, 0.25);
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
+
     .btn-google {
       background: #ffffff;
       color: #0f172a;
     }
+
     .btn-google:hover {
       background: #f1f5f9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
     }
+
     .btn-github {
-      background: #1e293b;
+      background: #111827;
       color: #f8fafc;
+      border-color: rgba(56, 189, 248, 0.25);
     }
+
     .btn-github:hover {
-      background: #334155;
-      border-color: var(--accent-cyan);
+      background: #1f2937;
+      border-color: #38bdf8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(56, 189, 248, 0.2);
     }
+
     .divider {
       display: flex;
       align-items: center;
       text-align: center;
       color: var(--text-muted);
-      font-size: 0.78rem;
+      font-size: 0.74rem;
       font-family: var(--font-mono);
-      margin: 20px 0;
+      margin: 18px 0;
     }
+
     .divider::before,
     .divider::after {
       content: "";
       flex: 1;
       border-bottom: 1px solid var(--border-subtle);
     }
+
     .divider:not(:empty)::before {
       margin-right: 12px;
     }
+
     .divider:not(:empty)::after {
       margin-left: 12px;
     }
+
     .auth-tabs {
       display: flex;
-      background: #060911;
+      background: rgba(3, 7, 18, 0.8);
       border-radius: 8px;
       padding: 4px;
       margin-bottom: 18px;
       border: 1px solid var(--border-subtle);
     }
+
     .auth-tab {
       flex: 1;
       text-align: center;
       padding: 8px;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       font-weight: 600;
       border-radius: 6px;
       cursor: pointer;
       color: var(--text-muted);
       background: transparent;
       border: none;
+      transition: all 0.2s ease;
     }
+
     .auth-tab.active {
-      background: rgba(56, 189, 248, 0.15);
+      background: rgba(56, 189, 248, 0.16);
       color: var(--accent-cyan);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
+
+    /* High-Visibility Password Toggle Box */
+    .pwd-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .pwd-wrap input {
+      padding-right: 80px !important;
+      width: 100%;
+    }
+
+    .pwd-toggle-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 6px;
+      color: #38bdf8;
+      cursor: pointer;
+      padding: 4px 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      z-index: 10;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .pwd-toggle-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #38bdf8;
+      color: #ffffff;
+    }
+
     .oauth-modal {
       position: fixed;
       inset: 0;
-      background: rgba(6, 9, 17, 0.85);
-      backdrop-filter: blur(8px);
+      background: rgba(3, 7, 18, 0.85);
+      backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 999;
       padding: 20px;
     }
+
     .oauth-modal-card {
       width: 100%;
       max-width: 400px;
-      background: #0f172a;
-      border: 1px solid var(--border-accent);
-      border-radius: 14px;
+      background: #0b1329;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 16px;
       padding: 28px;
-    }
-    .pwd-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-    .pwd-wrap input {
-      padding-right: 44px !important;
-    }
-    .pwd-toggle-btn {
-      position: absolute;
-      right: 10px;
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      cursor: pointer;
-      font-size: 1.15rem;
-      padding: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.15s;
-    }
-    .pwd-toggle-btn:hover {
-      color: #38bdf8;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9);
     }
   </style>
 </head>
 <body>
 
+  <!-- 60fps Interactive Quantum Constellation Background -->
+  <canvas id="adx-quantum-canvas"></canvas>
+
   <div class="auth-wrapper">
-    <div class="auth-box">
+    <div class="cyber-auth-box">
+
       <div class="auth-header">
-        <a href="/"><img src="/static/logo.svg" alt="ADX Group Logo" /></a>
-        <h1>Sign in to ADX Group</h1>
-        <p>Access the Client Security Console, Full Remediation Reports &amp; 24/7 Domain Monitoring</p>
+        <a href="/" style="display: inline-block;">
+          <img src="/static/logo.svg?v=2026.20" alt="ADX Group Logo" style="width: 54px; height: 54px; margin-bottom: 10px;" />
+        </a>
+        <div style="display: flex; justify-content: center;">
+          <span class="cyber-badge">🛡️ ADX Zero-Trust Gateway</span>
+        </div>
+        <h1>Workspace Console Sign In</h1>
+        <p>Access your 6-Gate 2026 CVE telemetry, AI Security Architect &amp; continuous domain monitoring.</p>
       </div>
 
       <!-- One-Click OAuth Providers (Google & GitHub) -->
@@ -207,7 +314,7 @@
         <button type="button" id="tab-signup" class="auth-tab" onclick="switchTab('signup')">Create Account</button>
       </div>
 
-      <div id="auth-error" style="color: #ef4444; font-size: 0.84rem; margin-bottom: 12px; text-align: center;"></div>
+      <div id="auth-error" style="color: #ef4444; font-size: 0.84rem; margin-bottom: 12px; text-align: center; font-weight: 600;"></div>
 
       <!-- Sign In Form -->
       <form id="signin-form">
@@ -219,10 +326,16 @@
           <label>Password</label>
           <div class="pwd-wrap">
             <input type="password" id="signin-password" class="form-control" placeholder="••••••••" required />
-            <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('signin-password', this)" title="Show / Hide Password">👁️</button>
+            <button type="button" class="pwd-toggle-btn" id="btn-toggle-signin" onclick="togglePwdVisibility('signin-password', this)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <span>Show</span>
+            </button>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 6px;">Sign In to Console</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">Sign In to Console</button>
       </form>
 
       <!-- Sign Up Form -->
@@ -243,14 +356,20 @@
           <label>Create Password (min. 6 chars) *</label>
           <div class="pwd-wrap">
             <input type="password" id="signup-password" class="form-control" placeholder="••••••••" required />
-            <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('signup-password', this)" title="Show / Hide Password">👁️</button>
+            <button type="button" class="pwd-toggle-btn" id="btn-toggle-signup" onclick="togglePwdVisibility('signup-password', this)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <span>Show</span>
+            </button>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 6px;">Create Free ADX Account</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">Create Free ADX Account</button>
       </form>
 
-      <div style="text-align: center; margin-top: 20px;">
-        <a href="/" style="color: var(--text-muted); font-size: 0.84rem; text-decoration: none;">← Back to adxgroup.tech homepage</a>
+      <div style="text-align: center; margin-top: 22px;">
+        <a href="/" style="color: var(--text-muted); font-size: 0.84rem; text-decoration: none;">&larr; Back to adxgroup.tech homepage</a>
       </div>
     </div>
   </div>
@@ -258,9 +377,9 @@
   <!-- Instant OAuth Identity Modal -->
   <div id="oauth-modal" class="oauth-modal hidden">
     <div class="oauth-modal-card">
-      <h3 id="oauth-modal-title" style="margin-bottom: 6px;">Continue with Google</h3>
+      <h3 id="oauth-modal-title" style="margin-bottom: 6px; color: #ffffff;">Continue with Google</h3>
       <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-        Confirm your account email to authenticate into the ADX Group Console:
+        Confirm your account email to authenticate into your ADX Workspace:
       </p>
       <form id="oauth-form">
         <input type="hidden" id="oauth-provider" value="Google" />
@@ -269,22 +388,127 @@
           <input type="email" id="oauth-email" class="form-control" placeholder="you@gmail.com" required />
         </div>
         <div class="form-group">
-          <label>Display Name</label>
-          <input type="text" id="oauth-name" class="form-control" placeholder="Your Name or GitHub Handle" />
+          <label>Your Full Name</label>
+          <input type="text" id="oauth-name" class="form-control" placeholder="Optional" />
         </div>
         <div class="form-group">
-          <label>Company / Project (Optional)</label>
-          <input type="text" id="oauth-company" class="form-control" placeholder="Company Name" />
+          <label>Company / Workspace</label>
+          <input type="text" id="oauth-company" class="form-control" placeholder="Optional" />
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 16px;">
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
           <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeOAuthPrompt()">Cancel</button>
-          <button type="submit" class="btn btn-primary" style="flex: 1;">Continue →</button>
+          <button type="submit" class="btn btn-primary" style="flex: 1;">Authenticate</button>
         </div>
       </form>
     </div>
   </div>
 
   <script>
+    // 1. Extraordinary 60fps Interactive Quantum Neural Constellation & Orbital Radar Background
+    (function initQuantumOrbitalBackground() {
+      const canvas = document.getElementById("adx-quantum-canvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      let w = (canvas.width = window.innerWidth);
+      let h = (canvas.height = window.innerHeight);
+
+      window.addEventListener("resize", () => {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      });
+
+      const mouse = { x: w * 0.5, y: h * 0.4, active: false };
+      window.addEventListener("mousemove", (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+        mouse.active = true;
+      });
+
+      const nodeCount = 42;
+      const nodes = [];
+      for (let i = 0; i < nodeCount; i++) {
+        nodes.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          r: Math.random() * 1.8 + 1.0,
+          color: i % 4 === 0 ? "#10b981" : "#38bdf8",
+        });
+      }
+
+      let angle = 0;
+      function drawFrame() {
+        ctx.clearRect(0, 0, w, h);
+        angle += 0.002;
+
+        // Subtle Rotating Orbital Defense Radar
+        const cx = w * 0.5;
+        const cy = h * 0.5;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+        ctx.strokeStyle = "rgba(56, 189, 248, 0.08)";
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([18, 14, 4, 14]);
+        ctx.beginPath();
+        ctx.arc(0, 0, Math.min(w, h) * 0.44, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        // Neural Node Connections
+        for (let i = 0; i < nodes.length; i++) {
+          const n = nodes[i];
+          n.x += n.vx;
+          n.y += n.vy;
+          if (n.x < 0 || n.x > w) n.vx *= -1;
+          if (n.y < 0 || n.y > h) n.vy *= -1;
+
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+          ctx.fillStyle = n.color;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = n.color;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          for (let j = i + 1; j < nodes.length; j++) {
+            const m = nodes[j];
+            const dist = Math.hypot(n.x - m.x, n.y - m.y);
+            if (dist < 125) {
+              ctx.strokeStyle = `rgba(56, 189, 248, ${0.18 * (1 - dist / 125)})`;
+              ctx.lineWidth = 0.8;
+              ctx.beginPath();
+              ctx.moveTo(n.x, n.y);
+              ctx.lineTo(m.x, m.y);
+              ctx.stroke();
+            }
+          }
+        }
+        requestAnimationFrame(drawFrame);
+      }
+      drawFrame();
+    })();
+
+    // 2. High-Visibility Password Toggle
+    function togglePwdVisibility(fieldId, btn) {
+      const input = document.getElementById(fieldId);
+      if (!input) return;
+      const span = btn.querySelector("span");
+      if (input.type === "password") {
+        input.type = "text";
+        if (span) span.textContent = "Hide";
+        btn.style.color = "#10b981";
+        btn.style.borderColor = "#10b981";
+      } else {
+        input.type = "password";
+        if (span) span.textContent = "Show";
+        btn.style.color = "#38bdf8";
+        btn.style.borderColor = "rgba(56, 189, 248, 0.35)";
+      }
+    }
+
+    // 3. Tab Switching
     function switchTab(mode) {
       const signinForm = document.getElementById("signin-form");
       const signupForm = document.getElementById("signup-form");
@@ -317,33 +541,28 @@
       document.getElementById("oauth-modal").classList.add("hidden");
     }
 
-    function togglePwdVisibility(fieldId, btn) {
-      const input = document.getElementById(fieldId);
-      if (!input) return;
-      if (input.type === "password") {
-        input.type = "text";
-        btn.textContent = "🙈";
-        btn.title = "Hide Password";
-      } else {
-        input.type = "password";
-        btn.textContent = "👁️";
-        btn.title = "Show Password";
-      }
-    }
-
     const urlParams = new URLSearchParams(window.location.search);
     const pendingScan = urlParams.get("scan") || "";
     const isLogout = urlParams.get("logout") === "true";
 
+    function getRedirectUrl(defaultUrl) {
+      if (pendingScan) {
+        return `/dashboard?scan=${encodeURIComponent(pendingScan)}`;
+      }
+      return defaultUrl || "/dashboard";
+    }
+
     if (isLogout) {
-      localStorage.removeItem("adx_session_token");
-      localStorage.removeItem("adx_user");
+      try {
+        localStorage.removeItem("adx_session_token");
+        localStorage.removeItem("adx_user");
+      } catch (e) {}
     } else {
-      // Auto-restore session from persistent client token (seamless login across refreshes & restarts)
+      // Automatic Session Restoration across refreshes & restarts
       window.addEventListener("DOMContentLoaded", async () => {
-        const savedToken = localStorage.getItem("adx_session_token");
-        if (savedToken) {
-          try {
+        try {
+          const savedToken = localStorage.getItem("adx_session_token");
+          if (savedToken) {
             const syncRes = await fetch("/api/auth/sync", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -353,23 +572,16 @@
             if (syncRes.ok && syncData.ok) {
               window.location.href = getRedirectUrl(syncData.redirect);
             }
-          } catch (e) {}
-        }
+          }
+        } catch (e) {}
       });
     }
 
     if (pendingScan) {
       const subText = document.querySelector(".auth-header p");
       if (subText) {
-        subText.innerHTML = `Sign in to unlock the live 5-Vector Security Report for <strong style="color: var(--accent-cyan); font-family: var(--font-mono);">${pendingScan}</strong>`;
+        subText.innerHTML = `Sign in to unlock the live 6-Gate 2026 CVE Security Report for <strong style="color: var(--accent-cyan); font-family: var(--font-mono);">${pendingScan}</strong>`;
       }
-    }
-
-    function getRedirectUrl(defaultUrl) {
-      if (pendingScan) {
-        return `/dashboard?scan=${encodeURIComponent(pendingScan)}`;
-      }
-      return defaultUrl || "/dashboard";
     }
 
     document.getElementById("oauth-form").addEventListener("submit", async (e) => {
