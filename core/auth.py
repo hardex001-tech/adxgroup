@@ -258,6 +258,15 @@ def login_email_user(email: str, password: str) -> Dict[str, Any]:
     return create_session(user_id)
 
 
+def _format_user(u: Dict[str, Any]) -> Dict[str, Any]:
+    """Attach a clean unique enterprise UID without hash symbols (e.g. ADX-9F81C4A2)."""
+    user_copy = dict(u)
+    seed = (str(user_copy.get("email", "")) + str(user_copy.get("id", ""))).encode("utf-8")
+    hex_code = hashlib.sha256(seed).hexdigest()[:8].upper()
+    user_copy["uid"] = f"ADX-{hex_code}"
+    return user_copy
+
+
 def create_session(user_id: int) -> Dict[str, Any]:
     """Generate a durable signed session token valid for 30 days across serverless instances."""
     init_db()
@@ -278,6 +287,7 @@ def create_session(user_id: int) -> Dict[str, Any]:
             "role": "client",
             "created_at": _now_str(),
         }
+        user_dict = _format_user(user_dict)
         signed_token = make_signed_token(user_dict)
         conn.execute(
             "INSERT OR REPLACE INTO sessions (token, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)",
@@ -297,7 +307,7 @@ def get_user_by_token(token: Optional[str]) -> Optional[Dict[str, Any]]:
     # Fast-path: Cryptographic verification works across all serverless containers with zero DB dependency
     signed_user = decode_signed_token(token)
     if signed_user:
-        return signed_user
+        return _format_user(signed_user)
 
     init_db()
     with _get_conn() as conn:
@@ -310,7 +320,7 @@ def get_user_by_token(token: Optional[str]) -> Optional[Dict[str, Any]]:
             """,
             (token,),
         ).fetchone()
-        return dict(row) if row else None
+        return _format_user(dict(row)) if row else None
 
 
 def delete_session(token: Optional[str]) -> None:

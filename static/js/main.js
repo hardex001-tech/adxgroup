@@ -471,49 +471,48 @@ document.addEventListener("DOMContentLoaded", () => {
             ${botAvatarSvg}
           </div>
           <div>
-            <div style="font-weight: 800; font-size: 0.95rem; line-height: 1.2;">Aria's BFF 🙌</div>
-            <div style="font-size: 0.75rem; opacity: 0.92;">Executive Security Assistant</div>
+            <div style="font-weight: 800; font-size: 0.95rem; line-height: 1.2;">ADX Assistant</div>
+            <div style="font-size: 0.75rem; opacity: 0.85;">Infrastructure &amp; AI Desk</div>
           </div>
         </div>
         <div class="aegis-header-actions">
-          <button type="button" class="aegis-icon-btn" id="aegis-voice-btn" title="Play Studio Neural Voice Greeting" style="font-size: 0.95rem;">🔊</button>
+          <button type="button" class="aegis-icon-btn" id="aegis-voice-btn" title="Play Voice Brief">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+          </button>
           <button type="button" class="aegis-close-btn" id="aegis-close-btn" title="Close">&times;</button>
         </div>
       </div>
 
-      <!-- Screen 1: Clean White Welcome View (Matches WIT-h Screenshot) -->
+      <!-- Screen 1: Clean White Welcome View -->
       <div class="aegis-card-body" id="aegis-welcome-view">
-        <div style="color: #0f172a; font-weight: 600; margin-bottom: 4px;">
-          Hey, I'm Aria! 🙌
+        <div style="color: #0f172a; font-weight: 700; font-size: 0.95rem; margin-bottom: 4px;">
+          Welcome to ADX Console
         </div>
-        <div style="color: #334155; margin-bottom: 2px;">
-          I've got your back on security &amp; cloud.
-        </div>
-        <div style="color: #334155;">
-          What do you need help with today?
+        <div style="color: #64748b; font-size: 0.84rem; margin-bottom: 14px;">
+          How can we assist your infrastructure today?
         </div>
 
         <div class="aegis-action-list">
           <div class="aegis-action-item" id="aegis-act-scan">
-            <span>🛡️</span>
-            <span>Scan a website for 2026 CVEs</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Run infrastructure audit</span>
           </div>
           <div class="aegis-action-item" id="aegis-act-resources">
-            <span>📁</span>
-            <span>Find security &amp; cloud resources</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/></svg>
+            <span>Cloud &amp; distributed architecture</span>
           </div>
           <div class="aegis-action-item" id="aegis-act-navigate">
-            <span>🧭</span>
-            <span>Navigate anything in the hub</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0"/></svg>
+            <span>Consult AI Systems Architect</span>
           </div>
           <div class="aegis-action-item" id="aegis-act-human">
-            <span>💪</span>
-            <span>Type <strong>'Human'</strong> to reach a person 🙋‍♂️</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Contact ADX engineers</span>
           </div>
         </div>
 
         <button type="button" class="aegis-cta-btn" id="aegis-open-chat-btn">
-          <span>🙌 Chat with Aria</span>
+          <span>Start Conversation</span>
         </button>
       </div>
 
@@ -521,13 +520,13 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="aegis-chat-view" id="aegis-chat-view">
         <div class="aegis-chat-topbar">
           <button type="button" class="aegis-back-btn" id="aegis-back-btn">&larr; Back</button>
-          <span>Live Security Chat</span>
+          <span>ADX Systems Assistant</span>
         </div>
         <div class="aegis-mini-messages" id="aegis-mini-messages">
-          <div class="aegis-msg aegis-msg-bot">Hey! I'm Aria 🙌 Ask me anything about cybersecurity, 2026 CVEs, cloud systems, or type 'Human' to reach an engineer.</div>
+          <div class="aegis-msg aegis-msg-bot">Hello. I am the ADX Executive Assistant. Ask me anything about cloud infrastructure, system security, or engineering scopes.</div>
         </div>
         <form class="aegis-mini-form" id="aegis-mini-form">
-          <input type="text" class="aegis-mini-input" id="aegis-mini-input" placeholder="Ask anything or type 'Human'..." required />
+          <input type="text" class="aegis-mini-input" id="aegis-mini-input" placeholder="Ask about cloud, systems, or security..." required />
           <button type="submit" class="aegis-mini-send">Send</button>
         </form>
       </div>
@@ -662,11 +661,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("aegis-act-resources").addEventListener("click", () => {
-      openInlineChat("What security, cloud, and 2026 CVE resources does ADX provide?");
+      openInlineChat("What cloud, distributed systems, and security capabilities does ADX provide?");
     });
 
     document.getElementById("aegis-act-navigate").addEventListener("click", () => {
-      openInlineChat("Help me navigate ADX and explain how the 6-Gate scanner works.");
+      openInlineChat("Help me navigate ADX and explain how the infrastructure scanner works.");
     });
 
     document.getElementById("aegis-act-human").addEventListener("click", () => {

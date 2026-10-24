@@ -262,8 +262,8 @@ async def ask_adx_ai_consultant(
         )
     else:
         reply = (
-            f"Hello {user_name}. I am the ADX AI Security Architect. "
-            "Run a live 6-Gate 2026 CVE scan in Tab 1 or ask me about cloud API hardening, zero-day CVE mitigation, or private RAG deployments."
+            f"Hello {user_name}. I am the ADX AI Systems Architect. "
+            "Run an infrastructure audit in Tab 1 or ask me about cloud architecture, API hardening, perimeter defense, or private RAG neural agents."
         )
     return {"gate_3_passed": True, "reply": _clean_ai_text(reply), "engine": "ADX-Contextual-AI"}
 
