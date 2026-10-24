@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Workspace Console | ADX Group</title>
-  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.18" />
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.19" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/css/style.css?v=2026.18" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.19" />
   <style>
     .console-layout {
       display: grid;
@@ -160,7 +160,7 @@
   <header class="navbar">
     <div class="container nav-inner">
       <a href="/dashboard" class="brand">
-        <img src="/static/logo.svg?v=2026.18" alt="ADX Group Logo" style="width: 42px; height: 42px;" />
+        <img src="/static/logo.svg?v=2026.19" alt="ADX Group Logo" style="width: 42px; height: 42px;" />
         <div>
           <span class="brand-text">ADX GROUP</span>
           <span class="brand-motto">Silent Innovation. Absolute Defense.</span>
@@ -177,7 +177,7 @@
           Identity &amp; Settings ({{ user.name }})
         </button>
         <a href="/" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem;">Public Site</a>
-        <a href="/logout" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem; color: #f87171;">
+        <a href="/logout" onclick="localStorage.removeItem('adx_session_token'); localStorage.removeItem('adx_user');" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem; color: #f87171;">
           Sign Out
         </a>
       </div>
@@ -631,7 +631,7 @@
     </div>
   </div>
 
-  <script src="/static/js/main.js?v=2026.18"></script>
+  <script src="/static/js/main.js?v=2026.19"></script>
   <script>
     function switchConsoleTab(tabName) {
       const views = ["scanner", "ai", "cve", "dispatch", "settings"];
@@ -733,6 +733,12 @@
     }
 
     window.addEventListener("load", () => {
+      {% if user and user.token %}
+      try {
+        localStorage.setItem("adx_session_token", "{{ user.token }}");
+        localStorage.setItem("adx_user_email", "{{ user.email }}");
+      } catch (e) {}
+      {% endif %}
       const params = new URLSearchParams(window.location.search);
       const scanTarget = params.get("scan");
       if (scanTarget) {

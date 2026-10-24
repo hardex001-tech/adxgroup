@@ -187,8 +187,8 @@ async def logout(request: Request):
     """Clear session cookie and return to landing page."""
     token = request.cookies.get(SESSION_COOKIE)
     delete_session(token)
-    resp = RedirectResponse(url="/", status_code=302)
-    resp.delete_cookie(SESSION_COOKIE)
+    resp = RedirectResponse(url="/login?logout=true", status_code=302)
+    resp.delete_cookie(SESSION_COOKIE, path="/")
     return resp
 
 
@@ -231,6 +231,36 @@ async def owner_admin_console(request: Request):
     )
 
 
+def _set_auth_cookie(response: Response, token: str) -> None:
+    import os
+    response.set_cookie(
+        key=SESSION_COOKIE,
+        value=token,
+        httponly=True,
+        max_age=30 * 86400,  # 30 full days persistent cookie
+        samesite="lax",
+        path="/",
+        secure=True if (os.getenv("VERCEL") or os.getenv("PORT") is None) else False,
+    )
+
+
+class AuthSyncRequest(BaseModel):
+    token: Optional[str] = ""
+
+
+@asgi_app.post("/api/auth/sync")
+async def api_auth_sync(request: Request, payload: AuthSyncRequest):
+    """Restore or refresh session cookie using localStorage token across browser restarts."""
+    token = payload.token or request.cookies.get(SESSION_COOKIE)
+    user = get_user_by_token(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Session expired or invalid.")
+    redirect_to = "/admin" if user.get("role") == "admin" else "/dashboard"
+    resp = JSONResponse(content={"ok": True, "user": user, "token": token, "redirect": redirect_to})
+    _set_auth_cookie(resp, token)
+    return resp
+
+
 @asgi_app.post("/api/auth/register")
 async def api_register(payload: RegisterRequest):
     try:
@@ -242,15 +272,9 @@ async def api_register(payload: RegisterRequest):
         )
         redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
         resp = JSONResponse(
-            content={"ok": True, "user": sess["user"], "redirect": redirect_to}
+            content={"ok": True, "user": sess["user"], "token": sess["token"], "redirect": redirect_to}
         )
-        resp.set_cookie(
-            key=SESSION_COOKIE,
-            value=sess["token"],
-            httponly=True,
-            max_age=14 * 86400,
-            samesite="lax",
-        )
+        _set_auth_cookie(resp, sess["token"])
         return resp
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
@@ -262,15 +286,9 @@ async def api_login(payload: LoginRequest):
         sess = login_email_user(email=payload.email, password=payload.password)
         redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
         resp = JSONResponse(
-            content={"ok": True, "user": sess["user"], "redirect": redirect_to}
+            content={"ok": True, "user": sess["user"], "token": sess["token"], "redirect": redirect_to}
         )
-        resp.set_cookie(
-            key=SESSION_COOKIE,
-            value=sess["token"],
-            httponly=True,
-            max_age=14 * 86400,
-            samesite="lax",
-        )
+        _set_auth_cookie(resp, sess["token"])
         return resp
     except ValueError as ve:
         raise HTTPException(status_code=401, detail=str(ve))
@@ -288,15 +306,9 @@ async def api_oauth_signin(payload: OAuthQuickRequest):
     )
     redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
     resp = JSONResponse(
-        content={"ok": True, "user": sess["user"], "redirect": redirect_to}
+        content={"ok": True, "user": sess["user"], "token": sess["token"], "redirect": redirect_to}
     )
-    resp.set_cookie(
-        key=SESSION_COOKIE,
-        value=sess["token"],
-        httponly=True,
-        max_age=14 * 86400,
-        samesite="lax",
-    )
+    _set_auth_cookie(resp, sess["token"])
     return resp
 
 

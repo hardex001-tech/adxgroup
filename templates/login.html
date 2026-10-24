@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign In | ADX Group Console</title>
   <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
-  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.19" />
   <style>
     .auth-wrapper {
       min-height: 100vh;
@@ -142,6 +142,31 @@
       border-radius: 14px;
       padding: 28px;
     }
+    .pwd-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .pwd-wrap input {
+      padding-right: 44px !important;
+    }
+    .pwd-toggle-btn {
+      position: absolute;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 1.15rem;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s;
+    }
+    .pwd-toggle-btn:hover {
+      color: #38bdf8;
+    }
   </style>
 </head>
 <body>
@@ -192,7 +217,10 @@
         </div>
         <div class="form-group">
           <label>Password</label>
-          <input type="password" id="signin-password" class="form-control" placeholder="••••••••" required />
+          <div class="pwd-wrap">
+            <input type="password" id="signin-password" class="form-control" placeholder="••••••••" required />
+            <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('signin-password', this)" title="Show / Hide Password">👁️</button>
+          </div>
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 6px;">Sign In to Console</button>
       </form>
@@ -213,7 +241,10 @@
         </div>
         <div class="form-group">
           <label>Create Password (min. 6 chars) *</label>
-          <input type="password" id="signup-password" class="form-control" placeholder="••••••••" required />
+          <div class="pwd-wrap">
+            <input type="password" id="signup-password" class="form-control" placeholder="••••••••" required />
+            <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('signup-password', this)" title="Show / Hide Password">👁️</button>
+          </div>
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 6px;">Create Free ADX Account</button>
       </form>
@@ -286,8 +317,47 @@
       document.getElementById("oauth-modal").classList.add("hidden");
     }
 
+    function togglePwdVisibility(fieldId, btn) {
+      const input = document.getElementById(fieldId);
+      if (!input) return;
+      if (input.type === "password") {
+        input.type = "text";
+        btn.textContent = "🙈";
+        btn.title = "Hide Password";
+      } else {
+        input.type = "password";
+        btn.textContent = "👁️";
+        btn.title = "Show Password";
+      }
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const pendingScan = urlParams.get("scan") || "";
+    const isLogout = urlParams.get("logout") === "true";
+
+    if (isLogout) {
+      localStorage.removeItem("adx_session_token");
+      localStorage.removeItem("adx_user");
+    } else {
+      // Auto-restore session from persistent client token (seamless login across refreshes & restarts)
+      window.addEventListener("DOMContentLoaded", async () => {
+        const savedToken = localStorage.getItem("adx_session_token");
+        if (savedToken) {
+          try {
+            const syncRes = await fetch("/api/auth/sync", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ token: savedToken }),
+            });
+            const syncData = await syncRes.json();
+            if (syncRes.ok && syncData.ok) {
+              window.location.href = getRedirectUrl(syncData.redirect);
+            }
+          } catch (e) {}
+        }
+      });
+    }
+
     if (pendingScan) {
       const subText = document.querySelector(".auth-header p");
       if (subText) {
@@ -316,6 +386,8 @@
       });
       const data = await res.json();
       if (res.ok && data.ok) {
+        if (data.token) localStorage.setItem("adx_session_token", data.token);
+        if (data.user) localStorage.setItem("adx_user", JSON.stringify(data.user));
         window.location.href = getRedirectUrl(data.redirect);
       } else {
         alert(data.detail || "Authentication failed.");
@@ -336,6 +408,8 @@
       });
       const data = await res.json();
       if (res.ok && data.ok) {
+        if (data.token) localStorage.setItem("adx_session_token", data.token);
+        if (data.user) localStorage.setItem("adx_user", JSON.stringify(data.user));
         window.location.href = getRedirectUrl(data.redirect);
       } else {
         errBox.textContent = data.detail || "Invalid email or password.";
@@ -358,6 +432,8 @@
       });
       const data = await res.json();
       if (res.ok && data.ok) {
+        if (data.token) localStorage.setItem("adx_session_token", data.token);
+        if (data.user) localStorage.setItem("adx_user", JSON.stringify(data.user));
         window.location.href = getRedirectUrl(data.redirect);
       } else {
         errBox.textContent = data.detail || "Could not create account.";

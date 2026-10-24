@@ -4,14 +4,68 @@ Uses built-in Python sqlite3 + hashlib PBKDF2-HMAC-SHA256 for zero-dependency re
 across local Windows and Azure Linux App Service environments.
 """
 
+import base64
 import datetime
 import hashlib
+import hmac
 import json
 import os
 import secrets
 import sqlite3
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+AUTH_SECRET_KEY = os.getenv("SESSION_SECRET", "adx_zerotrust_session_secret_key_2026_xploit")
+
+
+def make_signed_token(user_data: Dict[str, Any]) -> str:
+    """Generate a stateless, tamper-proof HMAC-SHA256 session token valid across Vercel serverless restarts."""
+    payload = {
+        "id": user_data["id"],
+        "name": user_data["name"],
+        "email": user_data["email"],
+        "company": user_data.get("company", ""),
+        "provider": user_data.get("provider", "email"),
+        "role": user_data.get("role", "client"),
+        "created_at": user_data.get("created_at", _now_str()),
+        "exp": int(time.time()) + (30 * 86400),  # 30 days
+    }
+    raw_bytes = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+    b64_payload = base64.urlsafe_b64encode(raw_bytes).decode("ascii").rstrip("=")
+    sig = hmac.new(AUTH_SECRET_KEY.encode("utf-8"), b64_payload.encode("ascii"), hashlib.sha256).hexdigest()
+    return f"{b64_payload}.{sig}"
+
+
+def decode_signed_token(token: str) -> Optional[Dict[str, Any]]:
+    """Decode and verify an HMAC-SHA256 session token without requiring database persistence."""
+    if not token or "." not in token:
+        return None
+    parts = token.split(".", 1)
+    if len(parts) != 2:
+        return None
+    b64_payload, sig = parts
+    expected_sig = hmac.new(AUTH_SECRET_KEY.encode("utf-8"), b64_payload.encode("ascii"), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(sig, expected_sig):
+        return None
+    try:
+        rem = len(b64_payload) % 4
+        padded = b64_payload + ("=" * ((4 - rem) % 4))
+        raw_bytes = base64.urlsafe_b64decode(padded.encode("ascii"))
+        payload = json.loads(raw_bytes.decode("utf-8"))
+        if payload.get("exp", 0) < time.time():
+            return None
+        return {
+            "id": payload["id"],
+            "name": payload["name"],
+            "email": payload["email"],
+            "company": payload.get("company", ""),
+            "provider": payload.get("provider", "email"),
+            "role": payload.get("role", "client"),
+            "created_at": payload.get("created_at", "2026-10-24"),
+        }
+    except Exception:
+        return None
 
 DATA_DIR = (
     Path("/tmp/adxgroup_data")
@@ -178,30 +232,46 @@ def login_email_user(email: str, password: str) -> Dict[str, Any]:
 
 
 def create_session(user_id: int) -> Dict[str, Any]:
-    """Generate a session token valid for 14 days."""
+    """Generate a durable signed session token valid for 30 days across serverless instances."""
     init_db()
-    token = secrets.token_urlsafe(36)
     now = datetime.datetime.now(datetime.timezone.utc)
-    expires = (now + datetime.timedelta(days=14)).strftime("%Y-%m-%d %H:%M:%S UTC")
+    expires = (now + datetime.timedelta(days=30)).strftime("%Y-%m-%d %H:%M:%S UTC")
 
     with _get_conn() as conn:
-        conn.execute(
-            "INSERT INTO sessions (token, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)",
-            (token, user_id, _now_str(), expires),
-        )
-        user = conn.execute(
+        user_row = conn.execute(
             "SELECT id, name, email, company, provider, role, created_at FROM users WHERE id = ?",
             (user_id,),
         ).fetchone()
+        user_dict = dict(user_row) if user_row else {
+            "id": user_id,
+            "name": "Member",
+            "email": "user@adxgroup.tech",
+            "company": "",
+            "provider": "email",
+            "role": "client",
+            "created_at": _now_str(),
+        }
+        signed_token = make_signed_token(user_dict)
+        conn.execute(
+            "INSERT OR REPLACE INTO sessions (token, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)",
+            (signed_token, user_id, _now_str(), expires),
+        )
         conn.commit()
 
-    return {"token": token, "user": dict(user)}
+    user_dict["token"] = signed_token
+    return {"token": signed_token, "user": user_dict}
 
 
 def get_user_by_token(token: Optional[str]) -> Optional[Dict[str, Any]]:
-    """Return user dictionary if session token is valid."""
+    """Return user dictionary if session token is valid (checks cryptographic signature first, then DB)."""
     if not token:
         return None
+
+    # Fast-path: Cryptographic verification works across all serverless containers with zero DB dependency
+    signed_user = decode_signed_token(token)
+    if signed_user:
+        return signed_user
+
     init_db()
     with _get_conn() as conn:
         row = conn.execute(
