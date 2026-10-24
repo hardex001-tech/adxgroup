@@ -423,8 +423,122 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("click", onFirstInteract);
   }
 
+  function initAegisConciergeCard() {
+    if (!voiceOrb || document.getElementById("aegis-concierge-card")) return;
+
+    const isDashboard = window.location.pathname.includes("/dashboard");
+    const card = document.createElement("div");
+    card.id = "aegis-concierge-card";
+    card.className = "aegis-concierge-card";
+
+    card.innerHTML = `
+      <div class="aegis-card-header">
+        <div class="aegis-header-left">
+          <div class="aegis-avatar-wrap">
+            <img src="/static/logo.svg?v=2026.12" alt="AEGIS" style="width: 24px; height: 24px;" />
+            <span class="aegis-online-dot"></span>
+          </div>
+          <div>
+            <div style="font-weight: 800; font-size: 0.92rem; line-height: 1.15;">AEGIS AI</div>
+            <div style="font-size: 0.72rem; opacity: 0.9;">ADX Executive Security Concierge</div>
+          </div>
+        </div>
+        <button type="button" class="aegis-close-btn" id="aegis-close-btn" title="Minimize">&times;</button>
+      </div>
+      <div class="aegis-card-body">
+        <div style="color: #f8fafc; font-weight: 600; margin-bottom: 4px;">
+          Hey, I'm AEGIS! 🛡️
+        </div>
+        <div style="line-height: 1.45;">
+          I've got your back across ADX Cyber, Cloud &amp; AI Defense. What do you need help with today?
+        </div>
+        <div class="aegis-action-list">
+          <div class="aegis-action-item" id="aegis-act-scan">
+            <span>🛡️</span>
+            <span>Run 6-Gate 2026 CVE Domain Audit</span>
+          </div>
+          <div class="aegis-action-item" id="aegis-act-ai">
+            <span>🧠</span>
+            <span>Ask AI Security Architect (GPT-4o)</span>
+          </div>
+          <div class="aegis-action-item" id="aegis-act-deploy">
+            <span>⚡</span>
+            <span>Deploy ADX Engineers ($350 Fixed Scope)</span>
+          </div>
+          <a href="mailto:contact@adxgroup.tech" class="aegis-action-item">
+            <span>💬</span>
+            <span>Reach Human Engineering Desk</span>
+          </a>
+        </div>
+        <button type="button" class="aegis-cta-btn" id="aegis-cta-speak-chat">
+          <span>🔊 Speak &amp; Chat with AEGIS</span>
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(card);
+
+    document.getElementById("aegis-close-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      card.classList.add("closed");
+    });
+
+    document.getElementById("aegis-act-scan").addEventListener("click", () => {
+      card.classList.add("closed");
+      if (isDashboard && typeof switchConsoleTab === "function") {
+        switchConsoleTab("scanner");
+        const inp = document.getElementById("scan-domain-input");
+        if (inp) inp.focus();
+      } else {
+        const inp = document.getElementById("landing-domain-input");
+        if (inp) {
+          inp.scrollIntoView({ behavior: "smooth", block: "center" });
+          inp.focus();
+        }
+      }
+    });
+
+    document.getElementById("aegis-act-ai").addEventListener("click", () => {
+      card.classList.add("closed");
+      if (isDashboard && typeof switchConsoleTab === "function") {
+        switchConsoleTab("ai");
+        const inp = document.getElementById("ai-chat-input");
+        if (inp) inp.focus();
+      } else {
+        window.location.href = "/login";
+      }
+    });
+
+    document.getElementById("aegis-act-deploy").addEventListener("click", () => {
+      card.classList.add("closed");
+      if (isDashboard && typeof switchConsoleTab === "function") {
+        switchConsoleTab("dispatch");
+      } else {
+        window.location.href = "/login";
+      }
+    });
+
+    document.getElementById("aegis-cta-speak-chat").addEventListener("click", () => {
+      voiceMuted = false;
+      hasWelcomed = true;
+      window.speakAdxVoice(getWelcomeGreeting(), true);
+      if (isDashboard && typeof switchConsoleTab === "function") {
+        card.classList.add("closed");
+        switchConsoleTab("ai");
+        const inp = document.getElementById("ai-chat-input");
+        if (inp) inp.focus();
+      }
+    });
+  }
+
+  initAegisConciergeCard();
+
   if (voiceOrb) {
     voiceOrb.addEventListener("click", () => {
+      const card = document.getElementById("aegis-concierge-card");
+      if (card) {
+        card.classList.toggle("closed");
+      }
       if (!("speechSynthesis" in window)) return;
       if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
