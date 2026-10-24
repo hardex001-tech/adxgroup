@@ -224,8 +224,34 @@ async def ask_adx_ai_consultant(
         except Exception:
             pass
 
+    # Cloud Serverless GPT-4o Engine (Ensures Vercel https://adxgroup.tech always has live LLM reasoning)
+    try:
+        async with httpx.AsyncClient(timeout=14.0, verify=False) as client:
+            resp = await client.post(
+                "https://text.pollinations.ai/openai",
+                headers={"Content-Type": "application/json"},
+                json={
+                    "model": "openai",
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_message},
+                    ],
+                    "temperature": 0.4,
+                },
+            )
+            if resp.status_code == 200 and "choices" in resp.text:
+                data = resp.json()
+                content = _clean_ai_text(data["choices"][0]["message"]["content"])
+                if content:
+                    return {
+                        "gate_3_passed": True,
+                        "reply": content,
+                        "engine": "ADX-Neural-GPT4o (Cloud Serverless)",
+                    }
+    except Exception:
+        pass
+
     # Fallback Engine (100% clean text, zero asterisks)
-    q = user_message.strip().lower()
     if latest_scan:
         reply = (
             f"Hello {user_name}. Based on your latest diagnostic for {latest_scan['domain']} "
@@ -236,7 +262,8 @@ async def ask_adx_ai_consultant(
         )
     else:
         reply = (
-            f"Hello {user_name}. I am the ADX Group AI Security Architect. "
+            f"Hello {user_name}. I am the ADX AI Security Architect. "
             "Run a live 6-Gate 2026 CVE scan in Tab 1 or ask me about cloud API hardening, zero-day CVE mitigation, or private RAG deployments."
         )
     return {"gate_3_passed": True, "reply": _clean_ai_text(reply), "engine": "ADX-Contextual-AI"}
+

@@ -376,6 +376,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const audio = new Audio(url);
     activeAudio = audio;
     audio.onplay = () => {
+      hasWelcomed = true;
       if (launcher) launcher.classList.add("speaking");
     };
     audio.onended = () => {
@@ -386,16 +387,20 @@ document.addEventListener("DOMContentLoaded", () => {
       if (launcher) launcher.classList.remove("speaking");
       activeAudio = null;
     };
-    audio.play().catch(() => {
-      if (launcher) launcher.classList.remove("speaking");
-    });
+    return audio.play();
   }
 
   window.speakAdxVoice = async function (text, force = false) {
     if (voiceMuted && !force) return;
     if (!text) {
       const isDash = window.location.pathname.includes("/dashboard");
-      playAudioUrl(isDash ? "/static/audio/welcome_console.mp3?v=2026.16" : "/static/audio/welcome_home.mp3?v=2026.16");
+      const welcomeUrl = isDash
+        ? "/static/audio/welcome_console.mp3?v=2026.17"
+        : "/static/audio/welcome_home.mp3?v=2026.17";
+      playAudioUrl(welcomeUrl).catch(() => {
+        const launcher = document.getElementById("aegis-launcher-orb");
+        if (launcher) launcher.classList.remove("speaking");
+      });
       return;
     }
     try {
@@ -408,9 +413,46 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!res.ok) return;
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      playAudioUrl(url);
+      playAudioUrl(url).catch(() => {});
     } catch (e) {}
   };
+
+  function setupAutoWelcomeVoice() {
+    const isDash = window.location.pathname.includes("/dashboard");
+    const welcomeUrl = isDash
+      ? "/static/audio/welcome_console.mp3?v=2026.17"
+      : "/static/audio/welcome_home.mp3?v=2026.17";
+
+    const bindFallbackUnlock = () => {
+      const unlockHandler = (e) => {
+        const closeBtn = document.getElementById("aegis-close-btn");
+        if (closeBtn && closeBtn.contains(e.target)) {
+          cleanupUnlock();
+          return;
+        }
+        if (!hasWelcomed && !voiceMuted) {
+          hasWelcomed = true;
+          playAudioUrl(welcomeUrl).catch(() => {});
+        }
+        cleanupUnlock();
+      };
+      const cleanupUnlock = () => {
+        document.removeEventListener("click", unlockHandler);
+        document.removeEventListener("keydown", unlockHandler);
+        document.removeEventListener("touchstart", unlockHandler);
+      };
+      document.addEventListener("click", unlockHandler);
+      document.addEventListener("keydown", unlockHandler);
+      document.addEventListener("touchstart", unlockHandler);
+    };
+
+    // Attempt immediate playback on login/load; if browser requires gesture first, unlock on first click
+    playAudioUrl(welcomeUrl).catch(() => {
+      const launcher = document.getElementById("aegis-launcher-orb");
+      if (launcher) launcher.classList.remove("speaking");
+      bindFallbackUnlock();
+    });
+  }
 
   function initAegisConciergeCard() {
     if (document.getElementById("aegis-concierge-card")) return;
@@ -641,6 +683,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   initAegisConciergeCard();
+  setupAutoWelcomeVoice();
 
   // 5. Extraordinary 60fps 3D Quantum Neural Constellation & Orbital Radar Background
   function initQuantumOrbitalBackground() {
