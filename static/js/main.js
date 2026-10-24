@@ -329,102 +329,95 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 4. AEGIS — ADX Executive Neural Voice Concierge (Speaker Welcome & Alerts)
-  const voiceOrb = document.getElementById("adx-voice-orb");
-  const voiceLabel = document.getElementById("adx-voice-label");
-  let voiceMuted = false;
-  let hasWelcomed = false;
-
-  function pickBestNeuralVoice() {
-    if (!("speechSynthesis" in window)) return null;
-    const voices = window.speechSynthesis.getVoices() || [];
-    if (!voices.length) return null;
-    // Prefer local OS English voices first so Chrome/Edge plays immediately without cloud timeout
-    const localEn = voices.find((v) => v.localService && v.lang && v.lang.toLowerCase().startsWith("en"));
-    if (localEn) return localEn;
-    return voices.find((v) => v.lang && v.lang.toLowerCase().startsWith("en")) || voices[0] || null;
+  // 4. ADX's BFF (AEGIS) — WIT-h Style White & Royal-Blue Floating Assistant + Studio Neural AI Voice
+  const oldVoiceOrb = document.getElementById("adx-voice-orb");
+  if (oldVoiceOrb) {
+    oldVoiceOrb.style.display = "none";
   }
 
-  window.speakAdxVoice = function (text, force = false) {
-    if (!("speechSynthesis" in window)) return;
+  let voiceMuted = false;
+  let hasWelcomed = false;
+  let activeAudio = null;
+
+  const botAvatarSvg = `
+    <svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="botHeadGrad" cx="35%" cy="25%" r="70%">
+          <stop offset="0%" stop-color="#93c5fd"/>
+          <stop offset="55%" stop-color="#2563eb"/>
+          <stop offset="100%" stop-color="#1e3a8a"/>
+        </radialGradient>
+      </defs>
+      <line x1="32" y1="6" x2="32" y2="14" stroke="#93c5fd" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="32" cy="5" r="3.5" fill="#38bdf8"/>
+      <rect x="12" y="14" width="40" height="34" rx="16" fill="url(#botHeadGrad)" stroke="#bfdbfe" stroke-width="2"/>
+      <rect x="17" y="21" width="30" height="16" rx="8" fill="#091540"/>
+      <circle cx="25.5" cy="29" r="3.2" fill="#38bdf8"/>
+      <circle cx="38.5" cy="29" r="3.2" fill="#38bdf8"/>
+      <path d="M26 41C28 43 36 43 38 41" stroke="#e0f2fe" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  `;
+
+  function stopActiveVoice() {
+    if (activeAudio) {
+      try {
+        activeAudio.pause();
+        activeAudio.currentTime = 0;
+      } catch (e) {}
+      activeAudio = null;
+    }
+    const launcher = document.getElementById("aegis-launcher-orb");
+    if (launcher) launcher.classList.remove("speaking");
+  }
+
+  function playAudioUrl(url) {
+    stopActiveVoice();
+    const launcher = document.getElementById("aegis-launcher-orb");
+    const audio = new Audio(url);
+    activeAudio = audio;
+    audio.onplay = () => {
+      if (launcher) launcher.classList.add("speaking");
+    };
+    audio.onended = () => {
+      if (launcher) launcher.classList.remove("speaking");
+      activeAudio = null;
+    };
+    audio.onerror = () => {
+      if (launcher) launcher.classList.remove("speaking");
+      activeAudio = null;
+    };
+    audio.play().catch(() => {
+      if (launcher) launcher.classList.remove("speaking");
+    });
+  }
+
+  window.speakAdxVoice = async function (text, force = false) {
     if (voiceMuted && !force) return;
-
-    // Force explicit letter-by-letter pronunciation ("A, D, X,") and strip "Group" so TTS never slurs "Adex Group"
-    const spokenText = String(text || "")
-      .replace(/\b(A\s*D\s*X|ADX|Adex)\s+Group\b/gi, "A, D, X,")
-      .replace(/\b(A\s*D\s*X|ADX|Adex)\b/gi, "A, D, X,")
-      .replace(/\bC\s*V\s*E\b/gi, "C, V, E,");
-
+    if (!text) {
+      const isDash = window.location.pathname.includes("/dashboard");
+      playAudioUrl(isDash ? "/static/audio/welcome_console.mp3?v=2026.16" : "/static/audio/welcome_home.mp3?v=2026.16");
+      return;
+    }
     try {
-      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
-        window.speechSynthesis.cancel();
-      }
-      setTimeout(() => {
-        try {
-          window.speechSynthesis.resume();
-          const utter = new SpeechSynthesisUtterance(spokenText);
-          window._adxActiveUtterance = utter; // Prevent Chrome GC from dropping audio mid-speech
-          const bestVoice = pickBestNeuralVoice();
-          if (bestVoice) utter.voice = bestVoice;
-          utter.lang = "en-US";
-          utter.rate = 0.96;
-          utter.pitch = 1.0;
-          utter.volume = 1.0;
-
-          utter.onstart = () => {
-            if (voiceOrb) voiceOrb.classList.add("speaking");
-            if (voiceLabel) voiceLabel.textContent = "AEGIS Speaking...";
-          };
-          utter.onend = () => {
-            if (voiceOrb) voiceOrb.classList.remove("speaking");
-            if (voiceLabel) voiceLabel.textContent = "AEGIS Voice Brief";
-          };
-          utter.onerror = () => {
-            if (voiceOrb) voiceOrb.classList.remove("speaking");
-            if (voiceLabel) voiceLabel.textContent = "AEGIS Voice Brief";
-          };
-
-          window.speechSynthesis.speak(utter);
-        } catch (innerErr) {}
-      }, 65);
+      stopActiveVoice();
+      const res = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      playAudioUrl(url);
     } catch (e) {}
   };
 
-  function getWelcomeGreeting() {
-    if (voiceOrb && voiceOrb.dataset.greeting) {
-      return voiceOrb.dataset.greeting;
-    }
-    return "Welcome to A, D, X. Silent Innovation. Absolute Defense. Enter your company domain to run a live 2026 C, V, E, security diagnostic.";
-  }
-
-  function triggerAutoWelcome() {
-    if (hasWelcomed) return;
-    hasWelcomed = true;
-    window.speakAdxVoice(getWelcomeGreeting(), true);
-  }
-
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.getVoices();
-    window.speechSynthesis.onvoiceschanged = () => {
-      pickBestNeuralVoice();
-    };
-
-    const onFirstInteract = (e) => {
-      const closeBtn = document.getElementById("aegis-close-btn");
-      if (closeBtn && closeBtn.contains(e.target)) return;
-      if (voiceOrb && voiceOrb.contains(e.target)) return;
-      if (!hasWelcomed) {
-        triggerAutoWelcome();
-      }
-      document.removeEventListener("click", onFirstInteract);
-    };
-    document.addEventListener("click", onFirstInteract);
-  }
-
   function initAegisConciergeCard() {
-    if (!voiceOrb || document.getElementById("aegis-concierge-card")) return;
+    if (document.getElementById("aegis-concierge-card")) return;
 
     const isDashboard = window.location.pathname.includes("/dashboard");
+
+    // 1. Create the WIT-h style White & Royal-Blue Assistant Card
     const card = document.createElement("div");
     card.id = "aegis-concierge-card";
     card.className = "aegis-concierge-card";
@@ -433,70 +426,191 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="aegis-card-header">
         <div class="aegis-header-left">
           <div class="aegis-avatar-wrap">
-            <img src="/static/logo.svg?v=2026.14" alt="AEGIS" style="width: 24px; height: 24px;" />
-            <span class="aegis-online-dot"></span>
+            ${botAvatarSvg}
           </div>
           <div>
-            <div style="font-weight: 800; font-size: 0.92rem; line-height: 1.15;">AEGIS AI</div>
-            <div style="font-size: 0.72rem; opacity: 0.9;">ADX Executive Security Concierge</div>
+            <div style="font-weight: 800; font-size: 0.95rem; line-height: 1.2;">ADX's BFF 🙌</div>
+            <div style="font-size: 0.75rem; opacity: 0.92;">Executive Security Assistant</div>
           </div>
         </div>
-        <button type="button" class="aegis-close-btn" id="aegis-close-btn" title="Close Card">&times;</button>
+        <div class="aegis-header-actions">
+          <button type="button" class="aegis-icon-btn" id="aegis-voice-btn" title="Play Studio Neural Voice Greeting" style="font-size: 0.95rem;">🔊</button>
+          <button type="button" class="aegis-close-btn" id="aegis-close-btn" title="Close">&times;</button>
+        </div>
       </div>
-      <div class="aegis-card-body">
-        <div style="color: #f8fafc; font-weight: 600; margin-bottom: 4px;">
-          Hey, I'm AEGIS! 🛡️
+
+      <!-- Screen 1: Clean White Welcome View (Matches WIT-h Screenshot) -->
+      <div class="aegis-card-body" id="aegis-welcome-view">
+        <div style="color: #0f172a; font-weight: 600; margin-bottom: 4px;">
+          Hey, I'm ADX's BFF! 🙌
         </div>
-        <div style="line-height: 1.45;">
-          I've got your back across ADX Cyber, Cloud &amp; AI Defense. What do you need help with today?
+        <div style="color: #334155; margin-bottom: 2px;">
+          I've got your back at ADX.
         </div>
+        <div style="color: #334155;">
+          What do you need help with today?
+        </div>
+
         <div class="aegis-action-list">
           <div class="aegis-action-item" id="aegis-act-scan">
             <span>🛡️</span>
-            <span>Run 6-Gate 2026 CVE Domain Audit</span>
+            <span>Scan a website for 2026 CVEs</span>
           </div>
-          <div class="aegis-action-item" id="aegis-act-ai">
-            <span>🧠</span>
-            <span>Ask AI Security Architect (GPT-4o)</span>
+          <div class="aegis-action-item" id="aegis-act-resources">
+            <span>📁</span>
+            <span>Find security &amp; cloud resources</span>
           </div>
-          <div class="aegis-action-item" id="aegis-act-deploy">
-            <span>⚡</span>
-            <span>Deploy ADX Engineers ($350 Fixed Scope)</span>
+          <div class="aegis-action-item" id="aegis-act-navigate">
+            <span>🧭</span>
+            <span>Navigate anything in ADX</span>
           </div>
-          <a href="mailto:contact@adxgroup.tech" class="aegis-action-item">
-            <span>💬</span>
-            <span>Reach Human Engineering Desk</span>
-          </a>
+          <div class="aegis-action-item" id="aegis-act-human">
+            <span>💪</span>
+            <span>Type <strong>'Human'</strong> to reach a person 🙋‍♂️</span>
+          </div>
         </div>
-        <button type="button" class="aegis-cta-btn" id="aegis-cta-speak-chat">
-          <span>🔊 Speak Welcome Brief Aloud</span>
+
+        <button type="button" class="aegis-cta-btn" id="aegis-open-chat-btn">
+          <span>🙌 Chat with ADX's BFF</span>
         </button>
+      </div>
+
+      <!-- Screen 2: Live Inline Chat Inside the Popup Card -->
+      <div class="aegis-chat-view" id="aegis-chat-view">
+        <div class="aegis-chat-topbar">
+          <button type="button" class="aegis-back-btn" id="aegis-back-btn">&larr; Back</button>
+          <span>Live ADX Neural Chat</span>
+        </div>
+        <div class="aegis-mini-messages" id="aegis-mini-messages">
+          <div class="aegis-msg aegis-msg-bot">Hey! I'm ADX's BFF 🙌 Ask me anything about cybersecurity, 2026 CVEs, cloud systems, or type 'Human' to reach an engineer.</div>
+        </div>
+        <form class="aegis-mini-form" id="aegis-mini-form">
+          <input type="text" class="aegis-mini-input" id="aegis-mini-input" placeholder="Ask anything or type 'Human'..." required />
+          <button type="submit" class="aegis-mini-send">Send</button>
+        </form>
       </div>
     `;
 
     document.body.appendChild(card);
 
-    const closeBtn = document.getElementById("aegis-close-btn");
-    if (closeBtn) {
-      closeBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        card.classList.add("closed");
-        if ("speechSynthesis" in window && window.speechSynthesis.speaking) {
-          window.speechSynthesis.cancel();
-          if (voiceOrb) voiceOrb.classList.remove("speaking");
-          if (voiceLabel) voiceLabel.textContent = "AEGIS Voice Brief";
-        }
-      });
+    // 2. Create the Circular Bottom-Right Robot Launcher Button (WIT-h style)
+    const launcher = document.createElement("button");
+    launcher.type = "button";
+    launcher.id = "aegis-launcher-orb";
+    launcher.className = "aegis-launcher-orb";
+    launcher.title = "Open / Close ADX's BFF";
+    launcher.innerHTML = botAvatarSvg;
+    document.body.appendChild(launcher);
+
+    const welcomeView = document.getElementById("aegis-welcome-view");
+    const chatView = document.getElementById("aegis-chat-view");
+    const miniMessages = document.getElementById("aegis-mini-messages");
+    const miniForm = document.getElementById("aegis-mini-form");
+    const miniInput = document.getElementById("aegis-mini-input");
+
+    function openInlineChat(prefillQuestion) {
+      welcomeView.style.display = "none";
+      chatView.classList.add("active");
+      setTimeout(() => miniInput.focus(), 50);
+      if (prefillQuestion) {
+        sendMiniChatMessage(prefillQuestion);
+      }
     }
 
-    document.getElementById("aegis-act-scan").addEventListener("click", () => {
+    function sendMiniChatMessage(msgText) {
+      const userBubble = document.createElement("div");
+      userBubble.className = "aegis-msg aegis-msg-user";
+      userBubble.textContent = msgText;
+      miniMessages.appendChild(userBubble);
+      miniMessages.scrollTop = miniMessages.scrollHeight;
+
+      if (msgText.trim().toLowerCase() === "human") {
+        const botBubble = document.createElement("div");
+        botBubble.className = "aegis-msg aegis-msg-bot";
+        botBubble.textContent = "Connecting you with a human engineer at ADX! You can email us directly at contact@adxgroup.tech or use the Deploy ADX Engineers tab ($350 fixed scope).";
+        miniMessages.appendChild(botBubble);
+        miniMessages.scrollTop = miniMessages.scrollHeight;
+        return;
+      }
+
+      const thinkBubble = document.createElement("div");
+      thinkBubble.className = "aegis-msg aegis-msg-bot";
+      thinkBubble.innerHTML = `<div class="ai-thinking-wrap" style="color:#0018a8; font-size:0.78rem;"><span>Thinking</span><div class="typing-dots"><span style="background:#0018a8;"></span><span style="background:#0018a8;"></span><span style="background:#0018a8;"></span></div></div>`;
+      miniMessages.appendChild(thinkBubble);
+      miniMessages.scrollTop = miniMessages.scrollHeight;
+
+      fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msgText }),
+      })
+        .then((r) => r.json())
+        .then((payload) => {
+          const reply =
+            payload && payload.ok && payload.data
+              ? cleanDisplayMessage(payload.data.reply)
+              : "You can reach our engineering team directly at contact@adxgroup.tech.";
+          thinkBubble.innerHTML = "";
+          let i = 0;
+          const words = reply.split(/(?=[ \n])/);
+          const timer = setInterval(() => {
+            if (i < words.length) {
+              thinkBubble.textContent += words.slice(i, i + 3).join("");
+              i += 3;
+              miniMessages.scrollTop = miniMessages.scrollHeight;
+            } else {
+              clearInterval(timer);
+            }
+          }, 22);
+        })
+        .catch(() => {
+          thinkBubble.textContent = "Connection interrupted. Reach our team at contact@adxgroup.tech.";
+        });
+    }
+
+    document.getElementById("aegis-close-btn").addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       card.classList.add("closed");
+      stopActiveVoice();
+    });
+
+    document.getElementById("aegis-voice-btn").addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (activeAudio) {
+        stopActiveVoice();
+      } else {
+        voiceMuted = false;
+        window.speakAdxVoice(null, true);
+      }
+    });
+
+    launcher.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      card.classList.toggle("closed");
+    });
+
+    document.getElementById("aegis-open-chat-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      openInlineChat();
+    });
+
+    document.getElementById("aegis-back-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      chatView.classList.remove("active");
+      welcomeView.style.display = "block";
+    });
+
+    document.getElementById("aegis-act-scan").addEventListener("click", () => {
       if (isDashboard && typeof switchConsoleTab === "function") {
+        card.classList.add("closed");
         switchConsoleTab("scanner");
         const inp = document.getElementById("scan-domain-input");
         if (inp) inp.focus();
       } else {
+        card.classList.add("closed");
         const inp = document.getElementById("landing-domain-input");
         if (inp) {
           inp.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -505,48 +619,28 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    document.getElementById("aegis-act-ai").addEventListener("click", () => {
-      card.classList.add("closed");
-      if (isDashboard && typeof switchConsoleTab === "function") {
-        switchConsoleTab("ai");
-        const inp = document.getElementById("ai-chat-input");
-        if (inp) inp.focus();
-      } else {
-        window.location.href = "/login";
-      }
+    document.getElementById("aegis-act-resources").addEventListener("click", () => {
+      openInlineChat("What security, cloud, and 2026 CVE resources does ADX provide?");
     });
 
-    document.getElementById("aegis-act-deploy").addEventListener("click", () => {
-      card.classList.add("closed");
-      if (isDashboard && typeof switchConsoleTab === "function") {
-        switchConsoleTab("dispatch");
-      } else {
-        window.location.href = "/login";
-      }
+    document.getElementById("aegis-act-navigate").addEventListener("click", () => {
+      openInlineChat("Help me navigate ADX and explain how the 6-Gate scanner works.");
     });
 
-    document.getElementById("aegis-cta-speak-chat").addEventListener("click", (e) => {
-      e.stopPropagation();
-      voiceMuted = false;
-      hasWelcomed = true;
-      window.speakAdxVoice(getWelcomeGreeting(), true);
+    document.getElementById("aegis-act-human").addEventListener("click", () => {
+      openInlineChat("Human");
+    });
+
+    miniForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const val = miniInput.value.trim();
+      if (!val) return;
+      miniInput.value = "";
+      sendMiniChatMessage(val);
     });
   }
 
   initAegisConciergeCard();
-
-  if (voiceOrb) {
-    voiceOrb.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const card = document.getElementById("aegis-concierge-card");
-      if (card) {
-        card.classList.toggle("closed");
-      }
-      voiceMuted = false;
-      hasWelcomed = true;
-      window.speakAdxVoice(getWelcomeGreeting(), true);
-    });
-  }
 
   // 5. Extraordinary 60fps 3D Quantum Neural Constellation & Orbital Radar Background
   function initQuantumOrbitalBackground() {

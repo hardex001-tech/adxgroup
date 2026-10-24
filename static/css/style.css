@@ -825,20 +825,19 @@ footer,
   50% { opacity: 0; }
 }
 
-/* Floating AEGIS AI Concierge Card (Bottom-Right Executive Assistant) */
+/* Floating ADX's BFF / AEGIS Assistant Card (WIT-h Clean White & Royal Blue Design) */
 .aegis-concierge-card {
   position: fixed;
-  bottom: 78px;
-  right: 24px;
-  width: 325px;
-  z-index: 9998;
-  background: rgba(9, 15, 30, 0.96);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(56, 189, 248, 0.38);
+  bottom: 84px;
+  right: 26px;
+  width: 326px;
+  z-index: 9999;
+  background: #ffffff;
   border-radius: 18px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.78), 0 0 32px rgba(37, 99, 235, 0.28);
+  box-shadow: 0 18px 50px rgba(2, 6, 23, 0.38), 0 4px 16px rgba(0, 24, 168, 0.16);
   overflow: hidden;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  font-family: var(--font-sans);
+  transition: opacity 0.22s ease, transform 0.22s ease;
 }
 
 .aegis-concierge-card.closed {
@@ -848,8 +847,8 @@ footer,
 }
 
 .aegis-card-header {
-  background: linear-gradient(135deg, #1d4ed8 0%, #0284c7 100%);
-  padding: 14px 16px;
+  background: #0018a8;
+  padding: 15px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -859,15 +858,16 @@ footer,
 .aegis-header-left {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
 }
 
 .aegis-avatar-wrap {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: rgba(5, 8, 17, 0.85);
-  border: 2px solid #38bdf8;
+  background: radial-gradient(circle at 32% 28%, #60a5fa, #1d4ed8 65%, #091540);
+  border: 2px solid #93c5fd;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.32);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -875,93 +875,221 @@ footer,
   flex-shrink: 0;
 }
 
-.aegis-online-dot {
-  position: absolute;
-  bottom: -1px;
-  right: -1px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #10b981;
-  border: 2px solid #090f1e;
+.aegis-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
+.aegis-icon-btn,
 .aegis-close-btn {
-  background: rgba(255, 255, 255, 0.14);
+  background: transparent;
   border: none;
   color: #ffffff;
   width: 28px;
   height: 28px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.15rem;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0.9;
+  transition: background 0.15s ease, opacity 0.15s ease;
 }
 
+.aegis-icon-btn:hover,
 .aegis-close-btn:hover {
-  background: rgba(255, 255, 255, 0.26);
+  background: rgba(255, 255, 255, 0.18);
+  opacity: 1;
 }
 
 .aegis-card-body {
-  padding: 16px 18px 18px;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+  padding: 20px 20px 18px;
+  background: #ffffff;
+  font-size: 0.88rem;
+  color: #1e293b;
+  line-height: 1.5;
 }
 
 .aegis-action-list {
   list-style: none;
-  margin: 12px 0 16px;
+  margin: 14px 0 18px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 9px;
 }
 
 .aegis-action-item {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 7px 10px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  color: #f8fafc;
-  font-size: 0.81rem;
-  font-weight: 600;
+  gap: 10px;
+  padding: 2px 0;
+  background: transparent;
+  border: none;
+  color: #1e293b;
+  font-size: 0.86rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease, transform 0.15s ease;
   text-decoration: none;
 }
 
 .aegis-action-item:hover {
-  background: rgba(56, 189, 248, 0.12);
-  border-color: rgba(56, 189, 248, 0.35);
-  color: var(--accent-cyan);
+  color: #0018a8;
+  transform: translateX(3px);
 }
 
 .aegis-cta-btn {
   width: 100%;
-  padding: 11px 14px;
+  padding: 12px 16px;
   border-radius: 10px;
   border: none;
-  background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);
+  background: #0018a8;
   color: #ffffff;
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
-  transition: transform 0.15s ease;
+  box-shadow: 0 6px 18px rgba(0, 24, 168, 0.28);
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .aegis-cta-btn:hover {
+  background: #001285;
   transform: translateY(-1px);
+}
+
+/* Inline Chat View inside the White Popup Card */
+.aegis-chat-view {
+  display: none;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.aegis-chat-view.active {
+  display: flex;
+}
+
+.aegis-chat-topbar {
+  padding: 8px 16px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  color: #475569;
+}
+
+.aegis-back-btn {
+  background: none;
+  border: none;
+  color: #0018a8;
+  font-weight: 700;
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.aegis-mini-messages {
+  height: 235px;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #ffffff;
+}
+
+.aegis-msg {
+  max-width: 88%;
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.aegis-msg-bot {
+  align-self: flex-start;
+  background: #f1f5f9;
+  color: #0f172a;
+  border-bottom-left-radius: 4px;
+}
+
+.aegis-msg-user {
+  align-self: flex-end;
+  background: #0018a8;
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+
+.aegis-mini-form {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px 14px;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.aegis-mini-input {
+  flex: 1;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 11px;
+  font-size: 0.82rem;
+  font-family: var(--font-sans);
+  color: #0f172a;
+  outline: none;
+}
+
+.aegis-mini-input:focus {
+  border-color: #0018a8;
+}
+
+.aegis-mini-send {
+  background: #0018a8;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 0 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Circular Bottom-Right Robot Launcher Button (WIT-h style) */
+.aegis-launcher-orb {
+  position: fixed;
+  bottom: 20px;
+  right: 26px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #0018a8;
+  box-shadow: 0 10px 28px rgba(2, 6, 23, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9998;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aegis-launcher-orb:hover {
+  transform: scale(1.06);
+  box-shadow: 0 12px 32px rgba(0, 24, 168, 0.42);
+}
+
+.aegis-launcher-orb.speaking {
+  box-shadow: 0 0 0 6px rgba(0, 24, 168, 0.28), 0 10px 28px rgba(2, 6, 23, 0.4);
 }
 
 @media (max-width: 920px) {

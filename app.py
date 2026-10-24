@@ -323,15 +323,47 @@ async def api_scan_domain(request: Request, payload: ScanRequest):
 @asgi_app.post("/api/chat")
 async def api_ai_consultant(request: Request, payload: ChatRequest):
     user = _current_user(request)
-    if not user:
-        raise HTTPException(status_code=401, detail="Please sign in to access the ADX AI Consultant.")
-    dash_data = get_client_dashboard_data(user["id"])
+    recent_scans = []
+    if user:
+        dash_data = get_client_dashboard_data(user["id"])
+        recent_scans = dash_data.get("recent_scans", [])
+    else:
+        user = {"name": "Guest", "company": "ADX Visitor"}
     result = await ask_adx_ai_consultant(
         payload.message,
         user=user,
-        recent_scans=dash_data.get("recent_scans", []),
+        recent_scans=recent_scans,
     )
     return JSONResponse(content={"ok": True, "data": result})
+
+
+class TtsRequest(BaseModel):
+    text: str
+
+
+@asgi_app.post("/api/tts")
+async def api_neural_tts(payload: TtsRequest):
+    """Generate studio-grade human Neural AI MP3 audio via Microsoft Edge Neural TTS."""
+    import re
+    import edge_tts
+    from fastapi.responses import Response
+
+    raw_text = (payload.text or "").strip()[:500]
+    if not raw_text:
+        raise HTTPException(status_code=400, detail="Empty text")
+
+    # Ensure ADX is spoken strictly as the letters A. D. X. (never 'Adex' or 'ADX Group')
+    clean_text = re.sub(r"\b(A\s*D\s*X|ADX|Adex)\s+Group\b", "A. D. X.", raw_text, flags=re.IGNORECASE)
+    clean_text = re.sub(r"\b(A\s*D\s*X|ADX|Adex)\b", "A. D. X.", clean_text, flags=re.IGNORECASE)
+    clean_text = re.sub(r"\bC\s*V\s*E\b", "C. V. E.", clean_text, flags=re.IGNORECASE)
+
+    communicate = edge_tts.Communicate(clean_text, "en-US-AvaMultilingualNeural", rate="+0%")
+    audio_bytes = bytearray()
+    async for chunk in communicate.stream():
+        if chunk["type"] == "audio":
+            audio_bytes.extend(chunk["data"])
+
+    return Response(content=bytes(audio_bytes), media_type="audio/mpeg")
 
 
 class AdminAiTokenRequest(BaseModel):
