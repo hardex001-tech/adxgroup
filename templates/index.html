@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ADX Group | Silent Innovation. Absolute Defense.</title>
-  <meta name="description" content="ADX Group engineers autonomous AI workflows, resilient cloud infrastructure, and multi-layer cybersecurity systems for global enterprises." />
+  <meta name="description" content="ADX Group engineers autonomous AI workflows, resilient cloud infrastructure, and 2026 CVE cybersecurity systems for global enterprises." />
   <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
-  <link rel="stylesheet" href="/static/css/style.css?v=4" />
+  <link rel="stylesheet" href="/static/css/style.css?v=5" />
 </head>
 <body>
 
@@ -22,170 +22,289 @@
       </a>
       <nav class="nav-links">
         <a href="#divisions">Operating Divisions</a>
-        <a href="#security-standard">Four-Layer Security</a>
+        <a href="#security-standard">Security Architecture</a>
+        <a href="#cve-intelligence">2026 CVE Radar</a>
         <a href="#how-it-works">How It Works</a>
         {% if user %}
           <a href="/dashboard" class="btn btn-primary">Open Console ({{ user.name }})</a>
         {% else %}
           <a href="/login">Sign In</a>
-          <a href="/login" class="btn btn-primary">Get Started</a>
+          <a href="/login" class="btn btn-primary">Launch Console</a>
         {% endif %}
       </nav>
     </div>
   </header>
 
-  <!-- Hero Section -->
+  <!-- Hero Section (9.5/10 Split Architecture with Live Telemetry Preview) -->
   <section class="hero">
-    <div class="container">
-      <span class="motto-badge">Silent Innovation. Absolute Defense.</span>
-      <h1>
-        Enterprise <span class="gradient-text">AI Architecture</span> &amp; Multi-Layer Cyber Protection
-      </h1>
-      <p>
-        ADX Group designs private artificial intelligence systems, resilient cloud infrastructure, and automated perimeter security for modern organizations worldwide.
-      </p>
+    <div class="container hero-split">
+      <!-- Left Column -->
+      <div>
+        <span class="motto-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Silent Innovation. Absolute Defense.
+        </span>
+        <h1>
+          Enterprise <span class="gradient-text">AI Architecture</span> &amp; Deep 2026 CVE Defense
+        </h1>
+        <p>
+          ADX Group engineers private artificial intelligence systems, hardened cloud infrastructure, and deep cryptographic &amp; CVE vulnerability diagnostics for high-consequence organizations.
+        </p>
 
-      <div style="max-width: 620px; margin: 0 auto 28px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px;">
-        <form id="landing-gate-form" class="scanner-form">
-          <input
-            type="text"
-            id="landing-domain-input"
-            class="scanner-input"
-            placeholder="Enter your company domain (e.g., company.com)"
-            required
-          />
-          <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
-            Inspect Domain
-          </button>
-        </form>
+        <div style="background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: 14px; padding: 14px; margin-bottom: 22px; max-width: 580px;">
+          <form id="landing-gate-form" class="scanner-form">
+            <input
+              type="text"
+              id="landing-domain-input"
+              class="scanner-input"
+              placeholder="Enter company domain to inspect (e.g., company.com)"
+              required
+            />
+            <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+              Run 2026 CVE Audit
+            </button>
+          </form>
+        </div>
+
+        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+          {% if user %}
+            <a href="/dashboard" class="btn btn-primary">Enter Client Workspace</a>
+            {% if user.role == 'admin' %}
+            <a href="/admin" class="btn btn-outline">Owner Command Center</a>
+            {% endif %}
+          {% else %}
+            <a href="/login" class="btn btn-primary">Sign In with Google or GitHub</a>
+            <a href="#cve-intelligence" class="btn btn-outline">View 2026 Threat Matrix</a>
+          {% endif %}
+        </div>
       </div>
 
-      <div class="hero-actions">
-        {% if user %}
-          <a href="/dashboard" class="btn btn-primary">Go to Workspace</a>
-          {% if user.role == 'admin' %}
-          <a href="/admin" class="btn btn-outline">Owner Command Center</a>
-          {% endif %}
-        {% else %}
-          <a href="/login" class="btn btn-primary">Sign In to ADX Console</a>
-          <a href="#how-it-works" class="btn btn-outline">Explore How It Works</a>
-        {% endif %}
+      <!-- Right Column: Live Telemetry & 2026 CVE Preview Card -->
+      <div class="hero-preview-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px; margin-bottom: 16px;">
+          <div>
+            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent-cyan); display: block;">LIVE TELEMETRY ENGINE</span>
+            <strong style="font-size: 0.98rem;">6-Gate Surface + Hidden CVE Probe</strong>
+          </div>
+          <span class="badge-true">TLSv1.3 AEAD</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+          <div class="telemetry-box">
+            <span>Cryptographic Handshake</span>
+            <strong>TLS_AES_256_GCM</strong>
+          </div>
+          <div class="telemetry-box">
+            <span>2026 CVE Signatures</span>
+            <strong>CVE-2026-109618/19</strong>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.83rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-subtle);">
+            <span style="font-family: var(--font-mono);">GATE-01: SSL/TLS Certificate Chain</span>
+            <span class="badge-true">VERIFIED</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-subtle);">
+            <span style="font-family: var(--font-mono);">GATE-02: SPF &amp; DMARC Anti-Spoofing</span>
+            <span class="badge-true">p=reject</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-subtle);">
+            <span style="font-family: var(--font-mono);">GATE-05: CVE-2026-109618 Runtime</span>
+            <span class="badge-true">MASKED</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.35);">
+            <span style="font-family: var(--font-mono);">GATE-06: Deep API &amp; Memory OOM</span>
+            <span class="badge-warn">DEEP AUDIT REQ</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Section 1: Operating Divisions -->
+  <!-- Section 1: Operating Divisions (With Custom Vector SVG Icons) -->
   <section id="divisions" class="section-block">
     <div class="container">
       <div class="section-header">
         <span class="section-eyebrow">Operating Divisions</span>
         <h2>Three Specialized Engineering Units</h2>
-        <p>Each division of ADX Group solves high-impact infrastructure, security, and intelligence challenges under one unified platform.</p>
+        <p>Integrated capabilities across offensive security, cloud systems, and private enterprise AI.</p>
       </div>
 
       <div class="grid-3">
         <div class="feature-card">
-          <div class="card-icon">01</div>
+          <div class="card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </div>
           <h3>ADX Cyber</h3>
-          <p>External perimeter assessments, email anti-spoofing enforcement, and automated web application protection.</p>
+          <p>Deep vulnerability diagnostics, 2026 CVE stress testing, email anti-spoofing enforcement, and managed WAF rules.</p>
           <ul class="clean-list">
-            <li>SSL/TLS &amp; Cryptographic Chain Audits</li>
+            <li>2026 CVE &amp; Zero-Day Runtime Assessments</li>
             <li>DMARC, DKIM &amp; SPF Anti-Phishing Hardening</li>
-            <li>Web Application Firewall (WAF) &amp; DDoS Filtering</li>
+            <li>Authenticated API &amp; BOLA Penetration Testing</li>
             <li>SOC 2, ISO 27001, DORA &amp; NDPA Compliance</li>
           </ul>
         </div>
 
         <div class="feature-card">
-          <div class="card-icon">02</div>
+          <div class="card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+              <line x1="6" y1="6" x2="6.01" y2="6"/>
+              <line x1="6" y1="18" x2="6.01" y2="18"/>
+            </svg>
+          </div>
           <h3>ADX Cloud &amp; Systems</h3>
-          <p>High-availability Python and FastAPI backend services architected for maximum uptime and optimized cloud spend.</p>
+          <p>High-availability Python and FastAPI backend services architected for zero-downtime reliability and low cloud burn.</p>
           <ul class="clean-list">
             <li>Production FastAPI &amp; Container Microservices</li>
-            <li>Azure &amp; AWS Infrastructure Optimization</li>
-            <li>Private Database &amp; Internal Network Isolation</li>
+            <li>Azure &amp; AWS Infrastructure Right-Sizing</li>
+            <li>Private Subnet &amp; Database Network Locking</li>
             <li>Automated Daily Encrypted Off-Site Backups</li>
           </ul>
         </div>
 
         <div class="feature-card">
-          <div class="card-icon">03</div>
+          <div class="card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+              <polyline points="2 17 12 22 22 17"/>
+              <polyline points="2 12 12 17 22 12"/>
+            </svg>
+          </div>
           <h3>ADX Intelligence</h3>
-          <p>Private enterprise artificial intelligence assistants and workflow automation that keep proprietary data secure.</p>
+          <p>Private enterprise artificial intelligence assistants and autonomous agents that process internal business records securely.</p>
           <ul class="clean-list">
             <li>Private Knowledge &amp; Document Search (RAG)</li>
             <li>24/7 Autonomous Customer &amp; Triage Agents</li>
-            <li>Prompt-Injection &amp; Data Leak Guardrails</li>
-            <li>Custom API &amp; Model Context Protocol (MCP) Tools</li>
+            <li>OWASP LLM01 Prompt-Injection Guardrails</li>
+            <li>Model Context Protocol (MCP) Tool Pipelines</li>
           </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Section 2: Four-Layer Security Standard -->
-  <section id="security-standard" class="section-block">
+  <!-- Section 2: 2026 CVE & Hidden Vulnerability Intelligence -->
+  <section id="cve-intelligence" class="section-block">
     <div class="container">
       <div class="section-header">
-        <span class="section-eyebrow">Four-Layer Security Standard</span>
-        <h2>Defense-in-Depth for Every Client Asset</h2>
-        <p>Relying on a single security control leaves systems exposed. ADX Group protects client websites and APIs across four independent layers.</p>
+        <span class="section-eyebrow">2026 Threat Intelligence</span>
+        <h2>Why Surface HTTPS Checks Are Never Enough</h2>
+        <p>A website can pass basic SSL checks while harboring critical runtime, memory, or API authorization flaws underneath. ADX Group evaluates both surface posture and deep 2026 CVE attack vectors.</p>
       </div>
 
-      <div class="grid-4">
+      <div class="grid-3">
         <div class="feature-card">
-          <div class="card-icon">L1</div>
-          <h3>Edge Firewall Filtering</h3>
-          <p>Automated bots, SQL injection payloads, and cross-site scripting attacks are blocked at the network edge before reaching your web server.</p>
+          <span class="cve-tag" style="margin-bottom: 12px;">CVE-2026-109618 / 109619 • CVSS 9.2</span>
+          <h3>Runtime OOM &amp; Memory Corruption</h3>
+          <p>Malformed multipart payloads can trigger out-of-memory cleanup flaws and use-after-free execution in web runtimes before application code runs.</p>
         </div>
 
         <div class="feature-card">
-          <div class="card-icon">L2</div>
-          <h3>Database &amp; Server Isolation</h3>
-          <p>Databases run inside private internal networks that are unreachable from the public internet, isolating sensitive records from web traffic.</p>
+          <span class="cve-tag" style="margin-bottom: 12px;">CVE-2026-31044 • OWASP API1:2026</span>
+          <h3>API Token &amp; BOLA Authorization Bypass</h3>
+          <p>Even behind valid HTTPS, improperly scoped API endpoints and wildcard CORS headers allow attackers to harvest session tokens across origins.</p>
         </div>
 
         <div class="feature-card">
-          <div class="card-icon">L3</div>
-          <h3>Continuous Vulnerability Patching</h3>
-          <p>Scheduled diagnostics detect outdated packages, expiring certificates, and header gaps so production servers stay patched automatically.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="card-icon">L4</div>
-          <h3>Encrypted Off-Site Recovery</h3>
-          <p>Daily encrypted snapshots stored in isolated cloud vaults allow complete website and database restoration within minutes.</p>
+          <span class="cve-tag" style="margin-bottom: 12px;">CWE-290 • Executive BEC Spoofing</span>
+          <h3>Unenforced DMARC (`p=none`)</h3>
+          <p>Over 65% of corporate domains run DMARC in passive monitoring mode, allowing threat actors to send forged invoices and phishing links from the company's exact domain.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Section 3: How It Works -->
+  <!-- Section 3: Four-Layer Security Architecture -->
+  <section id="security-standard" class="section-block">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Defense-in-Depth Standard</span>
+        <h2>Four Independent Layers of Client Protection</h2>
+        <p>Every client environment hardened by ADX Group is locked across four isolated infrastructure layers.</p>
+      </div>
+
+      <div class="grid-4">
+        <div class="feature-card">
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
+          <h3>Edge WAF Filtering</h3>
+          <p>Blocks malformed multipart payloads, SQLi, XSS, and automated botnets at the network edge before reaching the server.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <h3>Network &amp; DB Isolation</h3>
+          <p>Databases run inside locked private subnets completely unreachable from the public internet.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+          </div>
+          <h3>Automated CVE Patching</h3>
+          <p>Continuous diagnostics detect new 2026 CVEs, outdated packages, and expiring SSL certificates early.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </div>
+          <h3>Encrypted Vault Recovery</h3>
+          <p>Daily encrypted off-site backups guarantee complete website and database restoration within minutes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: How It Works -->
   <section id="how-it-works" class="section-block">
     <div class="container">
       <div class="section-header">
-        <span class="section-eyebrow">How It Works</span>
-        <h2>From Onboarding to Continuous Protection</h2>
-        <p>A streamlined three-step workflow designed for engineering teams, founders, and agency partners.</p>
+        <span class="section-eyebrow">Client Workflow</span>
+        <h2>How the ADX Console Works</h2>
+        <p>Inspect your live telemetry, review 2026 CVE exposure, and dispatch ADX engineers from one secure workspace.</p>
       </div>
 
       <div class="grid-3">
         <div class="feature-card">
-          <div class="card-icon">1</div>
-          <h3>Create Your Workspace</h3>
-          <p>Sign in with your Google, GitHub, or corporate email account to initialize your private ADX Console and configure your identity settings.</p>
+          <div class="card-icon" style="font-family: var(--font-mono); font-weight: 800;">01</div>
+          <h3>Authenticate Your Identity</h3>
+          <p>Sign in via Google, GitHub, or Corporate Email to initialize your private ADX Console and verified identity profile.</p>
         </div>
 
         <div class="feature-card">
-          <div class="card-icon">2</div>
-          <h3>Run 5-Vector Diagnostics</h3>
-          <p>Add your company domains to inspect TLS encryption, SPF/DMARC email policies, HTTP headers, CORS rules, and exposed server paths in seconds.</p>
+          <div class="card-icon" style="font-family: var(--font-mono); font-weight: 800;">02</div>
+          <h3>Inspect Telemetry &amp; 2026 CVEs</h3>
+          <p>Run our 6-Gate scanner on your domain to verify live IP latency, TLS cipher chains, DMARC enforcement, and hidden CVE risks.</p>
         </div>
 
         <div class="feature-card">
-          <div class="card-icon">3</div>
-          <h3>Apply Fixes or Dispatch Engineers</h3>
-          <p>Copy exact server remediation configurations directly from your console, or assign ADX Group engineers to harden and monitor your infrastructure 24/7.</p>
+          <div class="card-icon" style="font-family: var(--font-mono); font-weight: 800;">03</div>
+          <h3>Deploy ADX Remediation</h3>
+          <p>Consult with the ADX AI Architect or dispatch our engineering team to deploy locked security patches and certify your infrastructure.</p>
         </div>
       </div>
     </div>
@@ -218,10 +337,10 @@
         </div>
 
         <div class="footer-col">
-          <h4>Architecture</h4>
+          <h4>Security</h4>
           <ul>
-            <li><a href="#security-standard">Four-Layer Security</a></li>
-            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#cve-intelligence">2026 CVE Radar</a></li>
+            <li><a href="#security-standard">Four-Layer Standard</a></li>
             <li><a href="/login">Client Console</a></li>
           </ul>
         </div>

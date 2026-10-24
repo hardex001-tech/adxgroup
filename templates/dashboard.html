@@ -5,19 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Workspace Console | ADX Group</title>
   <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
-  <link rel="stylesheet" href="/static/css/style.css?v=4" />
+  <link rel="stylesheet" href="/static/css/style.css?v=5" />
   <style>
     .console-layout {
       display: grid;
-      grid-template-columns: 250px 1fr;
+      grid-template-columns: 265px 1fr;
       gap: 28px;
       padding: 32px 0 64px;
       min-height: calc(100vh - 160px);
     }
     .console-sidebar {
       background: var(--bg-card);
+      backdrop-filter: blur(14px);
       border: 1px solid var(--border-subtle);
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 20px 14px;
       height: fit-content;
       position: sticky;
@@ -27,13 +28,13 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 10px 12px 18px;
+      padding: 8px 10px 18px;
       border-bottom: 1px solid var(--border-subtle);
       margin-bottom: 14px;
     }
     .avatar-circle {
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       background: linear-gradient(135deg, #2563eb, #38bdf8);
       color: #ffffff;
@@ -41,7 +42,7 @@
       align-items: center;
       justify-content: center;
       font-weight: 800;
-      font-size: 1rem;
+      font-size: 1.05rem;
       flex-shrink: 0;
     }
     .side-nav-btn {
@@ -51,15 +52,16 @@
       width: 100%;
       text-align: left;
       padding: 11px 14px;
-      border-radius: 8px;
-      border: none;
+      border-radius: 10px;
+      border: 1px solid transparent;
       background: transparent;
       color: var(--text-secondary);
-      font-size: 0.9rem;
-      font-weight: 500;
+      font-size: 0.89rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s;
-      margin-bottom: 4px;
+      transition: all 0.18s;
+      margin-bottom: 5px;
+      font-family: var(--font-sans);
     }
     .side-nav-btn:hover {
       background: rgba(255, 255, 255, 0.05);
@@ -67,8 +69,8 @@
     }
     .side-nav-btn.active {
       background: rgba(37, 99, 235, 0.18);
+      border-color: rgba(56, 189, 248, 0.3);
       color: var(--accent-cyan);
-      font-weight: 600;
     }
     .domain-pill-grid {
       display: grid;
@@ -95,7 +97,7 @@
       justify-content: center;
       font-family: var(--font-mono);
       font-weight: 800;
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       background: rgba(56, 189, 248, 0.12);
       color: var(--accent-cyan);
       border: 1px solid rgba(56, 189, 248, 0.3);
@@ -114,18 +116,32 @@
     }
     .identity-field span {
       display: block;
-      font-size: 0.76rem;
+      font-size: 0.74rem;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.6px;
       margin-bottom: 4px;
     }
     .identity-field strong {
-      font-size: 0.95rem;
+      font-size: 0.94rem;
       color: var(--text-main);
       word-break: break-all;
     }
-    @media (max-width: 900px) {
+    .quick-chip {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      color: var(--accent-cyan);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .quick-chip:hover {
+      background: rgba(56, 189, 248, 0.22);
+    }
+    @media (max-width: 920px) {
       .console-layout {
         grid-template-columns: 1fr;
       }
@@ -148,15 +164,16 @@
         </div>
       </a>
 
-      <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
         {% if user.role == 'admin' %}
         <a href="/admin" class="btn btn-primary" style="padding: 8px 14px; font-size: 0.82rem;">
           Owner Command Center
         </a>
         {% endif %}
         <button type="button" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem;" onclick="switchConsoleTab('settings')">
-          Settings ({{ user.name }})
+          Identity &amp; Settings ({{ user.name }})
         </button>
+        <a href="/" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem;">Public Site</a>
         <a href="/logout" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem; color: #f87171;">
           Sign Out
         </a>
@@ -179,22 +196,22 @@
             {{ user.email }}
           </div>
           <span style="display: inline-block; margin-top: 4px; font-size: 0.68rem; font-family: var(--font-mono); padding: 2px 7px; border-radius: 4px; background: rgba(56, 189, 248, 0.14); color: var(--accent-cyan);">
-            ID #ADX-00{{ user.id }} • {{ user.provider | upper }}
+            ID #ADX-00{{ user.id }} | {{ user.role | upper }}
           </span>
         </div>
       </div>
 
       <button type="button" id="nav-scanner" class="side-nav-btn active" onclick="switchConsoleTab('scanner')">
-        1. Security Scanner &amp; Assets
+        1. Security &amp; 2026 CVE Scanner
       </button>
       <button type="button" id="nav-ai" class="side-nav-btn" onclick="switchConsoleTab('ai')">
-        2. AI Systems Consultant
+        2. AI Security Architect
       </button>
-      <button type="button" id="nav-architecture" class="side-nav-btn" onclick="switchConsoleTab('architecture')">
-        3. Divisions &amp; 4-Layer Standard
+      <button type="button" id="nav-cve" class="side-nav-btn" onclick="switchConsoleTab('cve')">
+        3. 2026 Global CVE Radar
       </button>
       <button type="button" id="nav-dispatch" class="side-nav-btn" onclick="switchConsoleTab('dispatch')">
-        4. Request Engineering Scope
+        4. Deploy ADX Engineers
       </button>
       <button type="button" id="nav-settings" class="side-nav-btn" onclick="switchConsoleTab('settings')">
         5. Account &amp; Identity Settings
@@ -204,13 +221,13 @@
     <!-- Right Workspace Content -->
     <main>
 
-      <!-- TAB 1: Security Scanner & Monitored Assets -->
+      <!-- TAB 1: Live Telemetry & 2026 CVE Scanner -->
       <div id="tab-view-scanner" class="console-tab-view">
         <div class="scanner-card" style="margin-bottom: 28px;">
-          <span class="section-eyebrow">5-Vector Diagnostic Engine</span>
-          <h2 style="font-size: 1.55rem; margin-bottom: 8px;">Website &amp; Infrastructure Security Scanner</h2>
+          <span class="section-eyebrow">Live Infrastructure &amp; 2026 CVE Diagnostic</span>
+          <h2 style="font-size: 1.55rem; margin-bottom: 8px;">6-Gate Surface &amp; Hidden Vulnerability Scanner</h2>
           <p style="color: var(--text-muted); font-size: 0.93rem; margin-bottom: 20px;">
-            Inspect SSL/TLS encryption, SPF and DMARC anti-spoofing records, HTTP defensive headers, CORS rules, and exposed server files.
+            Captures live host IP telemetry, TLS cipher handshakes, SPF/DMARC policies, and 2026 CVE exposure (including Gate-06 Deep Runtime &amp; API vectors).
           </p>
 
           <form id="scan-form" class="scanner-form">
@@ -218,25 +235,29 @@
               type="text"
               id="scan-domain-input"
               class="scanner-input"
-              placeholder="Enter domain to inspect (e.g., github.com or yourcompany.com)"
+              placeholder="Enter company domain to audit (e.g., github.com or yourcompany.com)"
               required
             />
             <button type="submit" id="scan-submit-btn" class="btn btn-primary" style="white-space: nowrap;">
-              Run Deep Diagnostic
+              Run 6-Gate CVE Audit
             </button>
           </form>
 
+          <!-- Dynamic Results Container -->
           <div id="scan-results" class="scan-results hidden">
             <div class="score-banner">
               <div>
-                <div id="scan-domain-title" style="font-family: var(--font-mono); font-size: 0.86rem; color: var(--text-muted);"></div>
-                <div id="scan-grade-badge" style="font-weight: 700; font-size: 1.15rem; margin-top: 4px;"></div>
+                <div id="scan-domain-title" style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);"></div>
+                <div id="scan-grade-badge" style="font-weight: 800; font-size: 1.15rem; margin-top: 4px;"></div>
               </div>
               <div style="text-align: right;">
-                <span style="font-size: 0.74rem; color: var(--text-muted); font-family: var(--font-mono); display: block;">SECURITY SCORE</span>
-                <span id="scan-score-val" class="score-number">100/100</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block;">SURFACE SCORE (MAX 88 PASV)</span>
+                <span id="scan-score-val" class="score-number">88/100</span>
               </div>
             </div>
+
+            <!-- Live Verifiable Network Telemetry Strip (Proves Credibility) -->
+            <div id="telemetry-strip" class="telemetry-grid"></div>
 
             <div id="scan-ai-summary" class="ai-summary-box"></div>
 
@@ -244,27 +265,14 @@
               <table class="truth-table">
                 <thead>
                   <tr>
-                    <th style="width: 105px;">Gate</th>
-                    <th style="width: 230px;">Security Vector</th>
-                    <th style="width: 130px;">State</th>
-                    <th>Diagnostic Finding &amp; Remediation Code</th>
+                    <th style="width: 95px;">Gate</th>
+                    <th style="width: 245px;">Security Vector &amp; 2026 CVE</th>
+                    <th style="width: 145px;">Verification State</th>
+                    <th>Technical Finding &amp; Remediation Status</th>
                   </tr>
                 </thead>
                 <tbody id="gates-table-body"></tbody>
               </table>
-            </div>
-
-            <div class="outreach-box">
-              <div class="outreach-header">
-                <div>
-                  <strong style="font-size: 0.94rem;">Executive Diagnostic Report Export</strong>
-                  <p style="font-size: 0.82rem; color: var(--text-muted);">Copy this structured advisory report for your engineering team or client.</p>
-                </div>
-                <button type="button" id="copy-outreach-btn" class="btn btn-outline" style="padding: 8px 14px; font-size: 0.82rem;">
-                  Copy Report
-                </button>
-              </div>
-              <textarea id="outreach-email-text" class="outreach-textarea" readonly></textarea>
             </div>
           </div>
         </div>
@@ -314,7 +322,7 @@
         <!-- Recent Audit History -->
         <div class="panel-card">
           <span class="section-eyebrow">Audit Ledger</span>
-          <h3>Recent Diagnostic Scans</h3>
+          <h3>Your Recent Diagnostic Scans</h3>
           <div class="truth-table-wrap" style="margin-top: 12px; margin-bottom: 0;">
             <table class="truth-table">
               <thead>
@@ -346,80 +354,127 @@
         </div>
       </div>
 
-      <!-- TAB 2: AI Systems Consultant -->
+      <!-- TAB 2: Context-Aware AI Security Architect -->
       <div id="tab-view-ai" class="console-tab-view hidden">
         <div class="panel-card">
-          <span class="section-eyebrow">Autonomous Systems Desk</span>
-          <h2 style="font-size: 1.5rem; margin-bottom: 6px;">24/7 ADX AI Systems Consultant</h2>
+          <span class="section-eyebrow">Interactive Neural Desk</span>
+          <h2 style="font-size: 1.5rem; margin-bottom: 6px;">ADX AI Security &amp; Systems Architect</h2>
           <p style="color: var(--text-muted); font-size: 0.92rem;">
-            Ask technical questions about server hardening, DMARC/SPF configuration, private enterprise AI (RAG), or fixed-scope ADX Group services.
+            Context-aware AI architect connected to your scan history. Say hello, ask about your latest scan, or inquire about 2026 CVEs.
           </p>
-          <div id="ai-chat-log" class="chat-log" style="min-height: 340px;">
-            <div class="chat-msg chat-bot">Hello {{ user.name }}! Welcome to the ADX AI Systems Desk. Ask me how to remediate any vulnerability, configure cloud infrastructure, or deploy private AI automation for your organization.</div>
+
+          <!-- 1-Click Quick Prompts -->
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;">
+            <button type="button" class="quick-chip" onclick="sendQuickPrompt('Hi! Are you online?')">Say Hi</button>
+            <button type="button" class="quick-chip" onclick="sendQuickPrompt('What did you find on my latest scan?')">Analyze My Latest Scan</button>
+            <button type="button" class="quick-chip" onclick="sendQuickPrompt('Explain the 2026 hidden CVE risks')">Explain 2026 CVEs</button>
+            <button type="button" class="quick-chip" onclick="sendQuickPrompt('What is the cost for ADX engineers to fix my server?')">Remediation Pricing</button>
           </div>
+
+          <div id="ai-chat-log" class="chat-log">
+            <div class="chat-msg chat-bot">Hey {{ user.name }}! I am online and synced with your workspace. Ask me anything about your domain scans, 2026 CVE vulnerabilities, or how our engineering team can harden your infrastructure.</div>
+          </div>
+
           <form id="ai-chat-form" style="display: flex; gap: 10px;">
-            <input type="text" id="ai-chat-input" class="form-control" placeholder="Ask about security fixes, cloud deployment, or AI automation..." required />
-            <button type="submit" class="btn btn-primary">Send Message</button>
+            <input type="text" id="ai-chat-input" class="form-control" placeholder="Type a message (e.g., 'Hi', 'Analyze my scan', 'Explain CVE-2026-109618')..." required />
+            <button type="submit" id="ai-chat-submit" class="btn btn-primary" style="white-space: nowrap;">Send</button>
           </form>
         </div>
       </div>
 
-      <!-- TAB 3: Operating Divisions & Four-Layer Security Standard -->
-      <div id="tab-view-architecture" class="console-tab-view hidden">
-        <div class="panel-card" style="margin-bottom: 24px;">
-          <span class="section-eyebrow">Operating Divisions</span>
-          <h2 style="font-size: 1.5rem; margin-bottom: 18px;">ADX Group Engineering Divisions</h2>
-          <div class="grid-3">
-            <div class="feature-card" style="padding: 22px;">
-              <h3>1. ADX Cyber</h3>
-              <p>Perimeter vulnerability assessments, anti-spoofing DNS enforcement (SPF, DKIM, DMARC), and WAF protection.</p>
-            </div>
-            <div class="feature-card" style="padding: 22px;">
-              <h3>2. ADX Cloud &amp; Systems</h3>
-              <p>Production FastAPI and Docker deployments, Azure and AWS cost optimization, and automated off-site backups.</p>
-            </div>
-            <div class="feature-card" style="padding: 22px;">
-              <h3>3. ADX Intelligence</h3>
-              <p>Private enterprise document search (RAG), autonomous customer agents, and prompt-injection security guardrails.</p>
-            </div>
-          </div>
-        </div>
-
+      <!-- TAB 3: 2026 Global CVE & Zero-Day Threat Radar (Replaces static text tab!) -->
+      <div id="tab-view-cve" class="console-tab-view hidden">
         <div class="panel-card">
-          <span class="section-eyebrow">Four-Layer Security Standard</span>
-          <h2 style="font-size: 1.5rem; margin-bottom: 18px;">How We Protect Client Infrastructure</h2>
-          <div class="grid-4">
-            <div class="feature-card" style="padding: 20px;">
-              <div class="card-icon">L1</div>
-              <h3>Edge Firewall</h3>
-              <p>Blocks SQL injection, XSS, and automated bot traffic before reaching the web server.</p>
-            </div>
-            <div class="feature-card" style="padding: 20px;">
-              <div class="card-icon">L2</div>
-              <h3>Network Isolation</h3>
-              <p>Databases remain locked inside private internal subnets unreachable from the public internet.</p>
-            </div>
-            <div class="feature-card" style="padding: 20px;">
-              <div class="card-icon">L3</div>
-              <h3>Continuous Patching</h3>
-              <p>Weekly automated checks detect outdated packages and SSL expiration early.</p>
-            </div>
-            <div class="feature-card" style="padding: 20px;">
-              <div class="card-icon">L4</div>
-              <h3>Encrypted Backups</h3>
-              <p>Daily encrypted off-site snapshots ensure rapid recovery with zero data loss.</p>
-            </div>
+          <span class="section-eyebrow">2026 Active Threat Intelligence Feed</span>
+          <h2 style="font-size: 1.55rem; margin-bottom: 8px;">2026 Global CVE &amp; Zero-Day Vulnerability Radar</h2>
+          <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 22px;">
+            Live advisories tracked by ADX Threat Labs. Click <strong>Test My Asset</strong> on any advisory to evaluate your domain against that threat class.
+          </p>
+
+          <div class="truth-table-wrap">
+            <table class="truth-table">
+              <thead>
+                <tr>
+                  <th style="width: 155px;">CVE Identifier</th>
+                  <th style="width: 110px;">Severity</th>
+                  <th>Vulnerability Class &amp; Technical Impact</th>
+                  <th style="width: 150px;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan);">CVE-2026-109618</td>
+                  <td><span class="badge-false">CVSS 9.2</span></td>
+                  <td>
+                    <strong>Runtime Out-of-Memory (OOM) Cleanup RCE</strong>
+                    <div style="font-size: 0.83rem; color: var(--text-muted); margin-top: 3px;">
+                      Malformed multipart requests trigger abrupt OOM termination, leaving partially initialized memory executable before application logic runs.
+                    </div>
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.78rem;" onclick="switchConsoleTab('scanner')">
+                      Test My Asset →
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan);">CVE-2026-109619</td>
+                  <td><span class="badge-false">CVSS 9.2</span></td>
+                  <td>
+                    <strong>Worker Process Stale-State Use-After-Free</strong>
+                    <div style="font-size: 0.83rem; color: var(--text-muted); margin-top: 3px;">
+                      Persistent worker processes reuse freed request state across subsequent HTTP connections, enabling cross-request memory disclosure.
+                    </div>
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.78rem;" onclick="requestCveRemediation('CVE-2026-109619')">
+                      Request Patch →
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan);">CVE-2026-31044</td>
+                  <td><span class="badge-false">CVSS 8.8</span></td>
+                  <td>
+                    <strong>API Cross-Origin Token Theft &amp; BOLA Bypass</strong>
+                    <div style="font-size: 0.83rem; color: var(--text-muted); margin-top: 3px;">
+                      Permissive CORS headers combined with unverified object IDs allow authenticated session tokens and customer records to be exfiltrated.
+                    </div>
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.78rem;" onclick="requestCveRemediation('CVE-2026-31044')">
+                      Request Patch →
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan);">OWASP-LLM01:2026</td>
+                  <td><span class="badge-warn">CVSS 8.6</span></td>
+                  <td>
+                    <strong>Enterprise AI Prompt Injection &amp; RAG Exfiltration</strong>
+                    <div style="font-size: 0.83rem; color: var(--text-muted); margin-top: 3px;">
+                      Adversarial instructions embedded in user inputs or documents bypass LLM system prompts to leak internal database credentials.
+                    </div>
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.78rem;" onclick="requestCveRemediation('OWASP-LLM01:2026')">
+                      Deploy Guard →
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <!-- TAB 4: Request Engineering Scope -->
+      <!-- TAB 4: Deploy ADX Engineers (Remediation & Deep Penetration Audit) -->
       <div id="tab-view-dispatch" class="console-tab-view hidden">
         <div class="panel-card">
-          <span class="section-eyebrow">Engineering Dispatch</span>
-          <h2 style="font-size: 1.5rem; margin-bottom: 6px;">Request Done-For-You Remediation or Custom AI Build</h2>
+          <span class="section-eyebrow">Managed Security &amp; Engineering Dispatch</span>
+          <h2 style="font-size: 1.5rem; margin-bottom: 6px;">Deploy ADX Engineers to Patch &amp; Certify Your Infrastructure</h2>
           <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">
-            Assign ADX Group engineers to remediate vulnerabilities, configure your cloud architecture, or build a custom AI assistant.
+            To prevent unauthorized script tampering, remediation patches and Gate-06 Deep Penetration Audits are deployed directly by verified ADX Group engineers.
           </p>
 
           <form id="lead-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
@@ -432,24 +487,24 @@
               <input type="email" id="lead-email" class="form-control" value="{{ user.email }}" required />
             </div>
             <div class="form-group" style="margin-bottom: 0;">
-              <label>Service Division</label>
+              <label>Deployment Package</label>
               <select id="lead-division" class="form-control">
-                <option value="ADX Cyber: Full Security Hardening ($350)">ADX Cyber: Full Security Hardening ($350)</option>
-                <option value="ADX Cloud: 24/7 Cloud Sentinel Retainer ($350/mo)">ADX Cloud: 24/7 Cloud Sentinel Retainer ($350/mo)</option>
-                <option value="ADX Intelligence: Private AI / RAG System">ADX Intelligence: Private AI &amp; Automation</option>
+                <option value="ADX Cyber: Locked Remediation Deployment & Deep CVE Audit ($350)">ADX Cyber: Locked Patch Deployment &amp; Deep CVE Audit ($350)</option>
+                <option value="ADX Cloud: 24/7 Cloud Sentinel & Backup Retainer ($350/mo)">ADX Cloud: 24/7 Cloud Sentinel &amp; Backup Retainer ($350/mo)</option>
+                <option value="ADX Intelligence: Private Enterprise AI / RAG Build">ADX Intelligence: Private Enterprise AI / RAG Build</option>
                 <option value="White-Label Agency Partnership">White-Label Agency Partnership</option>
               </select>
             </div>
             <div class="form-group" style="margin-bottom: 0;">
-              <label>Target Domain</label>
-              <input type="text" id="lead-domain" class="form-control" placeholder="https://company.com" />
+              <label>Target Domain to Remediate *</label>
+              <input type="text" id="lead-domain" class="form-control" placeholder="e.g., yourcompany.com" required />
             </div>
             <div class="form-group" style="grid-column: 1 / -1; margin-bottom: 0;">
-              <label>Project Brief or Security Requirement</label>
-              <textarea id="lead-message" class="form-control" rows="3" placeholder="Describe the infrastructure, security fixes, or AI system you want our team to deliver..."></textarea>
+              <label>Gates or CVEs to Remediate</label>
+              <textarea id="lead-message" class="form-control" rows="3" placeholder="Specify the failed Gates (e.g., GATE-02 DMARC, GATE-03 CSP, GATE-06 Deep CVE Stress Test) or AI system requirements..."></textarea>
             </div>
             <div style="grid-column: 1 / -1;">
-              <button type="submit" class="btn btn-primary">Submit Scope to ADX Engineering</button>
+              <button type="submit" class="btn btn-primary">Authorize ADX Engineering Scope</button>
               <span id="lead-status" style="margin-left: 14px; font-size: 0.88rem; font-weight: 600;"></span>
             </div>
           </form>
@@ -525,21 +580,50 @@
     </div>
   </footer>
 
-  <script src="/static/js/main.js?v=4"></script>
+  <script src="/static/js/main.js?v=5"></script>
   <script>
     function switchConsoleTab(tabName) {
-      const views = ["scanner", "ai", "architecture", "dispatch", "settings"];
+      const views = ["scanner", "ai", "cve", "dispatch", "settings"];
       views.forEach((v) => {
         const el = document.getElementById("tab-view-" + v);
         const btn = document.getElementById("nav-" + v);
-        if (v === tabName) {
-          el.classList.remove("hidden");
-          btn.classList.add("active");
-        } else {
-          el.classList.add("hidden");
-          btn.classList.remove("active");
+        if (el && btn) {
+          if (v === tabName) {
+            el.classList.remove("hidden");
+            btn.classList.add("active");
+          } else {
+            el.classList.add("hidden");
+            btn.classList.remove("active");
+          }
         }
       });
+    }
+
+    function requestPatchForGate(domain, gateId, vectorName, cveRef) {
+      switchConsoleTab("dispatch");
+      const domInput = document.getElementById("lead-domain");
+      const msgInput = document.getElementById("lead-message");
+      if (domInput) domInput.value = domain;
+      if (msgInput) {
+        msgInput.value = `Requesting ADX Engineering deployment to remediate ${gateId} (${vectorName} | ${cveRef}) on ${domain} and issue 2026 CVE Security Certification.`;
+      }
+    }
+
+    function requestCveRemediation(cveCode) {
+      switchConsoleTab("dispatch");
+      const msgInput = document.getElementById("lead-message");
+      if (msgInput) {
+        msgInput.value = `Requesting ADX Deep Assessment and remediation protection against ${cveCode}.`;
+      }
+    }
+
+    function sendQuickPrompt(text) {
+      const input = document.getElementById("ai-chat-input");
+      const form = document.getElementById("ai-chat-form");
+      if (input && form) {
+        input.value = text;
+        form.requestSubmit();
+      }
     }
 
     const addDomainForm = document.getElementById("add-domain-form");

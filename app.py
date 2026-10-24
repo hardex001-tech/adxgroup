@@ -306,7 +306,12 @@ async def api_ai_consultant(request: Request, payload: ChatRequest):
     user = _current_user(request)
     if not user:
         raise HTTPException(status_code=401, detail="Please sign in to access the ADX AI Consultant.")
-    result = await ask_adx_ai_consultant(payload.message)
+    dash_data = get_client_dashboard_data(user["id"])
+    result = await ask_adx_ai_consultant(
+        payload.message,
+        user=user,
+        recent_scans=dash_data.get("recent_scans", []),
+    )
     return JSONResponse(content={"ok": True, "data": result})
 
 
