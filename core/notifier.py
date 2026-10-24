@@ -5,10 +5,15 @@ Validates and records incoming client project requests and scan leads.
 
 import datetime
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict, List
 
-DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+DATA_DIR = (
+    Path("/tmp/adxgroup_data")
+    if os.getenv("VERCEL")
+    else Path(__file__).resolve().parent.parent / "data"
+)
 LEADS_FILE = DATA_DIR / "leads.json"
 
 

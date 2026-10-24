@@ -368,5 +368,6 @@ async def api_submit_lead(payload: LeadRequest):
     return JSONResponse(content={"ok": True, "data": result})
 
 
-# Expose WSGI-compatible `app` for Azure App Service default Gunicorn runner
-app = ASGIMiddleware(asgi_app)
+# Expose native ASGI app on Vercel, or WSGI-compatible `app` for Azure Gunicorn runner
+import os as _os
+app = asgi_app if _os.getenv("VERCEL") else ASGIMiddleware(asgi_app)

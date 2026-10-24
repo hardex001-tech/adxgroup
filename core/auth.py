@@ -13,7 +13,11 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+DATA_DIR = (
+    Path("/tmp/adxgroup_data")
+    if os.getenv("VERCEL")
+    else Path(__file__).resolve().parent.parent / "data"
+)
 DB_PATH = DATA_DIR / "adxgroup.db"
 
 OWNER_EMAILS = {
