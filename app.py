@@ -54,11 +54,20 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 
 @asgi_app.middleware("http")
-async def disable_stale_cache(request: Request, call_next):
+async def add_security_and_cache_headers(request: Request, call_next):
     response = await call_next(request)
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
+    response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; "
+        "img-src 'self' https: data: blob:; font-src 'self' https: data:;"
+    )
     return response
 
 

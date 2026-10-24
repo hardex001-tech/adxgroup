@@ -338,19 +338,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function pickBestNeuralVoice() {
     if (!("speechSynthesis" in window)) return null;
     const voices = window.speechSynthesis.getVoices() || [];
-    const preferred = [
-      "Microsoft Aria Online (Natural)",
-      "Microsoft Sonia Online (Natural)",
-      "Microsoft Guy Online (Natural)",
-      "Microsoft Ryan Online (Natural)",
-      "Google UK English Female",
-      "Google US English",
-    ];
-    for (const p of preferred) {
-      const match = voices.find((v) => v.name.includes(p));
-      if (match) return match;
-    }
-    return voices.find((v) => v.lang && v.lang.startsWith("en")) || voices[0] || null;
+    if (!voices.length) return null;
+    // Prefer local OS English voices first so Chrome/Edge plays immediately without cloud timeout
+    const localEn = voices.find((v) => v.localService && v.lang && v.lang.toLowerCase().startsWith("en"));
+    if (localEn) return localEn;
+    return voices.find((v) => v.lang && v.lang.toLowerCase().startsWith("en")) || voices[0] || null;
   }
 
   window.speakAdxVoice = function (text, force = false) {
@@ -358,30 +350,38 @@ document.addEventListener("DOMContentLoaded", () => {
     if (voiceMuted && !force) return;
 
     try {
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
-      const bestVoice = pickBestNeuralVoice();
-      if (bestVoice) utter.voice = bestVoice;
-      utter.rate = 1.02;
-      utter.pitch = 1.0;
+      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+        window.speechSynthesis.cancel();
+      }
+      setTimeout(() => {
+        try {
+          window.speechSynthesis.resume();
+          const utter = new SpeechSynthesisUtterance(text);
+          window._adxActiveUtterance = utter; // Prevent Chrome GC from dropping audio mid-speech
+          const bestVoice = pickBestNeuralVoice();
+          if (bestVoice) utter.voice = bestVoice;
+          utter.lang = "en-US";
+          utter.rate = 1.0;
+          utter.pitch = 1.0;
+          utter.volume = 1.0;
 
-      utter.onstart = () => {
-        if (voiceOrb) voiceOrb.classList.add("speaking");
-        if (voiceLabel) voiceLabel.textContent = "AEGIS Speaking...";
-      };
-      utter.onend = () => {
-        if (voiceOrb) voiceOrb.classList.remove("speaking");
-        if (voiceLabel) voiceLabel.textContent = "AEGIS Voice Brief";
-      };
-      utter.onerror = () => {
-        if (voiceOrb) voiceOrb.classList.remove("speaking");
-        if (voiceLabel) voiceLabel.textContent = "AEGIS Voice Brief";
-      };
+          utter.onstart = () => {
+            if (voiceOrb) voiceOrb.classList.add("speaking");
+            if (voiceLabel) voiceLabel.textContent = "AEGIS Speaking...";
+          };
+          utter.onend = () => {
+            if (voiceOrb) voiceOrb.classList.remove("speaking");
+            if (voiceLabel) voiceLabel.textContent = "AEGIS Voice Brief";
+          };
+          utter.onerror = () => {
+            if (voiceOrb) voiceOrb.classList.remove("speaking");
+            if (voiceLabel) voiceLabel.textContent = "AEGIS Voice Brief";
+          };
 
-      window.speechSynthesis.speak(utter);
-    } catch (e) {
-      // Ignore browser autoplay block until first interaction
-    }
+          window.speechSynthesis.speak(utter);
+        } catch (innerErr) {}
+      }, 65);
+    } catch (e) {}
   };
 
   function getWelcomeGreeting() {
@@ -398,22 +398,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if ("speechSynthesis" in window) {
+    window.speechSynthesis.getVoices();
     window.speechSynthesis.onvoiceschanged = () => {
       pickBestNeuralVoice();
     };
-    // Attempt immediate welcome; if browser waits for first user click, fire on first click
-    setTimeout(() => {
-      if (!window.speechSynthesis.speaking && !hasWelcomed) {
-        window.speakAdxVoice(getWelcomeGreeting(), true);
-        setTimeout(() => {
-          if (window.speechSynthesis.speaking) {
-            hasWelcomed = true;
-          }
-        }, 250);
-      }
-    }, 600);
 
     const onFirstInteract = (e) => {
+      const closeBtn = document.getElementById("aegis-close-btn");
+      if (closeBtn && closeBtn.contains(e.target)) return;
       if (voiceOrb && voiceOrb.contains(e.target)) return;
       if (!hasWelcomed) {
         triggerAutoWelcome();
@@ -435,7 +427,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="aegis-card-header">
         <div class="aegis-header-left">
           <div class="aegis-avatar-wrap">
-            <img src="/static/logo.svg?v=2026.12" alt="AEGIS" style="width: 24px; height: 24px;" />
+            <img src="/static/logo.svg?v=2026.14" alt="AEGIS" style="width: 24px; height: 24px;" />
             <span class="aegis-online-dot"></span>
           </div>
           <div>
@@ -443,7 +435,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div style="font-size: 0.72rem; opacity: 0.9;">ADX Executive Security Concierge</div>
           </div>
         </div>
-        <button type="button" class="aegis-close-btn" id="aegis-close-btn" title="Minimize">&times;</button>
+        <button type="button" class="aegis-close-btn" id="aegis-close-btn" title="Close Card">&times;</button>
       </div>
       <div class="aegis-card-body">
         <div style="color: #f8fafc; font-weight: 600; margin-bottom: 4px;">
@@ -471,17 +463,26 @@ document.addEventListener("DOMContentLoaded", () => {
           </a>
         </div>
         <button type="button" class="aegis-cta-btn" id="aegis-cta-speak-chat">
-          <span>🔊 Speak &amp; Chat with AEGIS</span>
+          <span>🔊 Speak Welcome Brief Aloud</span>
         </button>
       </div>
     `;
 
     document.body.appendChild(card);
 
-    document.getElementById("aegis-close-btn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      card.classList.add("closed");
-    });
+    const closeBtn = document.getElementById("aegis-close-btn");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        card.classList.add("closed");
+        if ("speechSynthesis" in window && window.speechSynthesis.speaking) {
+          window.speechSynthesis.cancel();
+          if (voiceOrb) voiceOrb.classList.remove("speaking");
+          if (voiceLabel) voiceLabel.textContent = "AEGIS Voice Brief";
+        }
+      });
+    }
 
     document.getElementById("aegis-act-scan").addEventListener("click", () => {
       card.classList.add("closed");
@@ -518,38 +519,26 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    document.getElementById("aegis-cta-speak-chat").addEventListener("click", () => {
+    document.getElementById("aegis-cta-speak-chat").addEventListener("click", (e) => {
+      e.stopPropagation();
       voiceMuted = false;
       hasWelcomed = true;
       window.speakAdxVoice(getWelcomeGreeting(), true);
-      if (isDashboard && typeof switchConsoleTab === "function") {
-        card.classList.add("closed");
-        switchConsoleTab("ai");
-        const inp = document.getElementById("ai-chat-input");
-        if (inp) inp.focus();
-      }
     });
   }
 
   initAegisConciergeCard();
 
   if (voiceOrb) {
-    voiceOrb.addEventListener("click", () => {
+    voiceOrb.addEventListener("click", (e) => {
+      e.stopPropagation();
       const card = document.getElementById("aegis-concierge-card");
       if (card) {
         card.classList.toggle("closed");
       }
-      if (!("speechSynthesis" in window)) return;
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        voiceOrb.classList.remove("speaking");
-        if (voiceLabel) voiceLabel.textContent = "AEGIS Voice Muted";
-        voiceMuted = true;
-      } else {
-        voiceMuted = false;
-        hasWelcomed = true;
-        window.speakAdxVoice(getWelcomeGreeting(), true);
-      }
+      voiceMuted = false;
+      hasWelcomed = true;
+      window.speakAdxVoice(getWelcomeGreeting(), true);
     });
   }
 
