@@ -8,6 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const gradeBadge = document.getElementById("scan-grade-badge");
   const domainTitle = document.getElementById("scan-domain-title");
   const telemetryStrip = document.getElementById("telemetry-strip");
+  const cveReportMatrix = document.getElementById("cve-report-matrix");
+  const cveSummaryBadge = document.getElementById("cve-exposure-summary-badge");
+  const scoreRingCircle = document.getElementById("score-ring-circle");
   const aiSummaryText = document.getElementById("scan-ai-summary");
   const gatesTableBody = document.getElementById("gates-table-body");
 
@@ -47,6 +50,20 @@ document.addEventListener("DOMContentLoaded", () => {
         gradeBadge.textContent = `GRADE ${data.grade} | ${data.risk_level}`;
         aiSummaryText.textContent = data.ai_executive_summary;
 
+        if (scoreRingCircle) {
+          const circumference = 163.36;
+          const pct = Math.max(5, Math.min(100, Number(data.score) || 0));
+          const offset = circumference - (pct / 100) * circumference;
+          scoreRingCircle.style.strokeDashoffset = String(offset);
+          if (pct >= 80) {
+            scoreRingCircle.style.stroke = "#10b981";
+          } else if (pct >= 60) {
+            scoreRingCircle.style.stroke = "#38bdf8";
+          } else {
+            scoreRingCircle.style.stroke = "#ef4444";
+          }
+        }
+
         if (telemetryStrip) {
           telemetryStrip.innerHTML = `
             <div class="telemetry-cell">
@@ -71,9 +88,46 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <div class="telemetry-cell">
               <span>Audit Depth</span>
-              <strong style="color: var(--accent-cyan);">6-Gate Surface + CVE</strong>
+              <strong style="color: var(--accent-cyan);">6-Gate Surface + 2026 CVE</strong>
             </div>
           `;
+        }
+
+        if (cveReportMatrix && Array.isArray(data.cve_2026_report)) {
+          const mitigatedCount = data.cve_2026_report.filter((c) => c.passed).length;
+          const openCount = data.cve_2026_report.length - mitigatedCount;
+          if (cveSummaryBadge) {
+            cveSummaryBadge.textContent = `${mitigatedCount} MITIGATED | ${openCount} OPEN / UNVERIFIED 2026 CVEs`;
+          }
+
+          cveReportMatrix.innerHTML = data.cve_2026_report
+            .map((c) => {
+              let statusClass = "badge-false";
+              if (c.passed) {
+                statusClass = "badge-true";
+              } else if (c.gate_id === "GATE-06") {
+                statusClass = "badge-warn";
+              }
+              return `
+                <div class="cve-report-card">
+                  <div class="cve-card-top">
+                    <span class="cve-id-pill">${escapeHtml(c.cve_id)}</span>
+                    <span class="cvss-pill">CVSS ${escapeHtml(c.cvss)}</span>
+                  </div>
+                  <div style="font-weight: 700; font-size: 0.86rem; color: var(--text-main); margin-bottom: 4px;">
+                    ${escapeHtml(c.title)}
+                  </div>
+                  <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px;">
+                    Target Surface: ${escapeHtml(c.surface)}
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted);">${escapeHtml(c.gate_id)}</span>
+                    <span class="${statusClass}" style="padding: 2px 8px; font-size: 0.68rem;">${escapeHtml(c.status)}</span>
+                  </div>
+                </div>
+              `;
+            })
+            .join("");
         }
 
         gatesTableBody.innerHTML = "";

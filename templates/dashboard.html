@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Workspace Console | ADX Group</title>
   <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
-  <link rel="stylesheet" href="/static/css/style.css?v=5" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.9" />
   <style>
     .console-layout {
       display: grid;
@@ -202,19 +205,24 @@
       </div>
 
       <button type="button" id="nav-scanner" class="side-nav-btn active" onclick="switchConsoleTab('scanner')">
-        1. Security &amp; 2026 CVE Scanner
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>Security &amp; 2026 CVE Scanner</span>
       </button>
       <button type="button" id="nav-ai" class="side-nav-btn" onclick="switchConsoleTab('ai')">
-        2. AI Security Architect
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span>AI Security Architect</span>
       </button>
       <button type="button" id="nav-cve" class="side-nav-btn" onclick="switchConsoleTab('cve')">
-        3. 2026 Global CVE Radar
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>2026 Global CVE Radar</span>
       </button>
       <button type="button" id="nav-dispatch" class="side-nav-btn" onclick="switchConsoleTab('dispatch')">
-        4. Deploy ADX Engineers
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span>Deploy ADX Engineers</span>
       </button>
       <button type="button" id="nav-settings" class="side-nav-btn" onclick="switchConsoleTab('settings')">
-        5. Account &amp; Identity Settings
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Account &amp; Identity Settings</span>
       </button>
     </aside>
 
@@ -225,9 +233,9 @@
       <div id="tab-view-scanner" class="console-tab-view">
         <div class="scanner-card" style="margin-bottom: 28px;">
           <span class="section-eyebrow">Live Infrastructure &amp; 2026 CVE Diagnostic</span>
-          <h2 style="font-size: 1.55rem; margin-bottom: 8px;">6-Gate Surface &amp; Hidden Vulnerability Scanner</h2>
+          <h2 style="font-size: 1.55rem; margin-bottom: 8px;">6-Gate Surface &amp; 2026 CVE Vulnerability Scanner</h2>
           <p style="color: var(--text-muted); font-size: 0.93rem; margin-bottom: 20px;">
-            Captures live host IP telemetry, TLS cipher handshakes, SPF/DMARC policies, and 2026 CVE exposure (including Gate-06 Deep Runtime &amp; API vectors).
+            Captures live host IP telemetry, TLS cipher handshakes, SPF/DMARC policies, and maps target infrastructure directly against <strong>2026 CVE Advisories</strong> (including Gate-06 Deep Runtime &amp; API vectors).
           </p>
 
           <form id="scan-form" class="scanner-form">
@@ -235,7 +243,7 @@
               type="text"
               id="scan-domain-input"
               class="scanner-input"
-              placeholder="Enter company domain to audit (e.g., github.com or yourcompany.com)"
+              placeholder="Enter company domain to audit (e.g., google.com, github.com, or yourcompany.com)"
               required
             />
             <button type="submit" id="scan-submit-btn" class="btn btn-primary" style="white-space: nowrap;">
@@ -247,17 +255,42 @@
           <div id="scan-results" class="scan-results hidden">
             <div class="score-banner">
               <div>
-                <div id="scan-domain-title" style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);"></div>
-                <div id="scan-grade-badge" style="font-weight: 800; font-size: 1.15rem; margin-top: 4px;"></div>
+                <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                  <span class="cve-id-pill">2026 CVE DIAGNOSTIC REPORT</span>
+                  <span id="scan-domain-title" style="font-family: var(--font-mono); font-size: 0.84rem; color: var(--text-muted);"></span>
+                </div>
+                <div id="scan-grade-badge" style="font-weight: 800; font-size: 1.2rem; margin-top: 2px;"></div>
               </div>
-              <div style="text-align: right;">
-                <span style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block;">SURFACE SCORE (MAX 88 PASV)</span>
-                <span id="scan-score-val" class="score-number">88/100</span>
+              <div class="score-gauge-wrap">
+                <div style="text-align: right;">
+                  <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block;">SURFACE SCORE (MAX 88 PASV)</span>
+                  <span id="scan-score-val" class="score-number">88/100</span>
+                </div>
+                <svg width="64" height="64" viewBox="0 0 64 64" style="transform: rotate(-90deg);">
+                  <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6" />
+                  <circle id="score-ring-circle" cx="32" cy="32" r="26" fill="none" stroke="#38bdf8" stroke-width="6" stroke-dasharray="163.36" stroke-dashoffset="30" stroke-linecap="round" style="transition: stroke-dashoffset 0.7s ease;" />
+                </svg>
               </div>
             </div>
 
             <!-- Live Verifiable Network Telemetry Strip (Proves Credibility) -->
             <div id="telemetry-strip" class="telemetry-grid"></div>
+
+            <!-- Dedicated 2026 CVE Threat Intelligence Breakdown Inside Report -->
+            <div class="cve-report-section">
+              <div class="cve-report-header">
+                <div>
+                  <span style="font-family: var(--font-mono); font-size: 0.74rem; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">
+                    2026 CVE Threat Intelligence &amp; Target Exposure Matrix
+                  </span>
+                  <div style="font-size: 0.83rem; color: var(--text-muted); margin-top: 2px;">
+                    Direct correlation of target server telemetry against active 2026 Common Vulnerabilities &amp; Exposures (MITRE / NIST NVD / CISA).
+                  </div>
+                </div>
+                <span class="badge-warn" id="cve-exposure-summary-badge">6 CVE SIGNATURES EVALUATED</span>
+              </div>
+              <div id="cve-report-matrix" class="cve-matrix-grid"></div>
+            </div>
 
             <div id="scan-ai-summary" class="ai-summary-box"></div>
 
@@ -580,7 +613,7 @@
     </div>
   </footer>
 
-  <script src="/static/js/main.js?v=5"></script>
+  <script src="/static/js/main.js?v=2026.9"></script>
   <script>
     function switchConsoleTab(tabName) {
       const views = ["scanner", "ai", "cve", "dispatch", "settings"];

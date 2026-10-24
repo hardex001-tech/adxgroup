@@ -52,6 +52,16 @@ TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
 asgi_app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
+
+@asgi_app.middleware("http")
+async def disable_stale_cache(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
+
 SESSION_COOKIE = "adx_session"
 
 
