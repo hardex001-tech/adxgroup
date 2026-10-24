@@ -395,8 +395,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!text) {
       const isDash = window.location.pathname.includes("/dashboard");
       const welcomeUrl = isDash
-        ? "/static/audio/welcome_console.mp3?v=2026.17"
-        : "/static/audio/welcome_home.mp3?v=2026.17";
+        ? "/static/audio/welcome_console.mp3?v=2026.18"
+        : "/static/audio/welcome_home.mp3?v=2026.18";
       playAudioUrl(welcomeUrl).catch(() => {
         const launcher = document.getElementById("aegis-launcher-orb");
         if (launcher) launcher.classList.remove("speaking");
@@ -420,8 +420,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function setupAutoWelcomeVoice() {
     const isDash = window.location.pathname.includes("/dashboard");
     const welcomeUrl = isDash
-      ? "/static/audio/welcome_console.mp3?v=2026.17"
-      : "/static/audio/welcome_home.mp3?v=2026.17";
+      ? "/static/audio/welcome_console.mp3?v=2026.18"
+      : "/static/audio/welcome_home.mp3?v=2026.18";
 
     const bindFallbackUnlock = () => {
       const unlockHandler = (e) => {
@@ -471,7 +471,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ${botAvatarSvg}
           </div>
           <div>
-            <div style="font-weight: 800; font-size: 0.95rem; line-height: 1.2;">ADX's BFF 🙌</div>
+            <div style="font-weight: 800; font-size: 0.95rem; line-height: 1.2;">Aria's BFF 🙌</div>
             <div style="font-size: 0.75rem; opacity: 0.92;">Executive Security Assistant</div>
           </div>
         </div>
@@ -484,10 +484,10 @@ document.addEventListener("DOMContentLoaded", () => {
       <!-- Screen 1: Clean White Welcome View (Matches WIT-h Screenshot) -->
       <div class="aegis-card-body" id="aegis-welcome-view">
         <div style="color: #0f172a; font-weight: 600; margin-bottom: 4px;">
-          Hey, I'm ADX's BFF! 🙌
+          Hey, I'm Aria! 🙌
         </div>
         <div style="color: #334155; margin-bottom: 2px;">
-          I've got your back at ADX.
+          I've got your back on security &amp; cloud.
         </div>
         <div style="color: #334155;">
           What do you need help with today?
@@ -504,7 +504,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
           <div class="aegis-action-item" id="aegis-act-navigate">
             <span>🧭</span>
-            <span>Navigate anything in ADX</span>
+            <span>Navigate anything in the hub</span>
           </div>
           <div class="aegis-action-item" id="aegis-act-human">
             <span>💪</span>
@@ -513,7 +513,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <button type="button" class="aegis-cta-btn" id="aegis-open-chat-btn">
-          <span>🙌 Chat with ADX's BFF</span>
+          <span>🙌 Chat with Aria</span>
         </button>
       </div>
 
@@ -521,10 +521,10 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="aegis-chat-view" id="aegis-chat-view">
         <div class="aegis-chat-topbar">
           <button type="button" class="aegis-back-btn" id="aegis-back-btn">&larr; Back</button>
-          <span>Live ADX Neural Chat</span>
+          <span>Live Security Chat</span>
         </div>
         <div class="aegis-mini-messages" id="aegis-mini-messages">
-          <div class="aegis-msg aegis-msg-bot">Hey! I'm ADX's BFF 🙌 Ask me anything about cybersecurity, 2026 CVEs, cloud systems, or type 'Human' to reach an engineer.</div>
+          <div class="aegis-msg aegis-msg-bot">Hey! I'm Aria 🙌 Ask me anything about cybersecurity, 2026 CVEs, cloud systems, or type 'Human' to reach an engineer.</div>
         </div>
         <form class="aegis-mini-form" id="aegis-mini-form">
           <input type="text" class="aegis-mini-input" id="aegis-mini-input" placeholder="Ask anything or type 'Human'..." required />
