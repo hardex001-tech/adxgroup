@@ -496,30 +496,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
         },
     ]
 
-    is_adx_first_party = domain in ("adxgroup.tech", "www.adxgroup.tech", "adxgroup.vercel.app")
-    if is_adx_first_party:
-        ssl_res["passed"] = True
-        ssl_res["tls_version"] = ssl_res["tls_version"] if ssl_res["tls_version"] not in ("No Host IP", "Handshake Failed") else "TLSv1.3"
-        ssl_res["cipher"] = ssl_res["cipher"] if ssl_res["cipher"] != "None" else "TLS_AES_256_GCM_SHA384"
-        ssl_res["summary"] = f"Verified {ssl_res['tls_version']} AEAD handshake ({ssl_res['cipher']}). ADX Zero-Trust Edge active."
-        dns_res["passed"] = True
-        dns_res["summary"] = "Cloudflare Email Routing SPF (-all) and enforced DMARC (p=reject) verified for adxgroup.tech."
-        http_res["headers_passed"] = True
-        http_res["headers_summary"] = "All 5 defensive security headers (HSTS, CSP, X-Frame-Options, Nosniff, Permissions-Policy) enforced at ADX Edge."
-        http_res["cors_passed"] = True
-        http_res["exposure_passed"] = True
-        for g in gates:
-            g["state"] = True
-            g["status_label"] = "VERIFIED (TRUE)"
-            g["severity"] = "LOW"
-            g["remediation"] = None
-            g["client_action"] = "ADX Zero-Trust Standard Verified."
-        gates[0]["finding"] = ssl_res["summary"]
-        gates[1]["finding"] = dns_res["summary"]
-        gates[2]["finding"] = http_res["headers_summary"]
-        gates[5]["finding"] = "Primary edge proxy routing and high-resilience DNS listeners active on ADX production network."
-
-    # Surface score out of 88 max for external passive scan (100/100 for ADX Authenticated Audit)
+    # Surface score: Evaluates real verifiable telemetry across all 6 defense gates
     weights = [22, 22, 18, 13, 13, 12]
     score = sum(w for g, w in zip(gates, weights) if g["state"])
 
@@ -603,8 +580,8 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "title": "Use-After-Free Stale Worker RCE & Internal API BOLA",
             "cvss": "9.2 CRITICAL",
             "surface": "Internal Runtime & Authenticated APIs",
-            "status": "MITIGATED (CERTIFIED)" if is_adx_first_party else "DEEP AUDIT REQ.",
-            "passed": bool(is_adx_first_party),
+            "status": "UNVERIFIED (PASSIVE SCAN)",
+            "passed": False,
             "gate_id": "GATE-06",
         },
     ]
@@ -633,21 +610,23 @@ def _build_outreach_email(
     """Generate a tailored B2B outreach advisory for the Owner Command Center (/admin ONLY)."""
     bullet_points = []
     for idx, g in enumerate(failed_gates[:4], start=1):
-        bullet_points.append(f"{idx}. [{g['vector']} | {g['cve_ref']}]: {g['finding']}")
+        bullet_points.append(f"{idx}. [{g['vector']}]: {g['finding']}")
 
     bullets_str = "\n".join(bullet_points)
+    host_ip = telemetry.get("resolved_ip", "Unknown")
+    tls_proto = telemetry.get("tls_protocol", "TLS")
 
     return (
-        f"Subject: 2026 Security & CVE Posture Brief for {domain} (Host: {telemetry['resolved_ip']})\n\n"
+        f"Subject: Security Posture & Infrastructure Advisory for {domain} (Host: {host_ip})\n\n"
         f"Hi Engineering & Leadership Team,\n\n"
-        f"During external threat intelligence monitoring, ADX Group evaluated {domain} "
-        f"(IP: {telemetry['resolved_ip']} | TLS: {telemetry['tls_protocol']} | Score: {score}/100) "
-        f"and flagged the following 2026 security and CVE posture items:\n\n"
+        f"During perimeter infrastructure auditing, ADX evaluated {domain} "
+        f"(Host: {host_ip} | {tls_proto} | Score: {score}/100) "
+        f"and flagged the following technical defensive perimeter items:\n\n"
         f"{bullets_str}\n\n"
-        f"At ADX Group (adxgroup.tech), we remediate perimeter gaps, enforce strict DMARC/WAF rules, "
-        f"and conduct deep authenticated 2026 CVE stress testing on a flat fixed-scope basis ($350).\n\n"
+        f"At ADX (adxgroup.tech), we remediate infrastructure perimeter gaps, enforce strict DMARC/SPF DNS policies, "
+        f"and deploy defensive browser security headers on a transparent fixed-scope basis.\n\n"
         f"Reply to this advisory if you would like our engineering desk to share the remediation scope for {domain}.\n\n"
         f"Best regards,\n"
-        f"ADX Threat Intelligence Desk\n"
+        f"ADX Engineering Desk\n"
         f"https://adxgroup.tech | contact@adxgroup.tech"
     )
