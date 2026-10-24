@@ -300,8 +300,12 @@ async def check_http_and_cve_surface(
             if acao == "*" and acac == "true":
                 cors_issue = True
 
-            # Parked domain, parking broker, or bot captcha gate detection
+            # Parked domain, parking broker, lander redirect, or bot captcha gate detection
             body_sample = resp.text.lower()[:3000]
+            final_url = str(resp.url).lower()
+            parked_url_keywords = [
+                "forsale", "parked", "parking", "sedo", "dan.com", "hugedomains", "afternic", "bodis", "sgcaptcha"
+            ]
             parked_signatures = [
                 "sgcaptcha",
                 "domain is for sale",
@@ -318,9 +322,25 @@ async def check_http_and_cve_surface(
                 "dan.com/buy-domain",
                 "domain has expired",
                 "account suspended",
+                "parkedpages",
             ]
-            if any(sig in body_sample for sig in parked_signatures) or (status_code == 202 and "captcha" in body_sample):
+            if any(k in final_url for k in parked_url_keywords) or any(sig in body_sample for sig in parked_signatures) or (status_code == 202 and "captcha" in body_sample):
                 is_parked = True
+            else:
+                # Detect JS redirect to /lander (e.g. GoDaddy parked domains like 2222.io)
+                js_lander_match = re.search(r'window\.location(?:\.href)?\s*=\s*["\'](/lander[^"\']*)["\']', body_sample)
+                if js_lander_match:
+                    lander_path = js_lander_match.group(1)
+                    try:
+                        lander_resp = await client.get(f"{scheme}{domain}{lander_path}", follow_redirects=True, timeout=4.0)
+                        lander_url = str(lander_resp.url).lower()
+                        lander_body = lander_resp.text.lower()[:3000]
+                        if any(k in lander_url for k in parked_url_keywords) or any(k in lander_body for k in parked_signatures):
+                            is_parked = True
+                    except Exception:
+                        is_parked = True
+                elif len(resp.text) < 250 and len(re.sub(r'<[^>]+>', ' ', resp.text).strip()) < 20 and not ("<body" in body_sample and len(body_sample) > 150):
+                    is_parked = True
             break
         except Exception:
             continue
