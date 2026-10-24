@@ -264,10 +264,14 @@
                   <span id="scan-domain-title" style="font-family: var(--font-mono); font-size: 0.84rem; color: var(--text-muted);"></span>
                 </div>
                 <div id="scan-grade-badge" style="font-weight: 800; font-size: 1.2rem; margin-top: 2px;"></div>
-                <div style="margin-top: 10px;">
+                <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
                   <button type="button" id="play-debrief-btn" class="btn btn-outline" style="font-size: 0.76rem; padding: 5px 12px; display: none; align-items: center; gap: 6px; background: #ffffff;" onclick="playScanDebrief()">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
                     <span id="debrief-btn-label">Listen to Security Debrief</span>
+                  </button>
+                  <button type="button" id="export-pdf-btn" class="btn btn-outline" style="font-size: 0.76rem; padding: 5px 12px; display: none; align-items: center; gap: 6px; background: #ffffff;" onclick="exportSecurityReportPdf()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <span>Export Executive Brief (PDF)</span>
                   </button>
                 </div>
               </div>
@@ -689,7 +693,7 @@
     </div>
   </div>
 
-  <script src="/static/js/main.js?v=2026.27"></script>
+  <script src="/static/js/main.js?v=2026.28"></script>
   <script>
     function copyText(val, btnId, successText = "Copied!") {
       if (!navigator.clipboard) {

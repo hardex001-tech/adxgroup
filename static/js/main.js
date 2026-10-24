@@ -100,6 +100,8 @@ document.addEventListener("DOMContentLoaded", () => {
         window.lastScanResult = data;
         const debriefBtn = document.getElementById("play-debrief-btn");
         if (debriefBtn) debriefBtn.style.display = "inline-flex";
+        const pdfBtn = document.getElementById("export-pdf-btn");
+        if (pdfBtn) pdfBtn.style.display = "inline-flex";
 
         gatesTableBody.innerHTML = "";
         data.gates.forEach((g) => {
@@ -364,6 +366,185 @@ document.addEventListener("DOMContentLoaded", () => {
         if (btn) btn.textContent = "Listen to Security Debrief";
       }, 3500);
     });
+  };
+
+  window.exportSecurityReportPdf = function () {
+    if (!window.lastScanResult) {
+      alert("Please run an infrastructure audit first to generate a report.");
+      return;
+    }
+    const d = window.lastScanResult;
+    const tel = d.telemetry || {};
+    const gates = d.gates || [];
+    const failed = gates.filter((g) => !g.state);
+    const passed = gates.filter((g) => g.state);
+    const dateStr = d.timestamp || new Date().toUTCString();
+    const auditId = "ADX-AUDIT-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-" + new Date().getFullYear();
+    const scoreColor = d.score >= 85 ? "#059669" : d.score >= 65 ? "#d97706" : "#dc2626";
+
+    let rowsHtml = "";
+    gates.forEach((g) => {
+      const stateBadge = g.state
+        ? `<span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">VERIFIED</span>`
+        : `<span style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">ATTENTION REQUIRED</span>`;
+
+      rowsHtml += `
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 10px 12px; font-family: monospace; font-weight: 700; color: #2563eb; vertical-align: top;">${escapeHtml(g.gate_id)}</td>
+          <td style="padding: 10px 12px; vertical-align: top;">
+            <strong style="color: #0f172a; font-size: 13px;">${escapeHtml(g.vector)}</strong>
+            <div style="color: #64748b; font-size: 11px; margin-top: 2px;">${escapeHtml(g.condition || "")}</div>
+          </td>
+          <td style="padding: 10px 12px; vertical-align: top; text-align: center;">${stateBadge}</td>
+          <td style="padding: 10px 12px; vertical-align: top; font-size: 12px; color: #334155; line-height: 1.5;">
+            <div>${escapeHtml(g.finding)}</div>
+            ${!g.state && g.client_action ? `<div style="margin-top: 6px; font-weight: 600; color: #0f172a; font-size: 11px;">&bull; Recommended Action: ${escapeHtml(g.client_action)}</div>` : ""}
+          </td>
+        </tr>
+      `;
+    });
+
+    const reportHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ADX Executive Perimeter Brief — ${escapeHtml(d.domain)}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; color: #0f172a; background: #ffffff; margin: 0; padding: 28px; font-size: 13px; line-height: 1.45; }
+    .report-sheet { max-width: 900px; margin: 0 auto; background: #ffffff; }
+    .print-bar { background: #0f172a; color: #ffffff; padding: 12px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(15,23,42,0.15); }
+    .print-btn { background: #2563eb; color: #ffffff; border: none; padding: 8px 18px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; font-family: inherit; }
+    .print-btn:hover { background: #1d4ed8; }
+    .header-box { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 16px; margin-bottom: 20px; }
+    .telemetry-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; }
+    .tel-cell span { display: block; font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    .tel-cell strong { font-size: 12px; color: #0f172a; font-family: 'JetBrains Mono', monospace; }
+    .score-strip { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border-left: 4px solid ${scoreColor}; border-radius: 4px; padding: 14px 18px; margin-bottom: 20px; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+    .truth-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+    .truth-table th { background: #f1f5f9; text-align: left; padding: 8px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: #475569; border-bottom: 2px solid #cbd5e1; }
+    .footer-box { border-top: 1px solid #e2e8f0; padding-top: 14px; display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-top: 28px; }
+    @media print {
+      .print-bar { display: none !important; }
+      body { padding: 0; }
+      .report-sheet { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="report-sheet">
+    <div class="print-bar">
+      <div>
+        <strong style="color: #38bdf8;">ADX Group Cyber Systems</strong> &bull; Executive Perimeter Deliverable
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+        <button class="print-btn" style="background: rgba(255,255,255,0.18);" onclick="window.close()">Close Window</button>
+      </div>
+    </div>
+
+    <div class="header-box">
+      <div>
+        <div style="font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+          <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><path d="M14 2L3 7V13C3 19.5 7.7 25.6 14 27C20.3 25.6 25 19.5 25 13V7L14 2Z" fill="#0f172a" /><path d="M9 13.5L12.5 17L19 10.5" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          <span>ADX GROUP</span>
+        </div>
+        <div style="font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px;">
+          Cyber Threat Intelligence &bull; Perimeter Defense Desk
+        </div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #2563eb;">${escapeHtml(auditId)}</div>
+        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Evaluated: ${escapeHtml(dateStr)}</div>
+        <div style="font-size: 9px; font-weight: 800; color: #b91c1c; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 3px;">CONFIDENTIAL // EXECUTIVE POSTURE BRIEF</div>
+      </div>
+    </div>
+
+    <div class="telemetry-grid">
+      <div class="tel-cell">
+        <span>Target Asset</span>
+        <strong>${escapeHtml(d.domain)}</strong>
+      </div>
+      <div class="tel-cell">
+        <span>Primary Host IP</span>
+        <strong>${escapeHtml(tel.resolved_ip || "Unknown")}</strong>
+      </div>
+      <div class="tel-cell">
+        <span>Transport Protocol</span>
+        <strong>${escapeHtml(tel.tls_protocol || "TLS")} (${escapeHtml(tel.cipher_suite || "AEAD")})</strong>
+      </div>
+      <div class="tel-cell">
+        <span>Certificate CA</span>
+        <strong>${escapeHtml(tel.cert_issuer || "Unverified CA")}</strong>
+      </div>
+    </div>
+
+    <div class="score-strip">
+      <div>
+        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.8px;">Perimeter Posture State</div>
+        <div style="font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 2px;">${escapeHtml(d.risk_level)}</div>
+        <div style="font-size: 11px; color: #475569; margin-top: 4px;">
+          ${passed.length} of ${gates.length} inspection parameters fully verified &bull; ${failed.length} parameter(s) require engineering attention.
+        </div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: 28px; font-weight: 900; color: ${scoreColor}; font-family: 'JetBrains Mono', monospace;">${escapeHtml(String(d.score))}<span style="font-size: 14px; font-weight: 600; color: #64748b;">/100</span></div>
+        <div style="font-size: 11px; font-weight: 800; color: #0f172a;">GRADE ${escapeHtml(d.grade)}</div>
+      </div>
+    </div>
+
+    <div style="background: #f1f5f9; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; font-size: 12px; color: #1e293b; line-height: 1.55;">
+      <strong style="color: #0f172a; display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Executive Technical Summary</strong>
+      ${escapeHtml(d.ai_executive_summary || "Perimeter infrastructure audit completed based on live non-intrusive DNS, TLS, and HTTP telemetry.")}
+    </div>
+
+    <div style="margin-bottom: 8px; font-size: 12px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.6px;">
+      Perimeter Security Inspection Matrix
+    </div>
+    <table class="truth-table">
+      <thead>
+        <tr>
+          <th style="width: 45px;">#</th>
+          <th style="width: 250px;">Inspection Parameter</th>
+          <th style="width: 155px; text-align: center;">Verification State</th>
+          <th>Technical Finding &amp; Guidance</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml}
+      </tbody>
+    </table>
+
+    ${failed.length > 0 ? `
+      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px;">
+        <strong style="color: #991b1b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Remediation Scope &amp; Engineering Action</strong>
+        <div style="font-size: 12px; color: #7f1d1d; line-height: 1.5;">
+          To resolve identified perimeter exposure and protect domain email deliverability and web security headers, contact ADX Engineering for fixed-scope deployment at <strong>contact@adxgroup.tech</strong>.
+        </div>
+      </div>
+    ` : ""}
+
+    <div class="footer-box">
+      <div>
+        <strong>ADX Group (adxgroup.tech)</strong> &bull; Silent Innovation. Absolute Defense.
+      </div>
+      <div>
+        Direct Desk: <a href="mailto:contact@adxgroup.tech" style="color: #2563eb; text-decoration: none;">contact@adxgroup.tech</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const printWin = window.open("", "_blank");
+    if (!printWin) {
+      alert("Please allow popups for adxgroup.tech to view and export the Executive Security Report.");
+      return;
+    }
+    printWin.document.open();
+    printWin.document.write(reportHtml);
+    printWin.document.close();
   };
 
   window.speakAdxVoice = async function (text, force = false) {
