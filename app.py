@@ -135,7 +135,7 @@ async def api_update_profile(request: Request, payload: ProfileUpdateRequest):
         raise HTTPException(status_code=400, detail=str(ve))
 
 
-@asgi_app.get("/robots.txt", response_class=Response)
+@asgi_app.api_route("/robots.txt", methods=["GET", "HEAD"], response_class=Response)
 async def robots_txt():
     from fastapi.responses import PlainTextResponse
     return PlainTextResponse(
@@ -143,7 +143,7 @@ async def robots_txt():
     )
 
 
-@asgi_app.get("/sitemap.xml", response_class=Response)
+@asgi_app.api_route("/sitemap.xml", methods=["GET", "HEAD"], response_class=Response)
 async def sitemap_xml():
     xml_content = """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
