@@ -580,31 +580,6 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
   </div>
 </body>
-</html>
-              <path d="M50 24 L50 76 M24 50 L76 50" stroke="#94a3b8" stroke-width="0.5" />
-              <text x="50" y="44" font-family="'JetBrains Mono', monospace" font-size="6.5" font-weight="800" fill="#0f172a" text-anchor="middle" letter-spacing="1">ADX CYBER</text>
-              <text x="50" y="53" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="900" fill="#2563eb" text-anchor="middle">CERTIFIED</text>
-              <text x="50" y="61" font-family="'JetBrains Mono', monospace" font-size="5.5" font-weight="700" fill="#475569" text-anchor="middle">PERIMETER AUDIT</text>
-              <circle cx="50" cy="50" r="38" fill="none" stroke="#0f172a" stroke-width="0.5" stroke-dasharray="1,2" />
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <div class="footer-box">
-        <div>
-          <strong>ADX Group (adxgroup.tech)</strong> &bull; Silent Innovation. Absolute Defense.
-        </div>
-        <div>
-          Direct Desk: <a href="mailto:contact@adxgroup.tech" style="color: #2563eb; text-decoration: none;">contact@adxgroup.tech</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</body>
-</html>
-  </div>
-</body>
 </html>`;
 
     const printWin = window.open("", "_blank");

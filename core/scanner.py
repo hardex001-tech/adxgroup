@@ -240,20 +240,20 @@ async def check_http_and_cve_surface(
     if not has_web_ip:
         return {
             "Reachable": False,
-            "server_banner": "No Active HTTP Listener",
+            "server_banner": "No Active Host IP",
             "http_status": 0,
             "headers_passed": False,
             "cors_passed": False,
-            "exposure_passed": True,
-            "headers_summary": f"No active HTTPS listener on {domain} to serve security headers.",
-            "headers_fix": "Deploy origin behind Cloudflare WAF with HSTS, CSP, and X-Frame-Options.",
-            "cors_summary": "Origin unreachable; API cross-origin policy unverified.",
+            "exposure_passed": False,
+            "is_parked": False,
+            "headers_summary": f"No active host IP found for {domain} to serve security headers.",
+            "headers_fix": "Verify domain DNS records and configure web server listener.",
+            "cors_summary": "Host unresolvable; API cross-origin policy unverified.",
             "cors_fix": None,
-            "exposure_summary": "No exposed /.env or /.git artifacts detected on root.",
+            "exposure_summary": "Target host unresolvable over the internet.",
             "exposure_fix": None,
         }
 
-    url = f"https://{domain}"
     headers_report: Dict[str, bool] = {
         "Strict-Transport-Security": False,
         "Content-Security-Policy": False,
@@ -266,48 +266,79 @@ async def check_http_and_cve_surface(
     cors_issue = False
     status_code = 0
     server_header = "Hidden / Protected"
+    is_parked = False
+    resp = None
 
-    try:
-        resp = await client.get(
-            url,
-            follow_redirects=True,
-            timeout=6.5,
-            headers={"User-Agent": "ADX-Threat-Scanner/2026.4 (+https://adxgroup.tech)"},
-        )
-        status_code = resp.status_code
-        h = resp.headers
-        server_header = h.get("server", "Hidden / Protected")
+    # Probe HTTPS first; fall back to HTTP if HTTPS connection fails
+    for scheme in ("https://", "http://"):
+        try:
+            r = await client.get(
+                f"{scheme}{domain}",
+                follow_redirects=True,
+                timeout=6.5,
+                headers={"User-Agent": "ADX-Threat-Scanner/2026.4 (+https://adxgroup.tech)"},
+            )
+            resp = r
+            status_code = resp.status_code
+            h = resp.headers
+            server_header = h.get("server", "Hidden / Protected")
 
-        for hdr in headers_report:
-            if hdr.lower() in h:
-                headers_report[hdr] = True
-            else:
-                missing_headers.append(hdr)
+            for hdr in headers_report:
+                if hdr.lower() in h:
+                    headers_report[hdr] = True
+                else:
+                    missing_headers.append(hdr)
 
-        for banner_hdr in ("x-powered-by", "x-aspnet-version", "x-generator"):
-            if banner_hdr in h:
-                leaked_banners.append(f"{banner_hdr}: {h[banner_hdr]}")
-        if "server" in h and any(char.isdigit() for char in h["server"]):
-            leaked_banners.append(f"server: {h['server']}")
+            for banner_hdr in ("x-powered-by", "x-aspnet-version", "x-generator"):
+                if banner_hdr in h:
+                    leaked_banners.append(f"{banner_hdr}: {h[banner_hdr]}")
+            if "server" in h and any(char.isdigit() for char in h["server"]):
+                leaked_banners.append(f"server: {h['server']}")
 
-        acao = h.get("access-control-allow-origin", "")
-        acac = h.get("access-control-allow-credentials", "").lower()
-        if acao == "*" and acac == "true":
-            cors_issue = True
+            acao = h.get("access-control-allow-origin", "")
+            acac = h.get("access-control-allow-credentials", "").lower()
+            if acao == "*" and acac == "true":
+                cors_issue = True
 
-    except Exception:
+            # Parked domain, parking broker, or bot captcha gate detection
+            body_sample = resp.text.lower()[:3000]
+            parked_signatures = [
+                "sgcaptcha",
+                "domain is for sale",
+                "buy this domain",
+                "this domain is parked",
+                "domain parking",
+                "sedo parking",
+                "hugedomains",
+                "afternic",
+                "namecheap parking",
+                "godaddy parking",
+                "parkingcrew",
+                "bodis.com",
+                "dan.com/buy-domain",
+                "domain has expired",
+                "account suspended",
+            ]
+            if any(sig in body_sample for sig in parked_signatures) or (status_code == 202 and "captcha" in body_sample):
+                is_parked = True
+            break
+        except Exception:
+            continue
+
+    if resp is None:
         return {
             "Reachable": False,
-            "server_banner": "Unreachable on 443",
+            "server_banner": "Unreachable (Ports 80/443 Refused)",
             "http_status": 0,
             "headers_passed": False,
             "cors_passed": False,
-            "exposure_passed": True,
-            "headers_summary": f"HTTPS port 443 on {domain} refused connection or timed out.",
-            "headers_fix": "Verify web server listener on port 443 and configure reverse proxy.",
-            "cors_summary": "HTTPS endpoint unreachable.",
+            "exposure_passed": False,
+            "is_parked": False,
+            "headers_summary": f"HTTP/HTTPS ports on {domain} refused connection or timed out.",
+            "headers_fix": "Verify web server listener on port 80/443 and configure reverse proxy.",
+            "cors_summary": "HTTP endpoint unreachable.",
             "cors_fix": None,
-            "exposure_summary": "No exposed sensitive dotfiles detected.",
+            "exposure_summary": "Web ports unreachable on host.",
             "exposure_fix": None,
         }
 
@@ -362,6 +393,7 @@ async def check_http_and_cve_surface(
         "headers_passed": headers_passed,
         "cors_passed": cors_passed,
         "exposure_passed": exposure_passed,
+        "is_parked": is_parked,
         "headers_summary": headers_summary,
         "headers_fix": headers_fix,
         "cors_summary": cors_summary,
@@ -387,11 +419,28 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             ip_list = await asyncio.to_thread(_resolve_os_ips, domain)
         primary_ip = ip_list[0] if ip_list else ""
 
+        if not primary_ip:
+            raise ValueError(
+                f"Target domain '{domain}' cannot be reached. No active A/AAAA DNS records or host IP found over the internet. "
+                "Please verify the domain spelling or ensure the website is online."
+            )
+
         ssl_task = asyncio.to_thread(_check_ssl_sync, domain, primary_ip)
         dns_task = check_dns_email_security(client, domain)
         http_task = check_http_and_cve_surface(client, domain, bool(primary_ip))
 
         ssl_res, dns_res, http_res = await asyncio.gather(ssl_task, dns_task, http_task)
+
+    if not http_res.get("Reachable") and not ssl_res.get("passed") and not mx_records:
+        raise ValueError(
+            f"Target domain '{domain}' (Host IP: {primary_ip}) is offline. Web ports 80 and 443 refused connection with zero active listeners."
+        )
+
+    if http_res.get("is_parked"):
+        raise ValueError(
+            f"Target domain '{domain}' is currently parked, inactive, or restricted by a domain broker captcha gate. "
+            "ADX Group audits operational web applications, software platforms, and active business services."
+        )
 
     gates = [
         {
@@ -517,16 +566,16 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
         risk_level = "SIGNIFICANT EXPOSURE GAPS"
 
     telemetry = {
-        "resolved_ip": primary_ip or "76.76.21.21",
-        "ip_count": len(ip_list) or 1,
-        "mx_count": len(mx_records) or 3,
-        "latency_ms": ssl_res["latency_ms"] or 18,
-        "tls_protocol": ssl_res["tls_version"],
-        "cipher_suite": ssl_res["cipher"],
-        "cert_issuer": ssl_res["issuer"] if ssl_res["issuer"] not in ("Unissued", "Unverified") else "Let's Encrypt / Cloudflare Edge CA",
-        "cert_serial": ssl_res["serial"] if ssl_res["serial"] != "N/A" else "ADX-2026-VERIFIED",
-        "server_banner": "ADX-Shield / Vercel Edge",
-        "http_status": http_res["http_status"] or 200,
+        "resolved_ip": primary_ip,
+        "ip_count": len(ip_list),
+        "mx_count": len(mx_records),
+        "latency_ms": ssl_res.get("latency_ms", 0),
+        "tls_protocol": ssl_res.get("tls_version", "TLS"),
+        "cipher_suite": ssl_res.get("cipher", "AEAD"),
+        "cert_issuer": ssl_res.get("issuer", "Unissued"),
+        "cert_serial": ssl_res.get("serial", "N/A"),
+        "server_banner": http_res.get("server_banner", "Hidden / Protected"),
+        "http_status": http_res.get("http_status", 0),
     }
 
     cve_2026_report = [
