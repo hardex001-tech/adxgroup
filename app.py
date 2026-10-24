@@ -325,6 +325,35 @@ async def api_ai_consultant(request: Request, payload: ChatRequest):
     return JSONResponse(content={"ok": True, "data": result})
 
 
+class AdminAiTokenRequest(BaseModel):
+    github_token: str
+
+
+@asgi_app.post("/api/admin/ai-token")
+async def api_save_ai_token(request: Request, payload: AdminAiTokenRequest):
+    user = _current_user(request)
+    if not user or user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Owner access required.")
+    token = (payload.github_token or "").strip()
+    if len(token) < 20:
+        raise HTTPException(status_code=400, detail="Please enter a valid GitHub Personal Access Token.")
+
+    import os
+    env_file = BASE_DIR / ".env"
+    os.environ["GITHUB_TOKEN"] = token
+    with open(env_file, "w", encoding="utf-8") as f:
+        f.write(f"GITHUB_TOKEN={token}\n")
+
+    test_res = await ask_adx_ai_consultant("Confirm ADX Neural Core is online in one sentence.", user=user)
+    return JSONResponse(
+        content={
+            "ok": True,
+            "engine": test_res.get("engine"),
+            "sample_reply": test_res.get("reply"),
+        }
+    )
+
+
 @asgi_app.post("/api/lead")
 async def api_submit_lead(payload: LeadRequest):
     result = record_client_lead(

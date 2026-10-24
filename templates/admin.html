@@ -213,6 +213,28 @@
         </table>
       </div>
     </div>
+    <!-- 4. GitHub Student Pack AI Brain (GitHub Models GPT-4o + RAG) -->
+    <div class="panel-card" style="margin-top: 32px; border-color: rgba(56, 189, 248, 0.35);">
+      <span class="section-eyebrow">ADX Neural Core &amp; RAG Training (GitHub Student Pack)</span>
+      <h3>Connect Live GitHub Models AI Brain (GPT-4o / Llama-3.3)</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin: 8px 0 16px;">
+        Your ADX AI Security Architect is pre-loaded with the <strong>ADX 2026 CVE &amp; Architecture RAG Knowledge Base</strong>. Paste a free GitHub Personal Access Token (with <code>Models: Read-only</code> permission) below to switch the AI engine to live <strong>GPT-4o reasoning</strong> via your GitHub Student Developer Pack.
+      </p>
+      <form id="admin-ai-token-form" style="display: flex; gap: 12px; flex-wrap: wrap; max-width: 760px;">
+        <input
+          type="password"
+          id="github-ai-token-input"
+          class="form-control"
+          placeholder="Paste GitHub Token (github_pat_... or ghp_...)"
+          required
+          style="flex: 1; min-width: 280px;"
+        />
+        <button type="submit" class="btn btn-primary" id="save-ai-token-btn">
+          Activate Live GPT-4o Brain
+        </button>
+      </form>
+      <div id="ai-token-status" style="margin-top: 12px; font-size: 0.86rem; font-family: var(--font-mono);"></div>
+    </div>
   </main>
 
   <footer class="site-footer" style="margin-top: 0; padding: 32px 0;">
@@ -231,6 +253,42 @@
       setTimeout(() => {
         btn.textContent = old;
       }, 2000);
+    }
+
+    const aiTokenForm = document.getElementById("admin-ai-token-form");
+    if (aiTokenForm) {
+      aiTokenForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const github_token = document.getElementById("github-ai-token-input").value.trim();
+        const statusEl = document.getElementById("ai-token-status");
+        const btn = document.getElementById("save-ai-token-btn");
+        btn.disabled = true;
+        btn.textContent = "Verifying with GitHub Models...";
+        statusEl.textContent = "";
+
+        try {
+          const res = await fetch("/api/admin/ai-token", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ github_token }),
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            statusEl.style.color = "#10b981";
+            statusEl.textContent = `✓ Active Engine: ${data.engine} | Test Reply: "${data.sample_reply}"`;
+            document.getElementById("github-ai-token-input").value = "";
+          } else {
+            statusEl.style.color = "#f87171";
+            statusEl.textContent = data.detail || "Could not verify token.";
+          }
+        } catch (err) {
+          statusEl.style.color = "#f87171";
+          statusEl.textContent = "Network error while saving token.";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Activate Live GPT-4o Brain";
+        }
+      });
     }
   </script>
 </body>

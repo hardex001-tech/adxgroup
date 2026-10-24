@@ -30,11 +30,14 @@ def normalize_domain(raw_input: str) -> str:
 
 
 async def _query_doh(client: httpx.AsyncClient, name: str, record_type: str = "TXT") -> List[str]:
-    """Query DNS records over HTTPS with Cloudflare DoH primary and Google DoH fallback."""
+    """Query DNS records over HTTPS using literal IP endpoints (1.1.1.1 & 8.8.8.8) to bypass ISP DNS failures."""
     endpoints = [
-        ("https://cloudflare-dns.com/dns-query", {"name": name, "type": record_type}),
-        ("https://dns.google/resolve", {"name": name, "type": record_type}),
+        ("https://1.1.1.1/dns-query", {"name": name, "type": record_type}),
+        ("https://8.8.8.8/resolve", {"name": name, "type": record_type}),
     ]
+    type_code_map = {"A": 1, "NS": 2, "CNAME": 5, "MX": 15, "TXT": 16, "AAAA": 28}
+    wanted_code = type_code_map.get(record_type.upper())
+
     for url, params in endpoints:
         try:
             resp = await client.get(
@@ -48,6 +51,8 @@ async def _query_doh(client: httpx.AsyncClient, name: str, record_type: str = "T
                 answers = data.get("Answer", [])
                 records = []
                 for ans in answers:
+                    if wanted_code and ans.get("type") not in (wanted_code, record_type):
+                        continue
                     val = str(ans.get("data", "")).strip('"')
                     if val:
                         records.append(val)
@@ -59,7 +64,7 @@ async def _query_doh(client: httpx.AsyncClient, name: str, record_type: str = "T
 
 
 def _resolve_os_ips(domain: str) -> List[str]:
-    """Resolve IPv4 addresses using the operating system's native DNS resolver."""
+    """Resolve IPv4 addresses using native OS DNS with 1.1.1.1 DoH fallback."""
     ips: List[str] = []
     try:
         infos = socket.getaddrinfo(domain, 443, socket.AF_INET, socket.SOCK_STREAM)
@@ -69,6 +74,21 @@ def _resolve_os_ips(domain: str) -> List[str]:
                 ips.append(ip)
     except Exception:
         pass
+    if not ips:
+        try:
+            resp = httpx.get(
+                "https://1.1.1.1/dns-query",
+                params={"name": domain, "type": "A"},
+                headers={"Accept": "application/dns-json"},
+                timeout=4.0,
+                verify=False,
+            )
+            if resp.status_code == 200:
+                for ans in resp.json().get("Answer", []):
+                    if ans.get("type") == 1 and ans.get("data"):
+                        ips.append(str(ans["data"]).strip())
+        except Exception:
+            pass
     return ips
 
 
