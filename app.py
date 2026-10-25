@@ -57,6 +57,7 @@ from core.mailer import get_outbox, send_login_alert
 from core.notifier import get_all_leads, record_client_lead
 from core.scanner import normalize_domain, run_full_diagnostic
 from core.offers_config import (
+    SPLASH_ENABLED,
     BOOKING_URL,
     CASE_STUDIES,
     NDPC_OFFICIAL_URL,
@@ -77,11 +78,14 @@ asgi_app = FastAPI(
 )
 
 STATIC_DIR = BASE_DIR / "static"
+ASSETS_DIR = BASE_DIR / "assets"
 TEMPLATES_DIR = BASE_DIR / "templates"
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
+ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
 
 asgi_app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+asgi_app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 
@@ -104,8 +108,8 @@ async def add_security_and_cache_headers(request: Request, call_next):
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline'; "
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-        "font-src 'self' https://fonts.gstatic.com data:; "
+        "style-src 'self' 'unsafe-inline'; "
+        "font-src 'self' data:; "
         "img-src 'self' https: data: blob:; "
         "connect-src 'self' https://1.1.1.1 https://8.8.8.8; "
         "frame-ancestors 'none'; "
@@ -256,6 +260,26 @@ async def sitemap_xml():
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+  <url>
+    <loc>https://adxgroup.tech/privacy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://adxgroup.tech/terms</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://adxgroup.tech/cookies</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://adxgroup.tech/do-not-sell</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
 </urlset>"""
     return Response(content=xml_content, media_type="application/xml")
 
@@ -278,6 +302,7 @@ async def home(request: Request):
             "dpco_name": PARTNER_DPCO_NAME,
             "partners": PARTNERS_LIST,
             "case_studies": CASE_STUDIES,
+            "splash_enabled": SPLASH_ENABLED,
         },
     )
 

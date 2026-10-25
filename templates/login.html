@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign In | ADX Group Enterprise Console</title>
   <meta name="description" content="Sign in to the ADX Group Enterprise Security Console. Sovereign cloud systems, private AI agents, and perimeter threat telemetry." />
-  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.45" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="/assets/brand/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon.png" />
+  <meta property="og:image" content="https://adxgroup.tech/assets/brand/og-image.png" />
   <link rel="stylesheet" href="/static/css/style.css?v=2026.45" />
   <style>
     :root {
@@ -490,7 +490,7 @@
 <body>
 
   <!-- Lit Background Watermark Emblem -->
-  <img src="/static/logo.svg?v=2026.45" alt="" class="watermark-logo" />
+  <img src="/assets/brand/logo-mark-flat.svg" alt="" aria-hidden="true" class="watermark-logo" />
 
   <div class="auth-page-wrapper">
     <div class="auth-split-grid">
@@ -499,7 +499,7 @@
       <div class="auth-card">
         <div class="auth-header">
           <a href="/" style="display: inline-block;">
-            <img src="/static/logo.svg?v=2026.45" alt="ADX Group" class="auth-logo" />
+            <img src="/assets/brand/logo-lockup.svg" alt="ADX Group home" width="180" height="34" style="height: 34px; width: auto; margin-bottom: 8px;" />
           </a>
           <div style="display: flex; justify-content: center;">
             <div class="status-badge">
@@ -599,6 +599,13 @@
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </button>
+            </div>
+            <!-- Password Strength Hint Bar (Task D) -->
+            <div id="pwd-strength-wrap" style="margin-top: 6px;">
+              <div style="height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden;">
+                <div id="pwd-strength-bar" style="height: 100%; width: 0%; background: #ef4444; transition: width 0.2s ease, background 0.2s ease;"></div>
+              </div>
+              <div id="pwd-strength-text" style="font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono); margin-top: 3px;">Password strength: at least 6 characters</div>
             </div>
           </div>
 
@@ -1190,6 +1197,38 @@
         errBox.textContent = data.detail || "Could not create account.";
       }
     });
+  
+    function updatePasswordStrength(val) {
+      const bar = document.getElementById("pwd-strength-bar");
+      const text = document.getElementById("pwd-strength-text");
+      if (!bar || !text) return;
+      if (!val) {
+        bar.style.width = "0%";
+        text.textContent = "Password strength: at least 6 characters";
+        return;
+      }
+      let score = 0;
+      if (val.length >= 6) score++;
+      if (val.length >= 10) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+
+      if (score <= 1) {
+        bar.style.width = "25%";
+        bar.style.background = "#ef4444";
+        text.textContent = "Strength: Weak (add length, numbers or symbols)";
+      } else if (score <= 3) {
+        bar.style.width = "60%";
+        bar.style.background = "#f59e0b";
+        text.textContent = "Strength: Fair (meets baseline requirements)";
+      } else {
+        bar.style.width = "100%";
+        bar.style.background = "#10b981";
+        text.textContent = "Strength: Strong (cryptographically resilient)";
+      }
+    }
+
   </script>
   <script src="/static/js/main.js?v=2026.45"></script>
 </body>

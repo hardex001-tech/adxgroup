@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" height="100%" fill="none" stroke="currentColor">
+  <!-- Outer Hexagonal Armor Frame -->
+  <polygon
+    points="128,14 230,70 230,186 128,242 26,186 26,70"
+    stroke="currentColor"
+    stroke-width="16"
+    stroke-linejoin="round"
+    fill="none"
+  />
+  <!-- Stylized 'A' Apex & Left Arm -->
+  <polygon
+    points="128,46 68,194 104,194 128,132"
+    fill="currentColor"
+    stroke="none"
+  />
+  <!-- Stylized 'A' Apex & Right Arm -->
+  <polygon
+    points="128,46 128,132 152,194 188,194"
+    fill="currentColor"
+    stroke="none"
+  />
+  <!-- Intersecting 'X' Diagonal Slash (Top-Left to Bottom-Right) -->
+  <polygon
+    points="74,76 102,76 188,194 160,194"
+    fill="currentColor"
+    stroke="none"
+  />
+  <!-- Hypersonic Cross Blade (Bottom-Left to Top-Right) -->
+  <polygon
+    points="56,194 84,194 198,62 170,62"
+    fill="currentColor"
+    stroke="none"
+  />
+</svg>

@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Workspace Console | ADX Group</title>
-  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.45" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/css/style.css?v=2026.45" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/assets/brand/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon.png" />
+    <link rel="stylesheet" href="/static/css/style.css?v=2026.45" />
   <style>
     .console-layout {
       display: grid;
@@ -169,12 +169,8 @@
   <!-- Top Console Header -->
   <header class="navbar">
     <div class="container nav-inner">
-      <a href="/dashboard" class="brand">
-        <img src="/static/logo.svg?v=2026.45" alt="ADX Group Logo" style="width: 42px; height: 42px;" />
-        <div>
-          <span class="brand-text">ADX GROUP</span>
-          <span class="brand-motto">Silent Innovation. Absolute Defense.</span>
-        </div>
+      <a href="/dashboard" class="brand" aria-label="ADX Group Console">
+        <img src="/assets/brand/logo-lockup.svg" alt="ADX Group" width="168" height="32" style="height: 32px; width: auto;" />
       </a>
 
       <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
@@ -194,7 +190,7 @@
   </header>
 
   <!-- Subtle Watermark Logo Centered in Background -->
-  <img src="/static/logo.svg?v=2026.45" alt="" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 750px; max-width: 90vw; height: auto; opacity: 0.03; pointer-events: none; z-index: 0;" />
+  <img src="/assets/brand/logo-mark-flat.svg" alt="" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 750px; max-width: 90vw; height: auto; opacity: 0.03; pointer-events: none; z-index: 0;" />
 
   <!-- Main Console Grid -->
   <div class="container console-layout" style="position: relative; z-index: 1;">
@@ -216,25 +212,25 @@
         </div>
       </div>
 
-      <button type="button" id="nav-scanner" class="side-nav-btn active" onclick="switchConsoleTab('scanner')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span>Infrastructure &amp; Perimeter</span>
+      <button type="button" id="nav-overview" class="side-nav-btn active" onclick="switchConsoleTab('overview')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Overview</span>
       </button>
-      <button type="button" id="nav-ai" class="side-nav-btn" onclick="switchConsoleTab('ai')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        <span>ADX AI Systems Architect</span>
+      <button type="button" id="nav-scanner" class="side-nav-btn" onclick="switchConsoleTab('scanner')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>Audits</span>
       </button>
-      <button type="button" id="nav-cve" class="side-nav-btn" onclick="switchConsoleTab('cve')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span>Threat Intelligence &amp; CVE Feed</span>
+      <button type="button" id="nav-reports" class="side-nav-btn" onclick="switchConsoleTab('reports')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span>Reports</span>
       </button>
-      <button type="button" id="nav-dispatch" class="side-nav-btn" onclick="switchConsoleTab('dispatch')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        <span>Deploy ADX Engineers</span>
+      <button type="button" id="nav-compliance" class="side-nav-btn" onclick="switchConsoleTab('compliance')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Compliance Checklist</span>
       </button>
       <button type="button" id="nav-settings" class="side-nav-btn" onclick="switchConsoleTab('settings')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>Account &amp; Identity Settings</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Settings</span>
       </button>
     </aside>
 
@@ -294,6 +290,113 @@
         </div>
       </div>
       {% endif %}
+
+      <!-- TAB: Overview (Task E) -->
+      <div id="tab-view-overview" class="console-tab-view">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 22px;">
+          <div>
+            <span class="view-tag">SYSTEM TELEMETRY OVERVIEW</span>
+            <h1 class="view-title">Enterprise Security Posture</h1>
+          </div>
+          <button type="button" class="btn btn-primary" onclick="switchConsoleTab('scanner')">
+            Run New Audit &rarr;
+          </button>
+        </div>
+
+        <!-- 4 Overview Metric Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          
+          <!-- Card 1: Risk Score Card -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Perimeter Risk Score</span>
+              <span style="font-family: var(--font-mono); font-size: 0.68rem; color: #fbbf24; background: rgba(245, 158, 11, 0.12); padding: 2px 6px; border-radius: 4px;">Sample data</span>
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px;">
+              <div style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: 800; color: #38bdf8;">88<span style="font-size: 1.1rem; color: #64748b;">/100</span></div>
+              <span style="font-size: 0.8rem; color: #10b981; font-weight: 600;">Good Posture</span>
+            </div>
+            <p style="font-size: 0.82rem; color: #94a3b8; margin: 0; line-height: 1.4;">Based on public cryptographic ciphers, DNSSEC, and email records.</p>
+          </div>
+
+          <!-- Card 2: Latest Scan -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Latest Audit</span>
+              <span style="font-family: var(--font-mono); font-size: 0.68rem; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 2px 6px; border-radius: 4px;">Automated</span>
+            </div>
+            <div style="font-weight: 700; color: #ffffff; font-size: 1.1rem; margin-bottom: 4px;">adxgroup.tech</div>
+            <div style="font-size: 0.82rem; color: #10b981; margin-bottom: 10px;">6 of 6 Gates Evaluated</div>
+            <a href="javascript:void(0)" onclick="switchConsoleTab('scanner')" style="color: #38bdf8; font-size: 0.82rem; text-decoration: underline; font-weight: 600;">
+              View Full 6-Gate Breakdown &rarr;
+            </a>
+          </div>
+
+          <!-- Card 3: Open Fixes -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Open Fixes</span>
+              <span style="font-family: var(--font-mono); font-size: 0.68rem; color: #f87171; background: rgba(239, 68, 68, 0.12); padding: 2px 6px; border-radius: 4px;">2 Priority</span>
+            </div>
+            <div style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: #f87171; margin-bottom: 4px;">2 Issues</div>
+            <p style="font-size: 0.82rem; color: #94a3b8; margin: 0; line-height: 1.4;">Staged DMARC policy rollout &amp; CSP frame-ancestors directive.</p>
+          </div>
+
+          <!-- Card 4: Next-Step Button Card -->
+          <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(15, 23, 42, 0.85) 100%); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; text-transform: uppercase; display: block; margin-bottom: 4px;">Recommended Next Step</span>
+              <div style="font-weight: 700; color: #ffffff; font-size: 0.98rem; margin-bottom: 6px;">NDPA 2023 Compliance Review</div>
+              <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4; margin: 0;">Prepare personal-data inventory ahead of annual statutory return.</p>
+            </div>
+            <div style="margin-top: 14px;">
+              <a href="/solutions/comply" class="btn btn-outline" style="width: 100%; justify-content: center; font-size: 0.8rem; padding: 7px 12px;">
+                Review NDPA Safeguards
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State Component (Task E Requirement: "No audits yet. Run your first one.") -->
+        <div id="empty-state-audits" style="display: none; background: rgba(15, 23, 42, 0.6); border: 1px dashed var(--border-subtle); border-radius: 14px; padding: 48px 24px; text-align: center; margin-bottom: 24px;">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); display: inline-flex; align-items: center; justify-content: center; color: #38bdf8; margin-bottom: 14px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <h3 style="font-size: 1.2rem; color: #ffffff; margin-bottom: 6px;">No audits yet. Run your first one.</h3>
+          <p style="font-size: 0.9rem; color: #94a3b8; max-width: 480px; margin: 0 auto 20px;">
+            Submit your domain to inspect authoritative DNS records, TLS cryptographic handshakes, and email authentication headers.
+          </p>
+          <button type="button" class="btn btn-primary" onclick="switchConsoleTab('scanner')">
+            Run First Audit
+          </button>
+        </div>
+
+        <!-- Open Fixes Prioritized List -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 1.05rem; color: #ffffff; margin: 0;">Open Perimeter Fixes (Ranked by Risk)</h3>
+            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #fbbf24;">Sample Demonstration Data</span>
+          </div>
+
+          <div style="display: grid; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: rgba(11, 18, 32, 0.6); border: 1px solid var(--border-subtle); border-left: 3px solid #ef4444; border-radius: 8px; padding: 14px 16px;">
+              <div>
+                <div style="font-size: 0.9rem; font-weight: 600; color: #ffffff; margin-bottom: 2px;">DMARC Policy Enforcement</div>
+                <div style="font-size: 0.8rem; color: #94a3b8;">Domain email policy is currently p=none. Transition to p=quarantine or p=reject to block executive spoofing.</div>
+              </div>
+              <a href="/solutions/shield" class="btn btn-outline" style="font-size: 0.76rem; padding: 6px 12px;">View ADX Shield</a>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: rgba(11, 18, 32, 0.6); border: 1px solid var(--border-subtle); border-left: 3px solid #f59e0b; border-radius: 8px; padding: 14px 16px;">
+              <div>
+                <div style="font-size: 0.9rem; font-weight: 600; color: #ffffff; margin-bottom: 2px;">Data Breach Response Plan Documentation</div>
+                <div style="font-size: 0.8rem; color: #94a3b8;">NDPA 2023 requires 72-hour formal breach notification runbooks for covered entities.</div>
+              </div>
+              <a href="/solutions/comply" class="btn btn-outline" style="font-size: 0.76rem; padding: 6px 12px;">View ADX Comply</a>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- TAB 1: Live Infrastructure & Perimeter Diagnostic -->
       <div id="tab-view-scanner" class="console-tab-view">
@@ -899,7 +1002,7 @@
     }
 
     function switchConsoleTab(tabName) {
-      const views = ["scanner", "ai", "cve", "dispatch", "settings"];
+      const views = ["overview", "scanner", "ai", "cve", "dispatch", "reports", "compliance", "settings"];
       views.forEach((v) => {
         const el = document.getElementById("tab-view-" + v);
         const btn = document.getElementById("nav-" + v);

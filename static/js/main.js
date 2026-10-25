@@ -517,7 +517,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <head>
   <meta charset="utf-8" />
   <title>ADX Executive Perimeter Brief — ${escapeHtml(d.domain)}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/tokens.css" />
   <style>
     * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; color: #0f172a; background: #ffffff; margin: 0; padding: 22px 24px; font-size: 12px; line-height: 1.42; }
@@ -1584,3 +1584,41 @@ window.submitReadinessCheck = async function() {
     submitBtn.textContent = "Submit & View Detailed Analysis";
   }
 };
+
+
+/* =========================================================================
+   Task G: Non-Blocking Brand Splash Controller (<= 800ms)
+   ========================================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+  const splash = document.getElementById("brand-splash-overlay");
+  if (!splash) return;
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let alreadyShown = false;
+  try {
+    alreadyShown = sessionStorage.getItem("adx_splash_shown") === "true";
+  } catch (e) {}
+
+  if (alreadyShown || prefersReducedMotion) {
+    splash.classList.add("hidden");
+    return;
+  }
+
+  // Dismiss function
+  const dismissSplash = () => {
+    splash.classList.add("hidden");
+    try {
+      sessionStorage.setItem("adx_splash_shown", "true");
+    } catch (e) {}
+  };
+
+  // Allow click or Escape key to skip immediately
+  splash.addEventListener("click", dismissSplash);
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") dismissSplash();
+  }, { once: true });
+
+  // Auto-dismiss in <= 750ms
+  setTimeout(dismissSplash, 750);
+});

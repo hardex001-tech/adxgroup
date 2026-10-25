@@ -3,6 +3,9 @@ Central business configuration for ADX Group solution offers, pricing, and integ
 All customizable business values, contact endpoints, and partner disclosures live here.
 """
 
+# Brand & UI Configuration
+SPLASH_ENABLED = False  # Set to True to enable <=800ms brand splash once per session
+
 # Contact & Booking Endpoints
 WHATSAPP_NUMBER = "[PLACEHOLDER: WhatsApp number in international format - e.g. +234XXXXXXXXXX]"
 WHATSAPP_PREFILLED_MESSAGE = (

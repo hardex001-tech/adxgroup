@@ -1,23 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('./tokens.css');
 
 :root {
-  --bg-primary: #0b1120;
-  --bg-elevated: #111827;
-  --bg-card: rgba(15, 23, 42, 0.78);
-  --bg-card-hover: rgba(30, 41, 59, 0.9);
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-glow: rgba(56, 189, 248, 0.35);
-  --border-focus: #38bdf8;
-  --text-main: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --accent-primary: #38bdf8;
-  --accent-cyan: #38bdf8;
-  --accent-emerald: #10b981;
-  --accent-amber: #f59e0b;
-  --accent-red: #ef4444;
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', Consolas, monospace;
+  --bg-primary: var(--bg-base);
+  --bg-elevated: var(--bg-surface);
+  --bg-card: var(--bg-card);
+  --bg-card-hover: var(--bg-card-hover);
+  --border-subtle: var(--border-subtle);
+  --border-glow: var(--border-glow);
+  --border-focus: var(--border-focus);
+  --text-main: var(--text-primary);
+  --text-secondary: var(--text-primary);
+  --text-muted: var(--text-muted);
+  --accent-primary: var(--accent-primary);
+  --accent-cyan: var(--accent-primary);
+  --accent-emerald: var(--status-success);
+  --accent-amber: var(--status-warning);
+  --accent-red: var(--status-danger);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 * {
@@ -1959,4 +1959,62 @@ footer,
     flex-wrap: wrap;
     gap: 8px 14px;
   }
+}
+
+
+/* =========================================================================
+   Task G: Non-Blocking Brand Splash Overlay
+   ========================================================================= */
+#brand-splash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background-color: var(--bg-base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 250ms ease, visibility 250ms ease;
+  pointer-events: none;
+}
+
+#brand-splash-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#brand-splash-overlay img {
+  width: 88px;
+  height: 88px;
+  animation: splashFadeIn 400ms ease-out forwards;
+}
+
+@keyframes splashFadeIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #brand-splash-overlay {
+    display: none !important;
+  }
+}
+
+/* Readable Paragraph Length & Typography Enforcements (Task B) */
+p {
+  max-width: var(--measure-readable, 65ch);
+}
+
+.readable-text {
+  max-width: 65ch;
+  line-height: 1.6;
+}
+
+/* Minimum Accessible Tap Targets >= 44px */
+button,
+.btn,
+.nav-links a,
+.currency-btn,
+.social-icon-btn {
+  min-height: 44px;
 }

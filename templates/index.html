@@ -14,7 +14,7 @@
   <meta property="og:site_name" content="ADX Group" />
   <meta property="og:title" content="ADX Group | Private AI, Cloud &amp; Cyber Defense" />
   <meta property="og:description" content="Private AI architectures, hardened cloud systems, and passive perimeter security diagnostics engineered by ADX Group in Abuja, Nigeria." />
-  <meta property="og:image" content="https://adxgroup.tech/static/og-image.png" />
+  <meta property="og:image" content="https://adxgroup.tech/assets/brand/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="ADX Group — Private AI, Cloud Architecture &amp; Cybersecurity Diagnostics" />
@@ -23,7 +23,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="ADX Group | Private AI, Cloud &amp; Cyber Defense" />
   <meta name="twitter:description" content="Private AI architectures, hardened cloud systems, and passive perimeter security diagnostics engineered by ADX Group in Abuja, Nigeria." />
-  <meta name="twitter:image" content="https://adxgroup.tech/static/og-image.png" />
+  <meta name="twitter:image" content="https://adxgroup.tech/assets/brand/og-image.png" />
   <meta name="twitter:image:alt" content="ADX Group — Private AI, Cloud Architecture &amp; Cybersecurity Diagnostics" />
 
   <!-- Structured Data: Schema.org Knowledge Graph for Google Search -->
@@ -37,8 +37,8 @@
         "name": "ADX Group",
         "alternateName": ["ADX", "ADX.group", "ADX Cyber Systems"],
         "url": "https://adxgroup.tech",
-        "logo": "https://adxgroup.tech/static/logo.svg",
-        "image": "https://adxgroup.tech/static/og-image.png",
+        "logo": "https://adxgroup.tech/assets/brand/favicon.svg",
+        "image": "https://adxgroup.tech/assets/brand/og-image.png",
         "description": "ADX Group engineers private artificial intelligence workflows, resilient cloud architecture, and passive perimeter cybersecurity diagnostics.",
         "email": "contact@adxgroup.tech",
         "address": {
@@ -94,17 +94,22 @@
   }
   </script>
 
-  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.45" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/css/style.css?v=2026.45" />
+  <link rel="icon" type="image/svg+xml" href="/assets/brand/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon.png" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.46" />
 </head>
 <body>
+  {% if splash_enabled %}
+  <!-- Brand Splash Intro (Task G: <= 800ms, non-blocking, once per session, skippable) -->
+  <div id="brand-splash-overlay" role="presentation" aria-hidden="true">
+    <img src="/assets/brand/logo-mark-flat.svg" alt="ADX Group" width="88" height="88" />
+  </div>
+  {% endif %}
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <!-- Sleek Cyber Watermark Emblem -->
-  <img src="/static/logo.svg?v=2026.45" alt="" class="watermark-logo" />
+  <img src="/assets/brand/favicon.svg" alt="" class="watermark-logo" />
 
   <!-- Cookie & Essential Session Notice (NDPA & GDPR Data Minimization Aligned) -->
   <div id="adx-cookie-modal-backdrop" class="adx-cookie-modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="adx-cookie-modal-title">
@@ -143,7 +148,7 @@
   <header class="navbar">
     <div class="container nav-inner">
       <a href="/" class="brand">
-        <img src="/static/logo.svg?v=2026.45" alt="ADX Group Logo" style="width: 42px; height: 42px;" />
+        <img src="/assets/brand/favicon.svg" alt="ADX Group Logo" style="width: 42px; height: 42px;" />
         <div>
           <span class="brand-text">ADX GROUP</span>
           <span class="brand-motto">Silent Innovation. Absolute Defense.</span>
@@ -168,6 +173,7 @@
 
   <main id="main-content">
   <!-- Hero Section -->
+
   <section class="hero">
     <div class="container hero-split">
       <!-- Left Column -->
@@ -181,41 +187,44 @@
         <h1>
           Defensive Engineering &amp; <span class="gradient-text">Perimeter Security</span>
         </h1>
-        <p>
-          Architected for [PLACEHOLDER: Target Client Type — e.g. engineering leaders, fintech platforms, and enterprise operators] to expose external attack surfaces and harden mission-critical cloud infrastructure.
+        <p style="font-size: 1.1rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 24px; max-width: 62ch;">
+          We protect executive communications against fraud, harden production cloud architecture, and engineer technical safeguards for statutory NDPA compliance.
         </p>
 
-        <div style="background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: 14px; padding: 14px; margin-bottom: 22px; max-width: 580px;">
+        <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-bottom: 24px;">
+          <a href="#audit-tool" class="btn btn-primary" style="min-height: 48px; padding: 12px 24px; font-size: 0.96rem;">
+            Run Free Audit &rarr;
+          </a>
+          <a href="{{ booking_url }}" class="btn btn-outline" target="_blank" rel="noopener noreferrer" style="min-height: 48px; padding: 12px 22px; font-size: 0.96rem;">
+            Book a 20-Minute Review
+          </a>
+          <a href="https://wa.me/{{ whatsapp_number }}?text={{ whatsapp_text }}" class="btn btn-outline" target="_blank" rel="noopener noreferrer" style="min-height: 48px; padding: 12px 20px; font-size: 0.96rem; display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.086s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+            WhatsApp
+          </a>
+        </div>
+
+        <!-- Diagnostic Input Box in Hero -->
+        <div id="audit-tool" style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px 18px; max-width: 580px;">
           <form id="landing-gate-form" class="scanner-form" style="display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; gap: 8px; width: 100%;">
+            <div style="display: flex; gap: 8px; width: 100%; flex-wrap: wrap;">
               <input
                 type="text"
                 id="landing-domain-input"
                 class="scanner-input"
-                placeholder="Enter company domain to inspect (e.g., company.com)"
+                placeholder="Enter corporate domain (e.g., company.com)"
                 required
-                style="flex: 1;"
+                style="flex: 1; min-width: 220px; min-height: 44px;"
               />
-              <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
-                Run Infrastructure Audit
+              <button type="submit" class="btn btn-primary" style="white-space: nowrap; min-height: 44px;">
+                Analyze Perimeter
               </button>
             </div>
             <label style="display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--text-muted); cursor: pointer; user-select: none;">
-              <input type="checkbox" id="landing-consent-checkbox" required checked style="accent-color: var(--accent-primary);" />
+              <input type="checkbox" id="landing-consent-checkbox" required checked style="width: 16px; height: 16px; accent-color: var(--accent-primary);" />
               <span>I confirm I am authorized to audit this domain's public DNS and perimeter records.</span>
             </label>
           </form>
-        </div>
-
-        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-          <a href="{{ booking_url }}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Book a 20-Minute Security Review</a>
-          <a href="/readiness-check" class="btn btn-outline">Take Free Readiness Check</a>
-          <a href="#solutions" class="btn btn-outline">Explore Solutions</a>
-          {% if user %}
-            <a href="/dashboard" class="btn btn-primary">Client Workspace</a>
-          {% else %}
-            <a href="/login" class="btn btn-primary">Sign In</a>
-          {% endif %}
         </div>
       </div>
 
@@ -263,195 +272,36 @@
   </section>
 
   <!-- Interactive Real-Time Capabilities Showcase (SANS / Palace Cyber Defense Style) -->
-  <section id="live-capabilities" class="section-block">
+
+  <!-- ========================================================================= -->
+  <!-- Section 2: Free Readiness Check (Task C)                                   -->
+  <!-- ========================================================================= -->
+  <section id="readiness-check-banner" class="section-block" style="padding: 48px 0; background: linear-gradient(180deg, rgba(11, 18, 32, 0.4) 0%, rgba(17, 26, 46, 0.75) 100%); border-bottom: 1px solid var(--border-subtle);">
     <div class="container">
-      <div class="section-header">
-        <span class="section-eyebrow">Interactive Operations</span>
-        <h2>Explore ADX Systems in Real-Time</h2>
-        <p>Experience how our offensive security, sovereign AI, and resilient cloud architectures operate in production environments.</p>
-      </div>
-
-      <!-- Capability Tab Buttons with ARIA Tablist -->
-      <div class="capability-nav-tabs" role="tablist" aria-label="Systems Operational Capabilities">
-        <button type="button" id="tab-btn-scanner" role="tab" aria-selected="true" aria-controls="pane-scanner" tabindex="0" class="capability-tab-btn active" data-tab="scanner" onclick="switchCapabilityTab('scanner')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-          <span>6-Gate Diagnostic Engine</span>
-        </button>
-
-        <button type="button" id="tab-btn-ai" role="tab" aria-selected="false" aria-controls="pane-ai" tabindex="-1" class="capability-tab-btn" data-tab="ai" onclick="switchCapabilityTab('ai')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-          </svg>
-          <span>Sovereign Zero-Leak AI</span>
-        </button>
-
-        <button type="button" id="tab-btn-cloud" role="tab" aria-selected="false" aria-controls="pane-cloud" tabindex="-1" class="capability-tab-btn" data-tab="cloud" onclick="switchCapabilityTab('cloud')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-            <line x1="6" y1="6" x2="6.01" y2="6"></line>
-            <line x1="6" y1="18" x2="6.01" y2="18"></line>
-          </svg>
-          <span>Resilient Cloud Architecture</span>
-        </button>
-      </div>
-
-      <!-- Tab 1: Terminal Diagnostic Engine -->
-      <div id="pane-scanner" class="capability-pane" role="tabpanel" aria-labelledby="tab-btn-scanner" tabindex="0">
-        <div class="terminal-frame">
-          <div class="terminal-header">
-            <span class="terminal-dot terminal-dot-red"></span>
-            <span class="terminal-dot terminal-dot-yellow"></span>
-            <span class="terminal-dot terminal-dot-green"></span>
-            <span class="terminal-title">PERIMETER TELEMETRY TERMINAL &bull; DEMO SIMULATION</span>
-            <div style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
-              <button type="button" id="term-pause-btn" onclick="toggleSimPause()" style="background: transparent; color: #94a3b8; border: 1px solid rgba(255,255,255,0.15); padding: 4px 8px; border-radius: 5px; font-size: 0.72rem; font-family: var(--font-mono); cursor: pointer;" aria-label="Pause or resume demo simulation animation">
-                Pause
-              </button>
-              <button type="button" onclick="runSimulatedAudit()" style="background: #2563eb; color: #fff; border: none; padding: 4px 10px; border-radius: 5px; font-size: 0.74rem; font-family: var(--font-mono); font-weight: 700; cursor: pointer;">
-                &gt; Replay Demo Simulation
-              </button>
-            </div>
+      <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.12) 0%, rgba(15, 23, 42, 0.85) 100%); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 16px; padding: 32px 36px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);">
+        <div style="max-width: 660px;">
+          <div style="font-family: var(--font-mono); font-size: 0.76rem; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+            Free Indicative Diagnostic &bull; 10 Questions &bull; Immediate Scoring
           </div>
-          <div class="terminal-body" id="sim-terminal-output" aria-live="polite" aria-atomic="true">
-            <span style="color: #60a5fa;">$ adx audit --domain example-domain.com --mode passive-telemetry</span><br>
-            <span style="color: #94a3b8;">[DEMO] Simulating surface diagnostic workflow (sample output)...</span><br>
-            <span style="color: #10b981;">[DNS] Resolving A/AAAA records: Authoritative DNS resolution checked</span><br>
-            <span style="color: #10b981;">[TLS] Cryptographic Handshake: TLS 1.3 protocol negotiation evaluated</span><br>
-            <span style="color: #10b981;">[MAIL] Domain Security: SPF &amp; DMARC policy presence analyzed</span><br>
-            <span style="color: #10b981;">[HEADERS] Response Directives: Content-Security-Policy &amp; HSTS verified</span><br>
-            <span style="color: #10b981;">[PORTS] Diagnostic Vector: Non-intrusive edge port verification completed</span><br>
-            <span style="color: #38bdf8; font-weight: 700;">[RESULT] Sample Surface Telemetry (Example Demonstration Output)</span>
-          </div>
+          <h2 style="font-size: clamp(1.4rem, 2.5vw, 1.85rem); color: #ffffff; margin-bottom: 10px; font-weight: 800;">
+            Free NDPA &amp; Security Readiness Check
+          </h2>
+          <p style="font-size: 0.95rem; color: #cbd5e1; margin: 0; line-height: 1.6; max-width: 65ch;">
+            Gauge your organization's statutory NDPA 2023 safeguards, email impersonation defense, and disaster recovery posture. Receive immediate client-side risk banding and tailored remediation priorities with zero sales friction.
+          </p>
         </div>
-      </div>
-
-      <!-- Tab 2: Sovereign AI -->
-      <div id="pane-ai" class="capability-pane hidden" role="tabpanel" aria-labelledby="tab-btn-ai" tabindex="0">
-        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 32px; backdrop-filter: blur(12px);">
-          <div class="grid-3">
-            <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
-              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; font-weight: 700; display: block; margin-bottom: 6px;">ZERO RETENTION</span>
-              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Isolated Neural Memory</h3>
-              <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Enterprise queries are processed ephemerally within private execution boundaries. Proprietary company IP and codebase files are strictly isolated from public model training.</p>
-            </div>
-            <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
-              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #10b981; font-weight: 700; display: block; margin-bottom: 6px;">DETERMINISTIC RAG</span>
-              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Private Vector Indexing</h3>
-              <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Search PDF policies, compliance frameworks, and database logs with verifiable document citations and deterministic retrieval grounding.</p>
-            </div>
-            <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
-              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #a855f7; font-weight: 700; display: block; margin-bottom: 6px;">MCP INTEGRATION</span>
-              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Autonomous Tool Orchestration</h3>
-              <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Model Context Protocol pipelines allow agents to query APIs, verify TLS telemetry, and trigger remediation scripts.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab 3: Resilient Cloud Architecture -->
-      <div id="pane-cloud" class="capability-pane hidden" role="tabpanel" aria-labelledby="tab-btn-cloud" tabindex="0">
-        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 32px; backdrop-filter: blur(12px);">
-          <div class="grid-3">
-            <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
-              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; font-weight: 700; display: block; margin-bottom: 6px;">EDGE INFRASTRUCTURE</span>
-              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Zero-Downtime Backends</h3>
-              <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">FastAPI service architecture deployed on Vercel Global Edge serverless infrastructure with high-availability routing.</p>
-            </div>
-            <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
-              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #10b981; font-weight: 700; display: block; margin-bottom: 6px;">DATABASE NETWORK LOCK</span>
-              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Private Subnet Segregation</h3>
-              <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Relational data stores are isolated in private network segments with restricted ingress and parameterized queries.</p>
-            </div>
-            <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
-              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #f59e0b; font-weight: 700; display: block; margin-bottom: 6px;">ENCRYPTED OFF-SITE VAULT</span>
-              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Continuous Backup Sync</h3>
-              <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Daily automated AES-256 encrypted snapshots guarantee complete environment recovery within minutes.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Section: Operating Divisions -->
-  <section id="divisions" class="section-block">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-eyebrow">Operating Divisions</span>
-        <h2>Three Specialized Engineering Units</h2>
-        <p>Integrated capabilities across offensive security, cloud systems, and private enterprise AI.</p>
-      </div>
-
-      <div class="grid-3">
-        <div class="feature-card" style="border-color: rgba(56, 189, 248, 0.45); box-shadow: 0 0 28px rgba(37, 99, 235, 0.18);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <div class="card-icon" style="margin-bottom: 0;">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                <path d="M9 12l2 2 4-4"/>
-              </svg>
-            </div>
-            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.35); padding: 3px 8px; border-radius: 4px; font-weight: 700;">PRIMARY PRACTICE</span>
-          </div>
-          <h3>Cyber Defense &amp; Threat Recon</h3>
-          <p>Deep vulnerability diagnostics, 2026 CVE stress testing, email anti-spoofing enforcement, and managed WAF rules.</p>
-          <ul class="clean-list">
-            <li>2026 CVE &amp; Zero-Day Runtime Assessments</li>
-            <li>DMARC, DKIM &amp; SPF Anti-Phishing Hardening</li>
-            <li>Authenticated API &amp; BOLA Penetration Testing</li>
-            <li>WPA3 Enterprise 192-Bit &amp; 802.1X Wireless Hardening</li>
-            <li>ISO 27001, SOC 2 &amp; NDPA Security Control Alignment</li>
-          </ul>
-        </div>
-
-        <div class="feature-card">
-          <div class="card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
-              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
-              <line x1="6" y1="6" x2="6.01" y2="6"/>
-              <line x1="6" y1="18" x2="6.01" y2="18"/>
-            </svg>
-          </div>
-          <h3>Cloud Architecture &amp; Systems</h3>
-          <p>High-availability Python and FastAPI backend services architected for zero-downtime reliability and low cloud burn.</p>
-          <ul class="clean-list">
-            <li>Production FastAPI &amp; Container Microservices</li>
-            <li>Azure &amp; AWS Infrastructure Right-Sizing</li>
-            <li>Private Subnet &amp; Database Network Locking</li>
-            <li>Automated Daily Encrypted Off-Site Backups</li>
-          </ul>
-        </div>
-
-        <div class="feature-card">
-          <div class="card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-              <polyline points="2 17 12 22 22 17"/>
-              <polyline points="2 12 12 17 22 12"/>
-            </svg>
-          </div>
-          <h3>Autonomous Enterprise Intelligence</h3>
-          <p>Private enterprise artificial intelligence assistants and autonomous agents that process internal business records securely.</p>
-          <ul class="clean-list">
-            <li>Private Knowledge &amp; Document Search (RAG)</li>
-            <li>24/7 Autonomous Customer &amp; Triage Agents</li>
-            <li>OWASP LLM01 Prompt-Injection Guardrails</li>
-            <li>Model Context Protocol (MCP) Tool Pipelines</li>
-          </ul>
+        <div style="display: flex; flex-direction: column; gap: 8px; min-width: 220px;">
+          <a href="/readiness-check" class="btn btn-primary" style="padding: 14px 26px; font-size: 0.96rem; text-align: center; justify-content: center; box-shadow: 0 4px 18px rgba(37, 99, 235, 0.4);">
+            Take Free Readiness Check &rarr;
+          </a>
+          <span style="font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-muted); text-align: center;">
+            No credit card &bull; 3 minutes &bull; Instant results
+          </span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ========================================================================= -->
-  <!-- Section: The Four Solution Offers (Task A)                               -->
-  <!-- ========================================================================= -->
   <section id="solutions" class="section-block" style="padding: 72px 0 54px; border-bottom: 1px solid var(--border-subtle);">
     <div class="container">
       <div class="section-header" style="max-width: 820px; margin: 0 auto 36px; text-align: center;">
@@ -624,189 +474,86 @@
 
       </div>
 
-      <!-- Free Readiness Assessment Banner -->
-      <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 14px; padding: 28px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-        <div style="max-width: 620px;">
-          <div style="font-family: var(--font-mono); font-size: 0.74rem; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 6px;">
-            Free Indicative Diagnostic
-          </div>
-          <h3 style="font-size: 1.35rem; color: #ffffff; margin-bottom: 6px;">
-            Not sure which solution matches your current security posture?
-          </h3>
-          <p style="font-size: 0.92rem; color: #cbd5e1; margin: 0; line-height: 1.5;">
-            Take our 10-question self-assessment to score your data inventory, backup readiness, and email authentication controls. Receive instant client-side risk banding.
-          </p>
-        </div>
-        <div>
-          <a href="/readiness-check" class="btn btn-primary" style="white-space: nowrap;">
-            Take Free Readiness Check &rarr;
-          </a>
-        </div>
-      </div>
-    </div>
   </section>
 
   <!-- ========================================================================= -->
   <!-- Section: Who We Help — Nigeria-First Posture (Task B)                     -->
   <!-- ========================================================================= -->
-  <section id="who-we-help" class="section-block" style="background: rgba(15, 23, 42, 0.55); padding: 72px 0;">
-    <div class="container">
-      <div class="section-header" style="max-width: 820px; margin: 0 auto 36px; text-align: center;">
-        <span class="section-eyebrow">Nigeria-First Posture</span>
-        <h2 style="font-size: clamp(1.85rem, 3.2vw, 2.5rem); margin-bottom: 14px;">
-          Sector-Specific Safeguards for Nigerian Enterprises
-        </h2>
-        <p style="font-size: 1.05rem; color: #cbd5e1; line-height: 1.6;">
-          Every sector in Nigeria faces distinct operational threats and regulatory exposure. Here is how we address specific risks across high-consequence industries.
-        </p>
-      </div>
 
-      <!-- Sector Risk & Outcome Cards -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px;">
-        {% for s in sectors %}
-        <div class="feature-card" style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px;">
-          <h3 style="font-size: 1.15rem; color: #ffffff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-            <span style="color: var(--accent-primary);">&#9670;</span>
-            {{ s.name }}
-          </h3>
-          <div style="margin-bottom: 12px;">
-            <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #f87171; text-transform: uppercase; margin-bottom: 3px;">The Sector Risk</div>
-            <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; margin: 0;">{{ s.risk }}</p>
-          </div>
-          <div>
-            <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #34d399; text-transform: uppercase; margin-bottom: 3px;">The ADX Outcome</div>
-            <p style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.5; margin: 0;">{{ s.outcome }}</p>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-
-      <!-- Factual NDPA Urgency Notice -->
-      <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(245, 158, 11, 0.4); border-left: 4px solid #f59e0b; border-radius: 12px; padding: 26px 30px;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
-          <div style="max-width: 780px;">
-            <span style="font-family: var(--font-mono); font-size: 0.74rem; font-weight: 700; color: #fbbf24; text-transform: uppercase; display: block; margin-bottom: 6px;">
-              Statutory Enforcement Framework
-            </span>
-            <h3 style="font-size: 1.25rem; color: #ffffff; margin-bottom: 10px;">
-              Nigeria Data Protection Act (NDPA) 2023 Compliance Mandate
-            </h3>
-            <p style="font-size: 0.92rem; color: #cbd5e1; line-height: 1.65; margin-bottom: 12px;">
-              Enacted into law in 2023, the NDPA establishes binding legal obligations for organizations processing personal data in Nigeria. The Nigeria Data Protection Commission (NDPC) is actively enforcing statutory registration requirements, technical safeguards standards, and mandatory annual Compliance Audit Returns (CAR).
-            </p>
-            <p style="font-size: 0.88rem; color: #94a3b8; line-height: 1.6; margin: 0;">
-              Statutory returns must be filed through licensed Data Protection Compliance Organisations (DPCOs). ADX Group provides technical audit, data inventory mapping, and system hardening, working in collaboration with our licensed DPCO partner ({{ dpco_name }}). Verify regulatory directives directly via the
-              <a href="{{ ndpc_url }}" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: underline; font-weight: 600;">official NDPC portal</a>.
-            </p>
-          </div>
-          <div style="display: flex; flex-direction: column; gap: 10px; min-width: 200px;">
-            <a href="/readiness-check" class="btn btn-primary" style="font-size: 0.85rem; padding: 10px 16px; justify-content: center;">
-              Check NDPA Readiness
-            </a>
-            <a href="{{ booking_url }}" class="btn btn-outline" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; padding: 10px 16px; justify-content: center;">
-              Book 20-Min Review
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section: 2026 Threat Intelligence -->
-  <section id="cve-intelligence" class="section-block">
+  <section id="divisions" class="section-block">
     <div class="container">
       <div class="section-header">
-        <span class="section-eyebrow">2026 Threat Intelligence</span>
-        <h2>Why Surface HTTPS Checks Are Never Enough</h2>
-        <p>A website can pass basic SSL checks while harboring critical runtime, memory, or API authorization flaws underneath. ADX Group evaluates both surface posture and deep 2026 CVE attack vectors.</p>
+        <span class="section-eyebrow">Operating Divisions</span>
+        <h2>Three Specialized Engineering Units</h2>
+        <p>Integrated capabilities across offensive security, cloud systems, and private enterprise AI.</p>
       </div>
 
       <div class="grid-3">
-        <div class="feature-card">
-          <span class="cve-tag" style="margin-bottom: 12px;"><a href="https://cve.org" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">CVE-2026-109618 / 109619</a> &bull; CVSS 9.2</span>
-          <h3>Runtime OOM &amp; Memory Corruption</h3>
-          <p>Malformed multipart payloads can trigger out-of-memory cleanup flaws and use-after-free execution in web runtimes before application code runs.</p>
+        <div class="feature-card" style="border-color: rgba(56, 189, 248, 0.45); box-shadow: 0 0 28px rgba(37, 99, 235, 0.18);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div class="card-icon" style="margin-bottom: 0;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.35); padding: 3px 8px; border-radius: 4px; font-weight: 700;">PRIMARY PRACTICE</span>
+          </div>
+          <h3>Cyber Defense &amp; Threat Recon</h3>
+          <p>Deep vulnerability diagnostics, 2026 CVE stress testing, email anti-spoofing enforcement, and managed WAF rules.</p>
+          <ul class="clean-list">
+            <li>2026 CVE &amp; Zero-Day Runtime Assessments</li>
+            <li>DMARC, DKIM &amp; SPF Anti-Phishing Hardening</li>
+            <li>Authenticated API &amp; BOLA Penetration Testing</li>
+            <li>WPA3 Enterprise 192-Bit &amp; 802.1X Wireless Hardening</li>
+            <li>ISO 27001, SOC 2 &amp; NDPA Security Control Alignment</li>
+          </ul>
         </div>
 
         <div class="feature-card">
-          <span class="cve-tag" style="margin-bottom: 12px;"><a href="https://cve.org" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">CVE-2026-31044</a> &bull; <a href="https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">OWASP API1:2023 BOLA</a></span>
-          <h3>API Object Authorization &amp; BOLA Exposure</h3>
-          <p>Improperly scoped object identifiers and lack of user-level authorization allow attackers to manipulate resource requests, exposing unauthorized data even over encrypted HTTPS.</p>
+          <div class="card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+              <line x1="6" y1="6" x2="6.01" y2="6"/>
+              <line x1="6" y1="18" x2="6.01" y2="18"/>
+            </svg>
+          </div>
+          <h3>Cloud Architecture &amp; Systems</h3>
+          <p>High-availability Python and FastAPI backend services architected for zero-downtime reliability and low cloud burn.</p>
+          <ul class="clean-list">
+            <li>Production FastAPI &amp; Container Microservices</li>
+            <li>Azure &amp; AWS Infrastructure Right-Sizing</li>
+            <li>Private Subnet &amp; Database Network Locking</li>
+            <li>Automated Daily Encrypted Off-Site Backups</li>
+          </ul>
         </div>
 
         <div class="feature-card">
-          <span class="cve-tag" style="margin-bottom: 12px;"><a href="https://cwe.mitre.org/data/definitions/290.html" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">CWE-290</a> &bull; Executive BEC Spoofing</span>
-          <h3>Unenforced DMARC (<code>p=none</code>)</h3>
-          <p>Domains operating DMARC in passive monitoring mode (p=none) without quarantine or reject policies permit threat actors to forge outbound emails and impersonate executive communications.</p>
+          <div class="card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+              <polyline points="2 17 12 22 22 17"/>
+              <polyline points="2 12 12 17 22 12"/>
+            </svg>
+          </div>
+          <h3>Autonomous Enterprise Intelligence</h3>
+          <p>Private enterprise artificial intelligence assistants and autonomous agents that process internal business records securely.</p>
+          <ul class="clean-list">
+            <li>Private Knowledge &amp; Document Search (RAG)</li>
+            <li>24/7 Autonomous Customer &amp; Triage Agents</li>
+            <li>OWASP LLM01 Prompt-Injection Guardrails</li>
+            <li>Model Context Protocol (MCP) Tool Pipelines</li>
+          </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Section: Leadership & Founder Profile -->
-  <section id="founder-section" class="section-block">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-eyebrow">Executive Architecture</span>
-        <h2>Engineering Sovereign Digital Resilience</h2>
-        <p>Architectural leadership dedicated to high-consequence enterprise defense and private AI systems.</p>
-      </div>
+  <!-- ========================================================================= -->
+  <!-- Section: The Four Solution Offers (Task A)                               -->
+  <!-- ========================================================================= -->
 
-      <div class="founder-card">
-        <div class="founder-avatar-box" title="Abdulrazaq Adeyemi &bull; Executive Architect Monogram Crest">
-          <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
-            <defs>
-              <linearGradient id="aaGrad" x1="20" y1="20" x2="140" y2="140" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#38bdf8"/>
-                <stop offset="0.5" stop-color="#2563eb"/>
-                <stop offset="1" stop-color="#1d4ed8"/>
-              </linearGradient>
-              <filter id="glowAa" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="3" result="blur"/>
-                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-              </filter>
-            </defs>
-            <!-- Concentric Orbital Grid -->
-            <circle cx="80" cy="80" r="74" stroke="rgba(56, 189, 248, 0.2)" stroke-width="1.5" stroke-dasharray="4 4"/>
-            <circle cx="80" cy="80" r="62" stroke="rgba(56, 189, 248, 0.35)" stroke-width="1.5"/>
-            <circle cx="80" cy="80" r="48" stroke="rgba(56, 189, 248, 0.15)" stroke-width="1"/>
-            <!-- Outer Shield Frame -->
-            <polygon points="80,14 140,36 140,88 80,146 20,88 20,36" stroke="url(#aaGrad)" stroke-width="2.5" fill="rgba(11, 17, 32, 0.88)" filter="url(#glowAa)"/>
-            <!-- Monogram AA (Interlocking Architectural Vector) -->
-            <path d="M54 102 L68 54 L82 102" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <line x1="58" y1="86" x2="78" y2="86" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round"/>
-            <path d="M78 102 L92 54 L106 102" stroke="url(#aaGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <line x1="82" y1="86" x2="102" y2="86" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round"/>
-            <!-- Tactical Reticle Ticks -->
-            <line x1="80" y1="18" x2="80" y2="28" stroke="#38bdf8" stroke-width="2"/>
-            <line x1="80" y1="132" x2="80" y2="142" stroke="#38bdf8" stroke-width="2"/>
-            <!-- Crest Badge Label -->
-            <text x="80" y="122" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#38bdf8" text-anchor="middle" letter-spacing="1.5">ARCHITECT</text>
-          </svg>
-        </div>
-        <div>
-          <div class="founder-role">Lead Cyber Systems Architect &bull; Founder</div>
-          <h3 class="founder-title">Abdulrazaq Adeyemi</h3>
-          <p style="font-size: 0.94rem; color: #cbd5e1; line-height: 1.65; margin-bottom: 12px;">
-            Under the architectural direction of <strong style="color: #ffffff;">Abdulrazaq Adeyemi</strong>, ADX Group was established to engineer hardened, sovereign cloud infrastructures, offensive perimeter diagnostics, and autonomous enterprise AI agents. Operating from Abuja, Nigeria with distributed edge nodes across global cloud networks, ADX Group secures mission-critical systems and digital enterprises against emerging 2026 threat vectors.
-          </p>
-          <div class="founder-quote">
-            &ldquo;Silent Innovation. Absolute Defense. Security is not an afterthought added to software; it is the mathematical foundation upon which all sovereign digital systems must stand.&rdquo;
-          </div>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;">
-            <span class="compliance-badge-item">Sovereign Cloud Architect</span>
-            <span class="compliance-badge-item">Zero-Trust Protocol Specialist</span>
-            <span class="compliance-badge-item">Offensive Systems Engineer</span>
-            <span class="compliance-badge-item">Abuja, Nigeria &bull; Global Sovereign Operations</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section: Interactive FAQ Accordion -->
-  
-  <!-- Section: How an Engagement Works (3 Steps) -->
   <section id="how-it-works" class="section-block">
     <div class="container">
       <div class="section-header">
@@ -859,6 +606,124 @@
   </section>
 
   <!-- Section: Sample Audit Report Preview -->
+
+  <section id="live-capabilities" class="section-block">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Interactive Operations</span>
+        <h2>Explore ADX Systems in Real-Time</h2>
+        <p>Experience how our offensive security, sovereign AI, and resilient cloud architectures operate in production environments.</p>
+      </div>
+
+      <!-- Capability Tab Buttons with ARIA Tablist -->
+      <div class="capability-nav-tabs" role="tablist" aria-label="Systems Operational Capabilities">
+        <button type="button" id="tab-btn-scanner" role="tab" aria-selected="true" aria-controls="pane-scanner" tabindex="0" class="capability-tab-btn active" data-tab="scanner" onclick="switchCapabilityTab('scanner')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span>6-Gate Diagnostic Engine</span>
+        </button>
+
+        <button type="button" id="tab-btn-ai" role="tab" aria-selected="false" aria-controls="pane-ai" tabindex="-1" class="capability-tab-btn" data-tab="ai" onclick="switchCapabilityTab('ai')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>Sovereign Zero-Leak AI</span>
+        </button>
+
+        <button type="button" id="tab-btn-cloud" role="tab" aria-selected="false" aria-controls="pane-cloud" tabindex="-1" class="capability-tab-btn" data-tab="cloud" onclick="switchCapabilityTab('cloud')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+          <span>Resilient Cloud Architecture</span>
+        </button>
+      </div>
+
+      <!-- Tab 1: Terminal Diagnostic Engine -->
+      <div id="pane-scanner" class="capability-pane" role="tabpanel" aria-labelledby="tab-btn-scanner" tabindex="0">
+        <div class="terminal-frame">
+          <div class="terminal-header">
+            <span class="terminal-dot terminal-dot-red"></span>
+            <span class="terminal-dot terminal-dot-yellow"></span>
+            <span class="terminal-dot terminal-dot-green"></span>
+            <span class="terminal-title">PERIMETER TELEMETRY TERMINAL &bull; DEMO SIMULATION</span>
+            <div style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
+              <button type="button" id="term-pause-btn" onclick="toggleSimPause()" style="background: transparent; color: #94a3b8; border: 1px solid rgba(255,255,255,0.15); padding: 4px 8px; border-radius: 5px; font-size: 0.72rem; font-family: var(--font-mono); cursor: pointer;" aria-label="Pause or resume demo simulation animation">
+                Pause
+              </button>
+              <button type="button" onclick="runSimulatedAudit()" style="background: #2563eb; color: #fff; border: none; padding: 4px 10px; border-radius: 5px; font-size: 0.74rem; font-family: var(--font-mono); font-weight: 700; cursor: pointer;">
+                &gt; Replay Demo Simulation
+              </button>
+            </div>
+          </div>
+          <div class="terminal-body" id="sim-terminal-output" aria-live="polite" aria-atomic="true">
+            <span style="color: #60a5fa;">$ adx audit --domain example-domain.com --mode passive-telemetry</span><br>
+            <span style="color: #94a3b8;">[DEMO] Simulating surface diagnostic workflow (sample output)...</span><br>
+            <span style="color: #10b981;">[DNS] Resolving A/AAAA records: Authoritative DNS resolution checked</span><br>
+            <span style="color: #10b981;">[TLS] Cryptographic Handshake: TLS 1.3 protocol negotiation evaluated</span><br>
+            <span style="color: #10b981;">[MAIL] Domain Security: SPF &amp; DMARC policy presence analyzed</span><br>
+            <span style="color: #10b981;">[HEADERS] Response Directives: Content-Security-Policy &amp; HSTS verified</span><br>
+            <span style="color: #10b981;">[PORTS] Diagnostic Vector: Non-intrusive edge port verification completed</span><br>
+            <span style="color: #38bdf8; font-weight: 700;">[RESULT] Sample Surface Telemetry (Example Demonstration Output)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Sovereign AI -->
+      <div id="pane-ai" class="capability-pane hidden" role="tabpanel" aria-labelledby="tab-btn-ai" tabindex="0">
+        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 32px; backdrop-filter: blur(12px);">
+          <div class="grid-3">
+            <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; font-weight: 700; display: block; margin-bottom: 6px;">ZERO RETENTION</span>
+              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Isolated Neural Memory</h3>
+              <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Enterprise queries are processed ephemerally within private execution boundaries. Proprietary company IP and codebase files are strictly isolated from public model training.</p>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #10b981; font-weight: 700; display: block; margin-bottom: 6px;">DETERMINISTIC RAG</span>
+              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Private Vector Indexing</h3>
+              <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Search PDF policies, compliance frameworks, and database logs with verifiable document citations and deterministic retrieval grounding.</p>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #a855f7; font-weight: 700; display: block; margin-bottom: 6px;">MCP INTEGRATION</span>
+              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Autonomous Tool Orchestration</h3>
+              <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Model Context Protocol pipelines allow agents to query APIs, verify TLS telemetry, and trigger remediation scripts.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Resilient Cloud Architecture -->
+      <div id="pane-cloud" class="capability-pane hidden" role="tabpanel" aria-labelledby="tab-btn-cloud" tabindex="0">
+        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 32px; backdrop-filter: blur(12px);">
+          <div class="grid-3">
+            <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; font-weight: 700; display: block; margin-bottom: 6px;">EDGE INFRASTRUCTURE</span>
+              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Zero-Downtime Backends</h3>
+              <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">FastAPI service architecture deployed on Vercel Global Edge serverless infrastructure with high-availability routing.</p>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #10b981; font-weight: 700; display: block; margin-bottom: 6px;">DATABASE NETWORK LOCK</span>
+              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Private Subnet Segregation</h3>
+              <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Relational data stores are isolated in private network segments with restricted ingress and parameterized queries.</p>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #f59e0b; font-weight: 700; display: block; margin-bottom: 6px;">ENCRYPTED OFF-SITE VAULT</span>
+              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Continuous Backup Sync</h3>
+              <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Daily automated AES-256 encrypted snapshots guarantee complete environment recovery within minutes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section: Operating Divisions -->
+
   <section id="sample-report" class="section-block" style="background: rgba(15, 23, 42, 0.45);">
     <div class="container">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 36px;">
@@ -885,6 +750,7 @@
   </section>
 
   <!-- Section: Engagement Tiers -->
+
   <section id="pricing" class="section-block">
     <div class="container">
       <div class="section-header">
@@ -949,6 +815,7 @@
   </section>
 
   <!-- CASE STUDIES: Hidden until real, verifiable client case studies with written consent exist.
+
   <section id="case-studies" class="section-block">
     <div class="container">
       <h2>Case Studies</h2>
@@ -957,60 +824,168 @@
   </section>
   -->
 
-  <!-- Section: Contact & Consultation Request -->
-  <section id="contact" class="section-block" style="background: rgba(15, 23, 42, 0.65);">
+  <!-- Visible Pre-Footer Conversion Call-to-Action (Task C) -->
+
+  <section id="who-we-help" class="section-block" style="background: rgba(15, 23, 42, 0.55); padding: 72px 0;">
     <div class="container">
-      <div class="section-header">
-        <span class="section-eyebrow">Direct Engineering Inquiries</span>
-        <h2>Consult With Our Systems Architects</h2>
-        <p>Inquire about infrastructure audits, penetration testing scopes, or private AI architectures.</p>
+      <div class="section-header" style="max-width: 820px; margin: 0 auto 36px; text-align: center;">
+        <span class="section-eyebrow">Nigeria-First Posture</span>
+        <h2 style="font-size: clamp(1.85rem, 3.2vw, 2.5rem); margin-bottom: 14px;">
+          Sector-Specific Safeguards for Nigerian Enterprises
+        </h2>
+        <p style="font-size: 1.05rem; color: #cbd5e1; line-height: 1.6;">
+          Every sector in Nigeria faces distinct operational threats and regulatory exposure. Here is how we address specific risks across high-consequence industries.
+        </p>
       </div>
 
-      <div style="max-width: 680px; margin: 0 auto; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 32px;">
-        <form id="contact-consult-form" onsubmit="submitContactForm(event)" style="display: flex; flex-direction: column; gap: 16px;">
-          <!-- Honeypot Field (hidden from real users, traps bots) -->
-          <input type="text" name="hp_token" id="contact-hp-token" style="display: none;" tabindex="-1" autocomplete="off" />
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            <div>
-              <label for="contact-name" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Your Name / Organization *</label>
-              <input type="text" id="contact-name" name="name" required class="form-control" placeholder="e.g. Acme Corp / Alex Vance" style="width: 100%;" />
-            </div>
-            <div>
-              <label for="contact-email" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Corporate Work Email *</label>
-              <input type="email" id="contact-email" name="email" required class="form-control" placeholder="alex@acmecorp.com" style="width: 100%;" />
-            </div>
+      <!-- Sector Risk & Outcome Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        {% for s in sectors %}
+        <div class="feature-card" style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px;">
+          <h3 style="font-size: 1.15rem; color: #ffffff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--accent-primary);">&#9670;</span>
+            {{ s.name }}
+          </h3>
+          <div style="margin-bottom: 12px;">
+            <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #f87171; text-transform: uppercase; margin-bottom: 3px;">The Sector Risk</div>
+            <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; margin: 0;">{{ s.risk }}</p>
           </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            <div>
-              <label for="contact-division" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Primary Area of Interest</label>
-              <select id="contact-division" name="division" class="form-control" style="width: 100%;">
-                <option value="ADX Cyber — Security Audit">Cyber Defense &amp; Threat Recon</option>
-                <option value="ADX Cloud & Systems">Cloud Architecture &amp; Systems</option>
-                <option value="ADX Intelligence — Private AI">Autonomous Enterprise Intelligence</option>
-              </select>
-            </div>
-            <div>
-              <label for="contact-domain" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Target Domain / Infrastructure</label>
-              <input type="text" id="contact-domain" name="domain" class="form-control" placeholder="company.com (optional)" style="width: 100%;" />
-            </div>
-          </div>
-
           <div>
-            <label for="contact-message" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Project Scope or Requirements</label>
-            <textarea id="contact-message" name="message" rows="4" class="form-control" placeholder="Describe your systems architecture, security objectives, or timeline..." style="width: 100%; resize: vertical;"></textarea>
+            <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #34d399; text-transform: uppercase; margin-bottom: 3px;">The ADX Outcome</div>
+            <p style="font-size: 0.88rem; color: #e2e8f0; line-height: 1.5; margin: 0;">{{ s.outcome }}</p>
           </div>
+        </div>
+        {% endfor %}
+      </div>
 
-          <div id="contact-form-notice" style="display: none; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem;"></div>
-
-          <button type="submit" id="contact-submit-btn" class="btn btn-primary" style="width: 100%; justify-content: center;">
-            Submit Security Consultation Request
-          </button>
-        </form>
+      <!-- Factual NDPA Urgency Notice -->
+      <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(245, 158, 11, 0.4); border-left: 4px solid #f59e0b; border-radius: 12px; padding: 26px 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+          <div style="max-width: 780px;">
+            <span style="font-family: var(--font-mono); font-size: 0.74rem; font-weight: 700; color: #fbbf24; text-transform: uppercase; display: block; margin-bottom: 6px;">
+              Statutory Enforcement Framework
+            </span>
+            <h3 style="font-size: 1.25rem; color: #ffffff; margin-bottom: 10px;">
+              Nigeria Data Protection Act (NDPA) 2023 Compliance Mandate
+            </h3>
+            <p style="font-size: 0.92rem; color: #cbd5e1; line-height: 1.65; margin-bottom: 12px;">
+              Enacted into law in 2023, the NDPA establishes binding legal obligations for organizations processing personal data in Nigeria. The Nigeria Data Protection Commission (NDPC) is actively enforcing statutory registration requirements, technical safeguards standards, and mandatory annual Compliance Audit Returns (CAR).
+            </p>
+            <p style="font-size: 0.88rem; color: #94a3b8; line-height: 1.6; margin: 0;">
+              Statutory returns must be filed through licensed Data Protection Compliance Organisations (DPCOs). ADX Group provides technical audit, data inventory mapping, and system hardening, working in collaboration with our licensed DPCO partner ({{ dpco_name }}). Verify regulatory directives directly via the
+              <a href="{{ ndpc_url }}" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: underline; font-weight: 600;">official NDPC portal</a>.
+            </p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px; min-width: 200px;">
+            <a href="/readiness-check" class="btn btn-primary" style="font-size: 0.85rem; padding: 10px 16px; justify-content: center;">
+              Check NDPA Readiness
+            </a>
+            <a href="{{ booking_url }}" class="btn btn-outline" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; padding: 10px 16px; justify-content: center;">
+              Book 20-Min Review
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
+
+  <!-- Section: 2026 Threat Intelligence -->
+
+  <section id="founder-section" class="section-block">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Executive Architecture</span>
+        <h2>Engineering Sovereign Digital Resilience</h2>
+        <p>Architectural leadership dedicated to high-consequence enterprise defense and private AI systems.</p>
+      </div>
+
+      <div class="founder-card">
+        <div class="founder-avatar-box" title="Abdulrazaq Adeyemi &bull; Executive Architect Monogram Crest">
+          <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+            <defs>
+              <linearGradient id="aaGrad" x1="20" y1="20" x2="140" y2="140" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#38bdf8"/>
+                <stop offset="0.5" stop-color="#2563eb"/>
+                <stop offset="1" stop-color="#1d4ed8"/>
+              </linearGradient>
+              <filter id="glowAa" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur"/>
+                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+              </filter>
+            </defs>
+            <!-- Concentric Orbital Grid -->
+            <circle cx="80" cy="80" r="74" stroke="rgba(56, 189, 248, 0.2)" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <circle cx="80" cy="80" r="62" stroke="rgba(56, 189, 248, 0.35)" stroke-width="1.5"/>
+            <circle cx="80" cy="80" r="48" stroke="rgba(56, 189, 248, 0.15)" stroke-width="1"/>
+            <!-- Outer Shield Frame -->
+            <polygon points="80,14 140,36 140,88 80,146 20,88 20,36" stroke="url(#aaGrad)" stroke-width="2.5" fill="rgba(11, 17, 32, 0.88)" filter="url(#glowAa)"/>
+            <!-- Monogram AA (Interlocking Architectural Vector) -->
+            <path d="M54 102 L68 54 L82 102" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="58" y1="86" x2="78" y2="86" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M78 102 L92 54 L106 102" stroke="url(#aaGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="82" y1="86" x2="102" y2="86" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round"/>
+            <!-- Tactical Reticle Ticks -->
+            <line x1="80" y1="18" x2="80" y2="28" stroke="#38bdf8" stroke-width="2"/>
+            <line x1="80" y1="132" x2="80" y2="142" stroke="#38bdf8" stroke-width="2"/>
+            <!-- Crest Badge Label -->
+            <text x="80" y="122" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#38bdf8" text-anchor="middle" letter-spacing="1.5">ARCHITECT</text>
+          </svg>
+        </div>
+        <div>
+          <div class="founder-role">Lead Cyber Systems Architect &bull; Founder</div>
+          <h3 class="founder-title">Abdulrazaq Adeyemi</h3>
+          <p style="font-size: 0.94rem; color: #cbd5e1; line-height: 1.65; margin-bottom: 12px;">
+            Under the architectural direction of <strong style="color: #ffffff;">Abdulrazaq Adeyemi</strong>, ADX Group was established to engineer hardened, sovereign cloud infrastructures, offensive perimeter diagnostics, and autonomous enterprise AI agents. Operating from Abuja, Nigeria with distributed edge nodes across global cloud networks, ADX Group secures mission-critical systems and digital enterprises against emerging 2026 threat vectors.
+          </p>
+          <div class="founder-quote">
+            &ldquo;Silent Innovation. Absolute Defense. Security is not an afterthought added to software; it is the mathematical foundation upon which all sovereign digital systems must stand.&rdquo;
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;">
+            <span class="compliance-badge-item">Sovereign Cloud Architect</span>
+            <span class="compliance-badge-item">Zero-Trust Protocol Specialist</span>
+            <span class="compliance-badge-item">Offensive Systems Engineer</span>
+            <span class="compliance-badge-item">Abuja, Nigeria &bull; Global Sovereign Operations</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Interactive FAQ Accordion -->
+  
+  <!-- Section: How an Engagement Works (3 Steps) -->
+
+  <section id="cve-intelligence" class="section-block">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">2026 Threat Intelligence</span>
+        <h2>Why Surface HTTPS Checks Are Never Enough</h2>
+        <p>A website can pass basic SSL checks while harboring critical runtime, memory, or API authorization flaws underneath. ADX Group evaluates both surface posture and deep 2026 CVE attack vectors.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="feature-card">
+          <span class="cve-tag" style="margin-bottom: 12px;"><a href="https://cve.org" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">CVE-2026-109618 / 109619</a> &bull; CVSS 9.2</span>
+          <h3>Runtime OOM &amp; Memory Corruption</h3>
+          <p>Malformed multipart payloads can trigger out-of-memory cleanup flaws and use-after-free execution in web runtimes before application code runs.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="cve-tag" style="margin-bottom: 12px;"><a href="https://cve.org" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">CVE-2026-31044</a> &bull; <a href="https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">OWASP API1:2023 BOLA</a></span>
+          <h3>API Object Authorization &amp; BOLA Exposure</h3>
+          <p>Improperly scoped object identifiers and lack of user-level authorization allow attackers to manipulate resource requests, exposing unauthorized data even over encrypted HTTPS.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="cve-tag" style="margin-bottom: 12px;"><a href="https://cwe.mitre.org/data/definitions/290.html" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">CWE-290</a> &bull; Executive BEC Spoofing</span>
+          <h3>Unenforced DMARC (<code>p=none</code>)</h3>
+          <p>Domains operating DMARC in passive monitoring mode (p=none) without quarantine or reject policies permit threat actors to forge outbound emails and impersonate executive communications.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Leadership & Founder Profile -->
 
   <section id="faq" class="section-block">
     <div class="container">
@@ -1021,9 +996,20 @@
       </div>
 
       <div class="faq-accordion">
-        <!-- FAQ 1 -->
+        <!-- FAQ 1: Licensed DPCO Transparency -->
         <div class="faq-item" id="faq-1">
           <button type="button" class="faq-question" onclick="toggleFaq('faq-1')">
+            <span>Are you a licensed DPCO?</span>
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <strong>No.</strong> ADX Group is an engineering consultancy providing technical cybersecurity audits, personal-data mapping, and infrastructure safeguards readiness. Under the Nigeria Data Protection Act (NDPA) 2023, statutory annual Compliance Audit Returns (CAR) must be filed with the Nigeria Data Protection Commission (NDPC) through a licensed Data Protection Compliance Organisation (DPCO). We work in direct partnership with our licensed DPCO partner ({{ dpco_name }}) to coordinate and execute statutory regulatory filings. We do not independently issue statutory audit certificates.
+          </div>
+        </div>
+
+        <!-- FAQ 2 -->
+        <div class="faq-item" id="faq-2">
+          <button type="button" class="faq-question" onclick="toggleFaq('faq-2')">
             <span>What makes an ADX 6-Gate Audit different from basic SSL checkers?</span>
             <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
@@ -1091,13 +1077,96 @@
   </section>
 
   <!-- Institutional 4-Column Footer (Glovo / Enterprise Standard) -->
+
+  <section class="section-block" style="padding: 40px 0 60px;">
+    <div class="container">
+      <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.16) 0%, rgba(15, 23, 42, 0.95) 100%); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 18px; padding: 44px 36px; text-align: center;">
+        <span class="section-eyebrow">Direct Systems Engagement</span>
+        <h2 style="font-size: clamp(1.85rem, 3.2vw, 2.5rem); color: #ffffff; margin-bottom: 12px;">
+          Ready to Harden Your Systems &amp; Verify Compliance?
+        </h2>
+        <p style="color: #cbd5e1; font-size: 1.05rem; max-width: 65ch; margin: 0 auto 28px; line-height: 1.6;">
+          Schedule a focused 20-minute architecture review to discuss your external attack surface, DMARC enforcement timeline, or NDPA data mapping objectives.
+        </p>
+        <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+          <a href="{{ booking_url }}" class="btn btn-primary" target="_blank" rel="noopener noreferrer" style="padding: 12px 28px; font-size: 0.95rem;">
+            Book a 20-Minute Review &rarr;
+          </a>
+          <a href="/readiness-check" class="btn btn-outline" style="padding: 12px 24px; font-size: 0.95rem;">
+            Free Readiness Check
+          </a>
+          <a href="https://wa.me/{{ whatsapp_number }}?text={{ whatsapp_text }}" class="btn btn-outline" target="_blank" rel="noopener noreferrer" style="padding: 12px 22px; font-size: 0.95rem;">
+            Chat on WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Contact & Consultation Request -->
+
+  <section id="contact" class="section-block" style="background: rgba(15, 23, 42, 0.65);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Direct Engineering Inquiries</span>
+        <h2>Consult With Our Systems Architects</h2>
+        <p>Inquire about infrastructure audits, penetration testing scopes, or private AI architectures.</p>
+      </div>
+
+      <div style="max-width: 680px; margin: 0 auto; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 32px;">
+        <form id="contact-consult-form" onsubmit="submitContactForm(event)" style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- Honeypot Field (hidden from real users, traps bots) -->
+          <input type="text" name="hp_token" id="contact-hp-token" style="display: none;" tabindex="-1" autocomplete="off" />
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <label for="contact-name" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Your Name / Organization *</label>
+              <input type="text" id="contact-name" name="name" required class="form-control" placeholder="e.g. Acme Corp / Alex Vance" style="width: 100%;" />
+            </div>
+            <div>
+              <label for="contact-email" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Corporate Work Email *</label>
+              <input type="email" id="contact-email" name="email" required class="form-control" placeholder="alex@acmecorp.com" style="width: 100%;" />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <label for="contact-division" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Primary Area of Interest</label>
+              <select id="contact-division" name="division" class="form-control" style="width: 100%;">
+                <option value="ADX Cyber — Security Audit">Cyber Defense &amp; Threat Recon</option>
+                <option value="ADX Cloud & Systems">Cloud Architecture &amp; Systems</option>
+                <option value="ADX Intelligence — Private AI">Autonomous Enterprise Intelligence</option>
+              </select>
+            </div>
+            <div>
+              <label for="contact-domain" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Target Domain / Infrastructure</label>
+              <input type="text" id="contact-domain" name="domain" class="form-control" placeholder="company.com (optional)" style="width: 100%;" />
+            </div>
+          </div>
+
+          <div>
+            <label for="contact-message" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1;">Project Scope or Requirements</label>
+            <textarea id="contact-message" name="message" rows="4" class="form-control" placeholder="Describe your systems architecture, security objectives, or timeline..." style="width: 100%; resize: vertical;"></textarea>
+          </div>
+
+          <div id="contact-form-notice" style="display: none; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem;"></div>
+
+          <button type="submit" id="contact-submit-btn" class="btn btn-primary" style="width: 100%; justify-content: center;">
+            Submit Security Consultation Request
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+
   <footer class="site-footer">
     <div class="container">
       <div class="footer-grid">
         <!-- Col 1: Brand & Mission -->
         <div class="footer-col">
           <div class="brand" style="margin-bottom: 14px;">
-            <img src="/static/logo.svg?v=2026.45" alt="ADX Group Logo" style="width: 36px; height: 36px; border-radius: 8px;" />
+            <img src="/assets/brand/favicon.svg" alt="ADX Group Logo" style="width: 36px; height: 36px; border-radius: 8px;" />
             <div>
               <span class="brand-text">ADX GROUP</span>
               <span class="brand-motto" style="font-size: 0.7rem;">Silent Innovation. Absolute Defense.</span>

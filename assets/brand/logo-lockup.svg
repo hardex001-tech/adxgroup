@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 64" width="100%" height="100%" fill="none">
+  <!-- Brand Mark Icon (64x64 on Left) -->
+  <g transform="translate(4, 4) scale(0.21875)">
+    <polygon points="128,14 230,70 230,186 128,242 26,186 26,70" stroke="currentColor" stroke-width="16" stroke-linejoin="round" fill="none" />
+    <polygon points="128,46 68,194 104,194 128,132" fill="currentColor" stroke="none" />
+    <polygon points="128,46 128,132 152,194 188,194" fill="currentColor" stroke="none" />
+    <polygon points="74,76 102,76 188,194 160,194" fill="currentColor" stroke="none" />
+    <polygon points="56,194 84,194 198,62 170,62" fill="currentColor" stroke="none" />
+  </g>
+
+  <!-- Wordmark 'ADX GROUP' (Outlined Vector Paths) -->
+  <g fill="currentColor" transform="translate(74, 18)">
+    <!-- Letter 'A' -->
+    <path d="M 0 32 L 11.5 0 L 17.5 0 L 29 32 L 22.8 32 L 20.3 24.5 L 8.7 24.5 L 6.2 32 Z M 10.5 19.5 L 18.5 19.5 L 14.5 7.5 Z" />
+    <!-- Letter 'D' -->
+    <path d="M 36 0 L 48.5 0 C 57 0 62.5 5 62.5 16 C 62.5 27 57 32 48.5 32 L 36 32 Z M 42 6 L 42 26 L 48 26 C 53 26 56.5 22.5 56.5 16 C 56.5 9.5 53 6 48 6 Z" />
+    <!-- Letter 'X' -->
+    <path d="M 70 0 L 77 0 L 85 12.5 L 93 0 L 100 0 L 89 16 L 101 32 L 94 32 L 85 19.5 L 76 32 L 69 32 L 81 16 Z" />
+    
+    <!-- Word 'GROUP' (Distinct spacing) -->
+    <!-- Letter 'G' -->
+    <path d="M 128 9 L 123 13 C 120.5 8.5 116 6 110.5 6 C 102.5 6 97 12 97 20 C 97 28 102.5 34 110.5 34 C 116.5 34 121 30.5 122 25 L 112 25 L 112 20 L 128 20 L 128 27 C 125.5 34.5 119 39 110.5 39 C 99 39 91 30.5 91 20 C 91 9.5 99 1 110.5 1 C 118 1 124.5 4.5 128 9 Z" transform="translate(14, -4)" />
+    <!-- Letter 'R' -->
+    <path d="M 136 0 L 149 0 C 156 0 160 3.5 160 10.5 C 160 15.5 156.5 19 151 20 L 161 32 L 153.5 32 L 144.5 21 L 142 21 L 142 32 L 136 32 Z M 142 6 L 142 16 L 148 16 C 152 16 154 14 154 10.5 C 154 7 152 6 148 6 Z" transform="translate(18, 0)" />
+    <!-- Letter 'O' -->
+    <path d="M 179 16 C 179 6.5 172.5 0 163 0 C 153.5 0 147 6.5 147 16 C 147 25.5 153.5 32 163 32 C 172.5 32 179 25.5 179 16 Z M 153 16 C 153 9.5 157.5 5.5 163 5.5 C 168.5 5.5 173 9.5 173 16 C 173 22.5 168.5 26.5 163 26.5 C 157.5 26.5 153 22.5 153 16 Z" transform="translate(24, 0)" />
+    <!-- Letter 'U' -->
+    <path d="M 189 0 L 195 0 L 195 19 C 195 24 198 26.5 202.5 26.5 C 207 26.5 210 24 210 19 L 210 0 L 216 0 L 216 19 C 216 27.5 210.5 32 202.5 32 C 194.5 32 189 27.5 189 19 Z" transform="translate(28, 0)" />
+    <!-- Letter 'P' -->
+    <path d="M 228 0 L 241 0 C 248.5 0 253 4 253 12 C 253 20 248.5 24 241 24 L 234 24 L 234 32 L 228 32 Z M 234 6 L 234 18 L 240.5 18 C 244.5 18 247 16 247 12 C 247 8 244.5 6 240.5 6 Z" transform="translate(32, 0)" />
+  </g>
+</svg>
