@@ -504,7 +504,7 @@ async def api_reset_password(payload: ResetPasswordRequest):
 
 
 @asgi_app.post("/api/auth/oauth")
-async def api_oauth_signin(payload: OAuthQuickRequest):
+async def api_oauth_signin(request: Request, payload: OAuthQuickRequest):
     if not payload.email or "@" not in payload.email:
         raise HTTPException(status_code=400, detail="Please enter a valid email address.")
     sess = create_or_login_oauth_user(
@@ -513,6 +513,17 @@ async def api_oauth_signin(payload: OAuthQuickRequest):
         provider=payload.provider,
         company=payload.company or "",
     )
+    sec_ctx = _extract_client_security_context(request)
+    try:
+        send_login_alert(
+            email=sess["user"]["email"],
+            name=sess["user"]["name"],
+            ip=sec_ctx["ip"],
+            user_agent=sec_ctx["user_agent"],
+            is_proxy_or_vpn=sec_ctx["is_proxy_or_vpn"]
+        )
+    except Exception as exc:
+        print(f"[OAUTH ALERT ERROR] {exc}")
     redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
     resp = JSONResponse(
         content={"ok": True, "user": sess["user"], "token": sess["token"], "redirect": redirect_to}
@@ -653,10 +664,10 @@ async def api_google_callback(
   <meta charset="utf-8" />
   <title>Authenticating with Google...</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #0f172a; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
-  <div style="text-align: center; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 32px; box-shadow: 0 4px 12px rgba(15,23,42,0.06); max-width: 380px;">
-    <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Authenticating with Google...</div>
-    <div style="font-size: 13px; color: #64748b;">Syncing session token. Redirecting to your ADX Workspace...</div>
+<body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #070a13; color: #f8fafc; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+  <div style="text-align: center; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 36px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); max-width: 400px;">
+    <div style="font-size: 18px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">Authenticating with Google...</div>
+    <div style="font-size: 13px; color: #38bdf8;">Zero-Trust session cryptographically verified. Entering ADX Workspace...</div>
   </div>
   <script>
     try {{
@@ -679,7 +690,7 @@ class GoogleTokenPayload(BaseModel):
 
 
 @asgi_app.post("/api/auth/google/token")
-async def api_google_token_auth(payload: GoogleTokenPayload):
+async def api_google_token_auth(request: Request, payload: GoogleTokenPayload):
     """Authenticate Google ID Token (credential) from Google Identity Services (GIS)."""
     async with httpx.AsyncClient(timeout=8.0) as client:
         res = await client.get(
@@ -700,6 +711,19 @@ async def api_google_token_auth(payload: GoogleTokenPayload):
         provider="google",
         company="",
     )
+
+    sec_ctx = _extract_client_security_context(request)
+    try:
+        alert_record = send_login_alert(
+            email=email,
+            name=name,
+            ip=sec_ctx["ip"],
+            user_agent=sec_ctx["user_agent"],
+            is_proxy_or_vpn=sec_ctx["is_proxy_or_vpn"]
+        )
+        print(f"[GIS GOOGLE LOGIN ALERT] Dispatched for {email} from IP {sec_ctx['ip']}: {alert_record.get('status')}")
+    except Exception as exc:
+        print(f"[GIS ALERT ERROR] {exc}")
 
     target_url = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
     if payload.scan and sess["user"]["role"] != "admin":

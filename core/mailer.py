@@ -57,30 +57,55 @@ def _record_to_outbox(entry: Dict[str, Any]) -> None:
 
 
 def _send_smtp_email(to_email: str, subject: str, html_body: str, text_body: str) -> bool:
-    """Send live email via Zoho Mail SMTP if credentials exist."""
-    if not SMTP_PASSWORD:
+    """Send live email via SMTP (Zoho, Gmail, or custom) if credentials exist."""
+    smtp_host = os.getenv("SMTP_HOST", "").strip()
+    smtp_port_str = os.getenv("SMTP_PORT", "").strip()
+    smtp_user = os.getenv("SMTP_USER", "").strip() or "contact@adxgroup.tech"
+    smtp_password = os.getenv("SMTP_PASSWORD", "").strip()
+    smtp_from = os.getenv("SMTP_FROM", "").strip()
+
+    if not smtp_host:
+        if "@gmail.com" in smtp_user.lower():
+            smtp_host = "smtp.gmail.com"
+        else:
+            smtp_host = "smtp.zoho.com"
+
+    if not smtp_port_str:
+        smtp_port = 465 if ("gmail" in smtp_host or "zoho" in smtp_host) else 587
+    else:
+        try:
+            smtp_port = int(smtp_port_str)
+        except ValueError:
+            smtp_port = 465
+
+    if not smtp_from:
+        smtp_from = f"ADX Group Security <{smtp_user}>"
+
+    if not smtp_password:
+        print(f"[ADX MAILER] Notice: SMTP_PASSWORD is not configured in environment. Alert recorded to local outbox. To deliver live to inbox, add SMTP_PASSWORD to Vercel Environment Variables.")
         return False
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
-    msg["From"] = SMTP_FROM
+    msg["From"] = smtp_from
     msg["To"] = to_email
     msg.attach(MIMEText(text_body, "plain", "utf-8"))
     msg.attach(MIMEText(html_body, "html", "utf-8"))
 
     try:
-        if SMTP_PORT == 465:
-            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=10) as server:
-                server.login(SMTP_USER, SMTP_PASSWORD)
-                server.sendmail(SMTP_USER, [to_email], msg.as_string())
+        if smtp_port == 465:
+            with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=12) as server:
+                server.login(smtp_user, smtp_password)
+                server.sendmail(smtp_user, [to_email], msg.as_string())
         else:
-            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as server:
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=12) as server:
                 server.starttls()
-                server.login(SMTP_USER, SMTP_PASSWORD)
-                server.sendmail(SMTP_USER, [to_email], msg.as_string())
+                server.login(smtp_user, smtp_password)
+                server.sendmail(smtp_user, [to_email], msg.as_string())
+        print(f"[ADX MAILER] Live email dispatched successfully to {to_email} via {smtp_host}:{smtp_port}")
         return True
     except Exception as exc:
-        print(f"[ADX MAILER] SMTP dispatch failed: {exc}")
+        print(f"[ADX MAILER] SMTP dispatch failed to {to_email} via {smtp_host}:{smtp_port}: {exc}")
         return False
 
 
