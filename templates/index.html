@@ -222,7 +222,7 @@
             <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent-cyan); display: block;">PERIMETER TELEMETRY ENGINE</span>
             <strong style="font-size: 0.98rem;">Multi-Vector Surface &amp; Risk Matrix</strong>
           </div>
-          <span class="badge-true">Live Verification</span>
+          <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent-cyan); border: 1px solid rgba(6,182,212,0.3); background: rgba(6,182,212,0.08); padding: 4px 8px; border-radius: 4px;">Diagnostic Criteria Preview</span>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
@@ -239,19 +239,19 @@
         <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.83rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-subtle);">
             <span style="font-family: var(--font-mono);"><strong style="color: var(--accent-primary); margin-right: 6px;">1</strong> SSL / TLS Cryptographic Handshake</span>
-            <span class="badge-true">VERIFIED</span>
+            <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); padding: 2px 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">TLS 1.3 Audit</span>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-subtle);">
             <span style="font-family: var(--font-mono);"><strong style="color: var(--accent-primary); margin-right: 6px;">2</strong> SPF &amp; DMARC Domain Authentication</span>
-            <span class="badge-true">ENFORCED</span>
+            <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); padding: 2px 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">DNS Records</span>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-subtle);">
             <span style="font-family: var(--font-mono);"><strong style="color: var(--accent-primary); margin-right: 6px;">3</strong> Browser Defense Headers &amp; CSP Policy</span>
-            <span class="badge-true">ACTIVE</span>
+            <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); padding: 2px 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">HTTP Headers</span>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-subtle);">
             <span style="font-family: var(--font-mono);"><strong style="color: var(--accent-primary); margin-right: 6px;">4</strong> Server Identity &amp; Exposure Masking</span>
-            <span class="badge-true">PROTECTED</span>
+            <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); padding: 2px 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">Surface Footprint</span>
           </div>
         </div>
       </div>
@@ -302,20 +302,20 @@
             <span class="terminal-dot terminal-dot-red"></span>
             <span class="terminal-dot terminal-dot-yellow"></span>
             <span class="terminal-dot terminal-dot-green"></span>
-            <span class="terminal-title">ADX PERIMETER TELEMETRY TERMINAL &bull; LIVE RUNTIME</span>
+            <span class="terminal-title">PERIMETER TELEMETRY TERMINAL &bull; DEMO SIMULATION</span>
             <button type="button" onclick="runSimulatedAudit()" style="margin-left: auto; background: #2563eb; color: #fff; border: none; padding: 4px 10px; border-radius: 5px; font-size: 0.74rem; font-family: var(--font-mono); font-weight: 700; cursor: pointer;">
-              &gt; Re-Run Live Simulation
+              &gt; Replay Demo Simulation
             </button>
           </div>
           <div class="terminal-body" id="sim-terminal-output">
-            <span style="color: #60a5fa;">$ adx audit --domain adxgroup.tech --compliance-mode 2026-cve</span><br>
-            <span style="color: #94a3b8;">[INIT] Handshaking with edge telemetry cluster...</span><br>
-            <span style="color: #10b981;">[DNS] Resolving A/AAAA records: IP 76.76.21.21 (Verified Vercel Global Edge)</span><br>
-            <span style="color: #10b981;">[TLS] Handshake: TLS 1.3 Forward Secrecy &bull; Modern AEAD Cipher &bull; Zero Weakness</span><br>
-            <span style="color: #10b981;">[MAIL] DMARC Policy: p=reject &bull; SPF &amp; DKIM Hardened against BEC Spoofing</span><br>
-            <span style="color: #10b981;">[HEADERS] Content-Security-Policy &amp; HSTS 63072000s max-age active</span><br>
-            <span style="color: #10b981;">[CVE] Scanning 2026 Attack Vectors: CVE-2026-109618, CVE-2026-31044: PROTECTED</span><br>
-            <span style="color: #38bdf8; font-weight: 700;">[RESULT] Audit Score: 98/100 (GRADE A+ EXCELLENT) &bull; Verified Zero-Trust Stance</span>
+            <span style="color: #60a5fa;">$ adx audit --domain example-domain.com --mode passive-telemetry</span><br>
+            <span style="color: #94a3b8;">[DEMO] Simulating surface diagnostic workflow (sample output)...</span><br>
+            <span style="color: #10b981;">[DNS] Resolving A/AAAA records: Authoritative DNS resolution checked</span><br>
+            <span style="color: #10b981;">[TLS] Cryptographic Handshake: TLS 1.3 protocol negotiation evaluated</span><br>
+            <span style="color: #10b981;">[MAIL] Domain Security: SPF &amp; DMARC policy presence analyzed</span><br>
+            <span style="color: #10b981;">[HEADERS] Response Directives: Content-Security-Policy &amp; HSTS verified</span><br>
+            <span style="color: #10b981;">[PORTS] Diagnostic Vector: Non-intrusive edge port verification completed</span><br>
+            <span style="color: #38bdf8; font-weight: 700;">[RESULT] Sample Surface Telemetry (Example Demonstration Output)</span>
           </div>
         </div>
       </div>

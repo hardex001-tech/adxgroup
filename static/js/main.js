@@ -1238,14 +1238,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const termBody = document.getElementById("sim-terminal-output");
     if (!termBody) return;
     termBody.innerHTML = `
-      <span style="color: #60a5fa;">$ adx audit --domain adxgroup.tech --compliance-mode 2026-cve</span><br>
-      <span style="color: #94a3b8;">[INIT] Handshaking with edge telemetry cluster...</span><br>
-      <span style="color: #10b981;">[DNS] Resolving A/AAAA records: IP 76.76.21.21 (Verified Vercel Global Edge)</span><br>
-      <span style="color: #10b981;">[TLS] Handshake: TLS 1.3 Forward Secrecy &bull; Modern AEAD Cipher &bull; Zero Weakness</span><br>
-      <span style="color: #10b981;">[MAIL] DMARC Policy: p=reject &bull; SPF &amp; DKIM Hardened against BEC Spoofing</span><br>
-      <span style="color: #10b981;">[HEADERS] Content-Security-Policy &amp; HSTS 63072000s max-age active</span><br>
-      <span style="color: #10b981;">[CVE] Scanning 2026 Attack Vectors: CVE-2026-109618, CVE-2026-31044: PROTECTED</span><br>
-      <span style="color: #38bdf8; font-weight: 700;">[RESULT] Audit Score: 98/100 (GRADE A+ EXCELLENT) &bull; Verified Zero-Trust Stance</span>
+      <span style="color: #60a5fa;">$ adx audit --domain example-domain.com --mode passive-telemetry</span><br>
+      <span style="color: #94a3b8;">[DEMO] Simulating surface diagnostic workflow (sample output)...</span><br>
+      <span style="color: #10b981;">[DNS] Resolving A/AAAA records: Authoritative DNS resolution checked</span><br>
+      <span style="color: #10b981;">[TLS] Cryptographic Handshake: TLS 1.3 protocol negotiation evaluated</span><br>
+      <span style="color: #10b981;">[MAIL] Domain Security: SPF &amp; DMARC policy presence analyzed</span><br>
+      <span style="color: #10b981;">[HEADERS] Response Directives: Content-Security-Policy &amp; HSTS verified</span><br>
+      <span style="color: #10b981;">[PORTS] Diagnostic Vector: Non-intrusive edge port verification completed</span><br>
+      <span style="color: #38bdf8; font-weight: 700;">[RESULT] Sample Surface Telemetry (Example Demonstration Output)</span>
     `;
   };
 
