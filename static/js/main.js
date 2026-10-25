@@ -1622,3 +1622,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Auto-dismiss in <= 750ms
   setTimeout(dismissSplash, 750);
 });
+
+function toggleMobileNav() {
+  const nav = document.getElementById("main-nav-links");
+  const btn = document.getElementById("nav-toggle-btn");
+  if (!nav || !btn) return;
+  const isOpen = nav.classList.toggle("nav-open");
+  btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+}

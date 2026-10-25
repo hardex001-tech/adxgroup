@@ -1180,6 +1180,12 @@ footer,
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2);
 }
 
+@media (max-width: 1024px) {
+  .brand-motto {
+    display: none !important;
+  }
+}
+
 @media (max-width: 920px) {
   .hero-split {
     grid-template-columns: 1fr;
@@ -1187,8 +1193,35 @@ footer,
   .scanner-form {
     flex-direction: column;
   }
+  .nav-toggle-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    color: var(--text-primary);
+    cursor: pointer;
+  }
   .nav-links {
     display: none;
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    background: rgba(17, 26, 46, 0.98);
+    border-bottom: 1px solid var(--border-subtle);
+    flex-direction: column;
+    padding: 20px 24px;
+    gap: 14px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(16px);
+    z-index: 999;
+  }
+  .nav-links.nav-open {
+    display: flex !important;
   }
   .footer-grid {
     grid-template-columns: 1fr 1fr;

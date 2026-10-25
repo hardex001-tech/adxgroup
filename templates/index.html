@@ -154,18 +154,23 @@
           <span class="brand-motto">Silent Innovation. Absolute Defense.</span>
         </div>
       </a>
-      <nav class="nav-links" aria-label="Main Navigation">
+      <button type="button" id="nav-toggle-btn" class="nav-toggle-btn" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="main-nav-links" onclick="toggleMobileNav()" style="display: none;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      <nav class="nav-links" id="main-nav-links" aria-label="Main Navigation">
         <a href="#solutions">Solutions</a>
         <a href="/readiness-check">Readiness Check</a>
-        <a href="#who-we-help">Who We Help</a>
-        <a href="#divisions">Operating Divisions</a>
         <a href="#how-it-works">How We Work</a>
         <a href="#faq">FAQ</a>
         {% if user %}
-          <a href="/dashboard" class="btn btn-primary">Open Console ({{ user.name }})</a>
+          <a href="/dashboard" class="btn btn-primary" style="padding: 8px 16px;">Client Console</a>
         {% else %}
-          <a href="/login">Sign In</a>
-          <a href="/login" class="btn btn-primary">Launch Console</a>
+          <a href="/login" style="padding: 8px 12px;">Sign In</a>
+          <a href="#audit-tool" class="btn btn-primary" style="padding: 8px 16px;">Run Free Audit</a>
         {% endif %}
       </nav>
     </div>
@@ -195,13 +200,21 @@
           <a href="#audit-tool" class="btn btn-primary" style="min-height: 48px; padding: 12px 24px; font-size: 0.96rem;">
             Run Free Audit &rarr;
           </a>
+          {% if booking_url %}
           <a href="{{ booking_url }}" class="btn btn-outline" target="_blank" rel="noopener noreferrer" style="min-height: 48px; padding: 12px 22px; font-size: 0.96rem;">
             Book a 20-Minute Review
           </a>
-          <a href="https://wa.me/{{ whatsapp_number }}?text={{ whatsapp_text }}" class="btn btn-outline" target="_blank" rel="noopener noreferrer" style="min-height: 48px; padding: 12px 20px; font-size: 0.96rem; display: inline-flex; align-items: center; gap: 8px;">
+          {% else %}
+          <a href="#contact" class="btn btn-outline" style="min-height: 48px; padding: 12px 22px; font-size: 0.96rem;">
+            Book a 20-Minute Review
+          </a>
+          {% endif %}
+          {% if whatsapp_url %}
+          <a href="{{ whatsapp_url }}" class="btn btn-outline" target="_blank" rel="noopener noreferrer" style="min-height: 48px; padding: 12px 20px; font-size: 0.96rem; display: inline-flex; align-items: center; gap: 8px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.086s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
             WhatsApp
           </a>
+          {% endif %}
         </div>
 
         <!-- Diagnostic Input Box in Hero -->
@@ -331,7 +344,7 @@
               <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); padding: 3px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">
                 {{ offers['shield'].badge }}
               </span>
-              <span style="font-family: var(--font-mono); font-size: 0.76rem; color: #94a3b8;">{{ offers['shield'].timeline }}</span>
+              {% if offers['shield'].timeline %}<span style="font-family: var(--font-mono); font-size: 0.76rem; color: #94a3b8;">{{ offers['shield'].timeline }}</span>{% endif %}
             </div>
             <h3 style="font-size: 1.35rem; color: #ffffff; margin-bottom: 8px;">{{ offers['shield'].name }}</h3>
             <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.55; margin-bottom: 18px;">
@@ -341,7 +354,7 @@
             <div style="background: rgba(11, 17, 32, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 14px; margin-bottom: 18px;">
               <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Starting Fee</div>
               <div style="font-family: var(--font-mono); font-size: 1.05rem; font-weight: 700; color: #34d399;">
-                <span class="price-val" data-ngn="{{ offers['shield'].pricing.NGN }}" data-usd="{{ offers['shield'].pricing.USD }}">{{ offers['shield'].pricing.NGN }}</span>
+                {% if offers['shield'].pricing.NGN and offers['shield'].pricing.NGN != 'Contact us for pricing' %}<span class="price-val" data-ngn="{{ offers['shield'].pricing.NGN }}" data-usd="{{ offers['shield'].pricing.USD }}">{{ offers['shield'].pricing.NGN }}</span>{% else %}<span style="font-size: 0.9rem; font-weight: 600;">Contact us for pricing</span>{% endif %}
               </div>
             </div>
 
@@ -367,7 +380,7 @@
               <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #34d399; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); padding: 3px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">
                 {{ offers['comply'].badge }}
               </span>
-              <span style="font-family: var(--font-mono); font-size: 0.76rem; color: #94a3b8;">{{ offers['comply'].timeline }}</span>
+              {% if offers['comply'].timeline %}<span style="font-family: var(--font-mono); font-size: 0.76rem; color: #94a3b8;">{{ offers['comply'].timeline }}</span>{% endif %}
             </div>
             <h3 style="font-size: 1.35rem; color: #ffffff; margin-bottom: 8px;">{{ offers['comply'].name }}</h3>
             <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.55; margin-bottom: 18px;">
@@ -377,12 +390,12 @@
             <div style="background: rgba(11, 17, 32, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
               <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Starting Fee</div>
               <div style="font-family: var(--font-mono); font-size: 1.05rem; font-weight: 700; color: #34d399;">
-                <span class="price-val" data-ngn="{{ offers['comply'].pricing.NGN }}" data-usd="{{ offers['comply'].pricing.USD }}">{{ offers['comply'].pricing.NGN }}</span>
+                {% if offers['comply'].pricing.NGN and offers['comply'].pricing.NGN != 'Contact us for pricing' %}<span class="price-val" data-ngn="{{ offers['comply'].pricing.NGN }}" data-usd="{{ offers['comply'].pricing.USD }}">{{ offers['comply'].pricing.NGN }}</span>{% else %}<span style="font-size: 0.9rem; font-weight: 600;">Contact us for pricing</span>{% endif %}
               </div>
             </div>
 
             <div style="font-size: 0.78rem; color: #38bdf8; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 8px 10px; margin-bottom: 16px;">
-              <strong>Statutory Filing Notice:</strong> Annual CAR filed with NDPC via licensed DPCO partner ({{ dpco_name }}).
+              <strong>Statutory Filing Notice:</strong> {% if dpco_name %}Annual CAR filed with NDPC via licensed DPCO partner ({{ dpco_name }}).{% else %}Annual NDPC filings are made through a licensed DPCO.{% endif %}
             </div>
 
             <ul class="clean-list" style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 22px;">
@@ -407,7 +420,7 @@
               <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #fbbf24; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); padding: 3px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">
                 {{ offers['resilience'].badge }}
               </span>
-              <span style="font-family: var(--font-mono); font-size: 0.76rem; color: #94a3b8;">{{ offers['resilience'].timeline }}</span>
+              {% if offers['resilience'].timeline %}<span style="font-family: var(--font-mono); font-size: 0.76rem; color: #94a3b8;">{{ offers['resilience'].timeline }}</span>{% endif %}
             </div>
             <h3 style="font-size: 1.35rem; color: #ffffff; margin-bottom: 8px;">{{ offers['resilience'].name }}</h3>
             <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.55; margin-bottom: 18px;">
@@ -417,7 +430,7 @@
             <div style="background: rgba(11, 17, 32, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 14px; margin-bottom: 18px;">
               <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Starting Fee</div>
               <div style="font-family: var(--font-mono); font-size: 1.05rem; font-weight: 700; color: #34d399;">
-                <span class="price-val" data-ngn="{{ offers['resilience'].pricing.NGN }}" data-usd="{{ offers['resilience'].pricing.USD }}">{{ offers['resilience'].pricing.NGN }}</span>
+                {% if offers['resilience'].pricing.NGN and offers['resilience'].pricing.NGN != 'Contact us for pricing' %}<span class="price-val" data-ngn="{{ offers['resilience'].pricing.NGN }}" data-usd="{{ offers['resilience'].pricing.USD }}">{{ offers['resilience'].pricing.NGN }}</span>{% else %}<span style="font-size: 0.9rem; font-weight: 600;">Contact us for pricing</span>{% endif %}
               </div>
             </div>
 
@@ -443,7 +456,7 @@
               <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #c084fc; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.35); padding: 3px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">
                 {{ offers['ai-automation'].badge }}
               </span>
-              <span style="font-family: var(--font-mono); font-size: 0.76rem; color: #94a3b8;">{{ offers['ai-automation'].timeline }}</span>
+              {% if offers['ai-automation'].timeline %}<span style="font-family: var(--font-mono); font-size: 0.76rem; color: #94a3b8;">{{ offers['ai-automation'].timeline }}</span>{% endif %}
             </div>
             <h3 style="font-size: 1.35rem; color: #ffffff; margin-bottom: 8px;">{{ offers['ai-automation'].name }}</h3>
             <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.55; margin-bottom: 18px;">
@@ -453,7 +466,7 @@
             <div style="background: rgba(11, 17, 32, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 14px; margin-bottom: 18px;">
               <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Starting Fee</div>
               <div style="font-family: var(--font-mono); font-size: 1.05rem; font-weight: 700; color: #34d399;">
-                <span class="price-val" data-ngn="{{ offers['ai-automation'].pricing.NGN }}" data-usd="{{ offers['ai-automation'].pricing.USD }}">{{ offers['ai-automation'].pricing.NGN }}</span>
+                {% if offers['ai-automation'].pricing.NGN and offers['ai-automation'].pricing.NGN != 'Contact us for pricing' %}<span class="price-val" data-ngn="{{ offers['ai-automation'].pricing.NGN }}" data-usd="{{ offers['ai-automation'].pricing.USD }}">{{ offers['ai-automation'].pricing.NGN }}</span>{% else %}<span style="font-size: 0.9rem; font-weight: 600;">Contact us for pricing</span>{% endif %}
               </div>
             </div>
 
@@ -502,11 +515,11 @@
           <h3>Cyber Defense &amp; Threat Recon</h3>
           <p>Deep vulnerability diagnostics, 2026 CVE stress testing, email anti-spoofing enforcement, and managed WAF rules.</p>
           <ul class="clean-list">
-            <li>2026 CVE &amp; Zero-Day Runtime Assessments</li>
-            <li>DMARC, DKIM &amp; SPF Anti-Phishing Hardening</li>
-            <li>Authenticated API &amp; BOLA Penetration Testing</li>
-            <li>WPA3 Enterprise 192-Bit &amp; 802.1X Wireless Hardening</li>
-            <li>ISO 27001, SOC 2 &amp; NDPA Security Control Alignment</li>
+            <li>Public DNS, TLS &amp; DMARC Spoofing Defenses</li>
+            <li>Perimeter Vulnerability &amp; Misconfiguration Audits</li>
+            <li>Authenticated API &amp; BOLA Penetration Testing <em>(Available under a signed scope / ROE)</em></li>
+            <li>ISO 27001 &amp; SOC 2 Security Control Principle Alignment</li>
+            <li>NDPA 2023 Technical Safeguards Evaluation</li>
           </ul>
         </div>
 
@@ -541,9 +554,9 @@
           <p>Private enterprise artificial intelligence assistants and autonomous agents that process internal business records securely.</p>
           <ul class="clean-list">
             <li>Private Knowledge &amp; Document Search (RAG)</li>
-            <li>24/7 Autonomous Customer &amp; Triage Agents</li>
-            <li>OWASP LLM01 Prompt-Injection Guardrails</li>
-            <li>Model Context Protocol (MCP) Tool Pipelines</li>
+            <li>Workflow Automation &amp; Document Processing Assistants</li>
+            <li>OWASP LLM01 Prompt-Injection Guardrails &amp; Input Validation</li>
+            <li>Agent Execution Boundaries &amp; Human Approval Gates</li>
           </ul>
         </div>
       </div>
@@ -734,8 +747,8 @@
             Review an example perimeter security report generated by the ADX diagnostic pipeline. Illustrates multi-vector scoring, cryptographic cipher analysis, email spoofing risks, and prioritized remediation playbooks.
           </p>
           <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-            <a href="[PLACEHOLDER: Watermarked Sample Audit Report PDF URL - e.g. /static/reports/sample-audit-report-watermarked.pdf]" class="btn btn-outline" style="font-size: 0.85rem;">
-              Download Sample Report (Watermarked Sample Data)
+            <a href="{{ sample_report_url }}" class="btn btn-outline" style="font-size: 0.85rem;" target="_blank" rel="noopener">
+              Download Sample Report (Watermarked Specimen PDF)
             </a>
             <span style="font-family: var(--font-mono); font-size: 0.74rem; color: #94a3b8;">* Contains synthetic demonstration data</span>
           </div>
@@ -748,83 +761,6 @@
       </div>
     </div>
   </section>
-
-  <!-- Section: Engagement Tiers -->
-
-  <section id="pricing" class="section-block">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-eyebrow">Service Engagements</span>
-        <h2>Structured Engagement Tiers</h2>
-        <p>Clear scopes designed for technology companies, fintechs, and enterprise infrastructure teams.</p>
-      </div>
-
-      <div class="grid-3">
-        <!-- Tier 1 -->
-        <div class="feature-card">
-          <div style="font-size: 0.8rem; font-family: var(--font-mono); color: var(--accent-cyan); margin-bottom: 8px;">TIER 1 &bull; DIAGNOSTIC</div>
-          <h3>Perimeter Health Baseline</h3>
-          <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 16px;">Passive external reconnaissance across DNS records, TLS handshakes, response headers, and published email policies.</p>
-          <div style="font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; color: #f8fafc; margin-bottom: 16px;">
-            [PLACEHOLDER: Tier 1 Pricing or Free Self-Serve]
-          </div>
-          <ul class="clean-list" style="font-size: 0.84rem; margin-bottom: 20px;">
-            <li>Public DNS &amp; A/AAAA Resolution Audit</li>
-            <li>TLS 1.3 Cipher Suite Inspection</li>
-            <li>SPF &amp; DMARC Policy Detection</li>
-            <li>Automated Security Header Scoring</li>
-          </ul>
-          <a href="#landing-gate-form" class="btn btn-outline" style="width: 100%; text-align: center; justify-content: center;">Run Diagnostic</a>
-        </div>
-
-        <!-- Tier 2 -->
-        <div class="feature-card" style="border-color: rgba(56, 189, 248, 0.35); background: rgba(30, 41, 59, 0.7);">
-          <div style="font-size: 0.8rem; font-family: var(--font-mono); color: #38bdf8; margin-bottom: 8px;">TIER 2 &bull; DEEP AUDIT</div>
-          <h3>Targeted Penetration Assessment</h3>
-          <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 16px;">Authorized manual and automated penetration testing covering API authorization (BOLA), session security, and perimeter resilience.</p>
-          <div style="font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; color: #f8fafc; margin-bottom: 16px;">
-            [PLACEHOLDER: Tier 2 Fixed Scope Engagement Fee]
-          </div>
-          <ul class="clean-list" style="font-size: 0.84rem; margin-bottom: 20px;">
-            <li>Signed Scope &amp; Rules of Engagement (ROE)</li>
-            <li>OWASP API Top 10 &amp; BOLA Testing</li>
-            <li>Email Anti-Spoofing &amp; DKIM Enforcement</li>
-            <li>Direct Engineer Remediation Consultation</li>
-          </ul>
-          <a href="[PLACEHOLDER: Consultation Booking URL - e.g. https://calendly.com/adxgroup/security-review]" class="btn btn-primary" style="width: 100%; text-align: center; justify-content: center;">Book Scope Review</a>
-        </div>
-
-        <!-- Tier 3 -->
-        <div class="feature-card">
-          <div style="font-size: 0.8rem; font-family: var(--font-mono); color: #a855f7; margin-bottom: 8px;">TIER 3 &bull; ARCHITECTURE</div>
-          <h3>Retained Defense &amp; Private AI</h3>
-          <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 16px;">Long-term architectural guidance for high-availability FastAPI backends, cloud right-sizing, and zero-retention private AI.</p>
-          <div style="font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; color: #f8fafc; margin-bottom: 16px;">
-            [PLACEHOLDER: Tier 3 Retainer Pricing]
-          </div>
-          <ul class="clean-list" style="font-size: 0.84rem; margin-bottom: 20px;">
-            <li>Private VPC &amp; Subnet Segregation</li>
-            <li>Zero-Retention LLM &amp; RAG Architecture</li>
-            <li>Quarterly Perimeter Vulnerability Re-tests</li>
-            <li>Priority SLA &amp; Incident Consultation</li>
-          </ul>
-          <a href="#contact" class="btn btn-outline" style="width: 100%; text-align: center; justify-content: center;">Contact Architecture Desk</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CASE STUDIES: Hidden until real, verifiable client case studies with written consent exist.
-
-  <section id="case-studies" class="section-block">
-    <div class="container">
-      <h2>Case Studies</h2>
-      <p>[PLACEHOLDER: Client case studies to be added following written client attestation]</p>
-    </div>
-  </section>
-  -->
-
-  <!-- Visible Pre-Footer Conversion Call-to-Action (Task C) -->
 
   <section id="who-we-help" class="section-block" style="background: rgba(15, 23, 42, 0.55); padding: 72px 0;">
     <div class="container">
@@ -872,7 +808,7 @@
               Enacted into law in 2023, the NDPA establishes binding legal obligations for organizations processing personal data in Nigeria. The Nigeria Data Protection Commission (NDPC) is actively enforcing statutory registration requirements, technical safeguards standards, and mandatory annual Compliance Audit Returns (CAR).
             </p>
             <p style="font-size: 0.88rem; color: #94a3b8; line-height: 1.6; margin: 0;">
-              Statutory returns must be filed through licensed Data Protection Compliance Organisations (DPCOs). ADX Group provides technical audit, data inventory mapping, and system hardening, working in collaboration with our licensed DPCO partner ({{ dpco_name }}). Verify regulatory directives directly via the
+              Statutory returns must be filed through licensed Data Protection Compliance Organisations (DPCOs). ADX Group provides technical audit, data inventory mapping, and system hardening{% if dpco_name %}, working in collaboration with our licensed DPCO partner ({{ dpco_name }}){% else %}. Annual NDPC filings are made through a licensed DPCO{% endif %}. Verify regulatory directives directly via the
               <a href="{{ ndpc_url }}" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: underline; font-weight: 600;">official NDPC portal</a>.
             </p>
           </div>
@@ -880,9 +816,15 @@
             <a href="/readiness-check" class="btn btn-primary" style="font-size: 0.85rem; padding: 10px 16px; justify-content: center;">
               Check NDPA Readiness
             </a>
+            {% if booking_url %}
             <a href="{{ booking_url }}" class="btn btn-outline" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; padding: 10px 16px; justify-content: center;">
               Book 20-Min Review
             </a>
+            {% else %}
+            <a href="#contact" class="btn btn-outline" style="font-size: 0.85rem; padding: 10px 16px; justify-content: center;">
+              Book 20-Min Review
+            </a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -894,13 +836,13 @@
   <section id="founder-section" class="section-block">
     <div class="container">
       <div class="section-header">
-        <span class="section-eyebrow">Executive Architecture</span>
-        <h2>Engineering Sovereign Digital Resilience</h2>
-        <p>Architectural leadership dedicated to high-consequence enterprise defense and private AI systems.</p>
+        <span class="section-eyebrow">Leadership &amp; Engineering</span>
+        <h2>Engineering Practical Digital Resilience</h2>
+        <p>Architectural leadership focused on email defense, cloud hardening, and private enterprise AI.</p>
       </div>
 
       <div class="founder-card">
-        <div class="founder-avatar-box" title="Abdulrazaq Adeyemi &bull; Executive Architect Monogram Crest">
+        <div class="founder-avatar-box" title="Abdulrazaq Adeyemi &bull; Founder Monogram Crest">
           <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
             <defs>
               <linearGradient id="aaGrad" x1="20" y1="20" x2="140" y2="140" gradientUnits="userSpaceOnUse">
@@ -908,43 +850,35 @@
                 <stop offset="0.5" stop-color="#2563eb"/>
                 <stop offset="1" stop-color="#1d4ed8"/>
               </linearGradient>
-              <filter id="glowAa" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="3" result="blur"/>
-                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-              </filter>
             </defs>
-            <!-- Concentric Orbital Grid -->
+            <!-- Concentric Grid -->
             <circle cx="80" cy="80" r="74" stroke="rgba(56, 189, 248, 0.2)" stroke-width="1.5" stroke-dasharray="4 4"/>
             <circle cx="80" cy="80" r="62" stroke="rgba(56, 189, 248, 0.35)" stroke-width="1.5"/>
             <circle cx="80" cy="80" r="48" stroke="rgba(56, 189, 248, 0.15)" stroke-width="1"/>
             <!-- Outer Shield Frame -->
-            <polygon points="80,14 140,36 140,88 80,146 20,88 20,36" stroke="url(#aaGrad)" stroke-width="2.5" fill="rgba(11, 17, 32, 0.88)" filter="url(#glowAa)"/>
-            <!-- Monogram AA (Interlocking Architectural Vector) -->
+            <polygon points="80,14 140,36 140,88 80,146 20,88 20,36" stroke="url(#aaGrad)" stroke-width="2.5" fill="rgba(11, 17, 32, 0.88)"/>
+            <!-- Monogram AA -->
             <path d="M54 102 L68 54 L82 102" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
             <line x1="58" y1="86" x2="78" y2="86" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round"/>
             <path d="M78 102 L92 54 L106 102" stroke="url(#aaGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
             <line x1="82" y1="86" x2="102" y2="86" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round"/>
-            <!-- Tactical Reticle Ticks -->
-            <line x1="80" y1="18" x2="80" y2="28" stroke="#38bdf8" stroke-width="2"/>
-            <line x1="80" y1="132" x2="80" y2="142" stroke="#38bdf8" stroke-width="2"/>
-            <!-- Crest Badge Label -->
-            <text x="80" y="122" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#38bdf8" text-anchor="middle" letter-spacing="1.5">ARCHITECT</text>
+            <text x="80" y="122" font-family="'JetBrains Mono', monospace" font-size="7.5" font-weight="700" fill="#38bdf8" text-anchor="middle" letter-spacing="1.5">FOUNDER</text>
           </svg>
         </div>
         <div>
-          <div class="founder-role">Lead Cyber Systems Architect &bull; Founder</div>
+          <div class="founder-role">Founder &amp; Systems Architect</div>
           <h3 class="founder-title">Abdulrazaq Adeyemi</h3>
           <p style="font-size: 0.94rem; color: #cbd5e1; line-height: 1.65; margin-bottom: 12px;">
-            Under the architectural direction of <strong style="color: #ffffff;">Abdulrazaq Adeyemi</strong>, ADX Group was established to engineer hardened, sovereign cloud infrastructures, offensive perimeter diagnostics, and autonomous enterprise AI agents. Operating from Abuja, Nigeria with distributed edge nodes across global cloud networks, ADX Group secures mission-critical systems and digital enterprises against emerging 2026 threat vectors.
+            Founded by <strong style="color: #ffffff;">Abdulrazaq Adeyemi</strong>, ADX Group is based in Abuja, Nigeria, focusing on email security, hardened cloud architecture, and private AI automation for modern organizations. We help Nigerian businesses defend executive communications against fraud, secure production infrastructure, and implement technical safeguards for statutory NDPA compliance.
           </p>
           <div class="founder-quote">
-            &ldquo;Silent Innovation. Absolute Defense. Security is not an afterthought added to software; it is the mathematical foundation upon which all sovereign digital systems must stand.&rdquo;
+            &ldquo;Silent Innovation. Absolute Defense. Security is not an afterthought added to software; it is built on disciplined defensive engineering and transparent operational safeguards.&rdquo;
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;">
-            <span class="compliance-badge-item">Sovereign Cloud Architect</span>
-            <span class="compliance-badge-item">Zero-Trust Protocol Specialist</span>
-            <span class="compliance-badge-item">Offensive Systems Engineer</span>
-            <span class="compliance-badge-item">Abuja, Nigeria &bull; Global Sovereign Operations</span>
+            <span class="compliance-badge-item">Founder &amp; Systems Architect</span>
+            <span class="compliance-badge-item">Email &amp; Identity Security</span>
+            <span class="compliance-badge-item">Cloud &amp; Private AI Architecture</span>
+            <span class="compliance-badge-item">Abuja, Federal Capital Territory, Nigeria</span>
           </div>
         </div>
       </div>
@@ -965,13 +899,13 @@
 
       <div class="grid-3">
         <div class="feature-card">
-          <span class="cve-tag" style="margin-bottom: 12px;"><a href="https://cve.org" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">CVE-2026-109618 / 109619</a> &bull; CVSS 9.2</span>
+          <span class="cve-tag" style="margin-bottom: 12px;"><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-109618" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">CVE-2026-109618</a> / <a href="https://nvd.nist.gov/vuln/detail/CVE-2026-109619" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">109619</a> &bull; CVSS 9.2</span>
           <h3>Runtime OOM &amp; Memory Corruption</h3>
           <p>Malformed multipart payloads can trigger out-of-memory cleanup flaws and use-after-free execution in web runtimes before application code runs.</p>
         </div>
 
         <div class="feature-card">
-          <span class="cve-tag" style="margin-bottom: 12px;"><a href="https://cve.org" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">CVE-2026-31044</a> &bull; <a href="https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">OWASP API1:2023 BOLA</a></span>
+          <span class="cve-tag" style="margin-bottom: 12px;"><a href="https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">OWASP API1:2023 BOLA</a> &bull; High Severity</span>
           <h3>API Object Authorization &amp; BOLA Exposure</h3>
           <p>Improperly scoped object identifiers and lack of user-level authorization allow attackers to manipulate resource requests, exposing unauthorized data even over encrypted HTTPS.</p>
         </div>
@@ -1003,7 +937,7 @@
             <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-answer">
-            <strong>No.</strong> ADX Group is an engineering consultancy providing technical cybersecurity audits, personal-data mapping, and infrastructure safeguards readiness. Under the Nigeria Data Protection Act (NDPA) 2023, statutory annual Compliance Audit Returns (CAR) must be filed with the Nigeria Data Protection Commission (NDPC) through a licensed Data Protection Compliance Organisation (DPCO). We work in direct partnership with our licensed DPCO partner ({{ dpco_name }}) to coordinate and execute statutory regulatory filings. We do not independently issue statutory audit certificates.
+            <strong>No.</strong> ADX Group is an engineering consultancy providing technical cybersecurity audits, personal-data mapping, and infrastructure safeguards readiness. Under the Nigeria Data Protection Act (NDPA) 2023, statutory annual Compliance Audit Returns (CAR) must be filed with the Nigeria Data Protection Commission (NDPC) through a licensed Data Protection Compliance Organisation (DPCO). {% if dpco_name %}We work in direct partnership with our licensed DPCO partner ({{ dpco_name }}) to coordinate and execute statutory regulatory filings.{% else %}Annual NDPC filings are made through a licensed DPCO.{% endif %} We do not independently issue statutory audit certificates.
           </div>
         </div>
 
@@ -1021,11 +955,11 @@
         <!-- FAQ 2 -->
         <div class="faq-item" id="faq-2">
           <button type="button" class="faq-question" onclick="toggleFaq('faq-2')">
-            <span>How do ADX Autonomous AI agents guarantee zero corporate data leakage?</span>
+            <span>How does ADX protect sensitive data when deploying enterprise AI?</span>
             <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-answer">
-            All enterprise artificial intelligence queries executed through the ADX Intelligence division utilize dedicated private memory structures. Customer proprietary code, internal documents, and compliance records are never exposed to public LLM training datasets, adhering to strict zero-retention enterprise standards.
+            ADX designs AI and document-search assistants with isolated execution boundaries and explicit data-handling rules. Private document retrievals and model interactions are configured by default not to contribute to public model training datasets. Access control rules, role-based approval gates, and audit logging are implemented to prevent unauthorized access.
           </div>
         </div>
 
@@ -1058,18 +992,18 @@
             <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-answer">
-            ADX Console supports 1-click SSO across Google, Microsoft Azure AD / Entra ID, GitHub, and Apple, alongside direct Username or Work Email authentication with PBKDF2 cryptographic hashing, adaptive anomalous IP 2FA challenges, and instant login email notices.
+            The ADX Console supports direct Work Email / Username authentication with PBKDF2-HMAC-SHA256 password hashing (120,000 iterations), Google OAuth 2.0 single sign-on, adaptive 6-digit anomalous IP 2FA challenges, and automated login security alert emails. Enterprise SSO integration (Microsoft Azure AD / Entra ID, GitHub, Apple) is supported for custom enterprise client deployments.
           </div>
         </div>
 
-        <!-- FAQ 6: WPA3 Wireless Security -->
+        <!-- FAQ 6: Backup & Disaster Recovery -->
         <div class="faq-item" id="faq-6">
           <button type="button" class="faq-question" onclick="toggleFaq('faq-6')">
-            <span>How does ADX evaluate enterprise wireless and WPA3 security?</span>
+            <span>How does ADX handle data backups and disaster recovery?</span>
             <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-answer">
-            ADX evaluates corporate wireless perimeters transitioning from legacy WPA2 PSK dictionary vulnerability handshakes to hardened WPA3 Enterprise standards. Our assessments verify 802.1X EAP-TLS certificate handshakes, Protected Management Frames (PMF 802.11w), 192-bit cryptographic suites, and rogue AP / evil-twin intrusion defenses.
+            Under our ADX Resilience offer, we evaluate and implement automated, encrypted off-site backups with structured retention policies. We design restore drills and runbooks aimed at supporting rapid recovery in the event of ransomware, database corruption, or provider outages.
           </div>
         </div>
       </div>
@@ -1089,15 +1023,23 @@
           Schedule a focused 20-minute architecture review to discuss your external attack surface, DMARC enforcement timeline, or NDPA data mapping objectives.
         </p>
         <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+          {% if booking_url %}
           <a href="{{ booking_url }}" class="btn btn-primary" target="_blank" rel="noopener noreferrer" style="padding: 12px 28px; font-size: 0.95rem;">
             Book a 20-Minute Review &rarr;
           </a>
+          {% else %}
+          <a href="#contact" class="btn btn-primary" style="padding: 12px 28px; font-size: 0.95rem;">
+            Book a 20-Minute Review &rarr;
+          </a>
+          {% endif %}
           <a href="/readiness-check" class="btn btn-outline" style="padding: 12px 24px; font-size: 0.95rem;">
             Free Readiness Check
           </a>
-          <a href="https://wa.me/{{ whatsapp_number }}?text={{ whatsapp_text }}" class="btn btn-outline" target="_blank" rel="noopener noreferrer" style="padding: 12px 22px; font-size: 0.95rem;">
+          {% if whatsapp_url %}
+          <a href="{{ whatsapp_url }}" class="btn btn-outline" target="_blank" rel="noopener noreferrer" style="padding: 12px 22px; font-size: 0.95rem;">
             Chat on WhatsApp
           </a>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -1186,16 +1128,20 @@
           </a>
 
           <div class="social-strip">
-            <a href="[PLACEHOLDER: Official LinkedIn Profile URL]" target="_blank" rel="noopener" class="social-icon-btn" title="ADX LinkedIn">
+            {% if linkedin_url %}
+            <a href="{{ linkedin_url }}" target="_blank" rel="noopener" class="social-icon-btn" title="ADX LinkedIn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
               </svg>
             </a>
-            <a href="[PLACEHOLDER: Official X Profile URL]" target="_blank" rel="noopener" class="social-icon-btn" title="ADX on X">
+            {% endif %}
+            {% if twitter_url %}
+            <a href="{{ twitter_url }}" target="_blank" rel="noopener" class="social-icon-btn" title="ADX on X">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
               </svg>
             </a>
+            {% endif %}
           </div>
         </div>
 
@@ -1213,19 +1159,16 @@
 
         <!-- Col 3: Trust & Regulatory Standards -->
         <div class="footer-col">
-          <h3>Trust &amp; Compliance</h3>
+          <h3>Trust &amp; Governance</h3>
+          <p style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.55; margin-bottom: 10px;">
+            Our practices follow ISO 27001 and SOC 2 control principles. We are not certified.
+          </p>
           <ul>
-            <li><a href="/privacy">ISO 27001 Control Alignment</a></li>
-            <li><a href="/terms">SOC 2 Control Alignment</a></li>
+            <li><a href="/security" style="color: var(--accent-primary); font-weight: 600;">Security &amp; Control Principles &rarr;</a></li>
             <li><a href="/privacy">Nigeria Data Protection Act (NDPA)</a></li>
             <li><a href="/privacy">GDPR Data Privacy Baseline</a></li>
-            <li><a href="#cve-intelligence">2026 CVE Threat Matrix</a></li>
+            <li><a href="#cve-intelligence">Threat Intelligence Matrix</a></li>
           </ul>
-          <div class="compliance-badge-row">
-            <span class="compliance-badge-item">NDPA Aligned</span>
-            <span class="compliance-badge-item">ISO 27001 Aligned</span>
-            <span class="compliance-badge-item">SOC 2 Aligned</span>
-          </div>
         </div>
 
         <!-- Col 4: Legal & Links of Interest -->
@@ -1249,7 +1192,7 @@
           Our <a href="/terms" style="color: #38bdf8; text-decoration: underline;">Terms and Conditions</a> detail our trademark, proprietary algorithms, and copyright rights. Any unauthorized use is expressly prohibited.
         </div>
         <div style="font-family: var(--font-mono); font-size: 0.74rem; color: #94a3b8; margin-top: 4px;">
-          adxgroup.tech &bull; Abuja, Nigeria &bull; [PLACEHOLDER: Corporate Affairs Commission (CAC) Registered Entity Name &amp; RC Number]
+          adxgroup.tech &bull; Abuja, Nigeria{% if cac_info %} &bull; {{ cac_info }}{% endif %}
         </div>
       </div>
     </div>
@@ -1274,9 +1217,10 @@
       });
     }
   </script>
-  <!-- WhatsApp Click-to-Chat Floating Button (Task D) -->
+  {% if whatsapp_url %}
+  <!-- WhatsApp Click-to-Chat Floating Button -->
   <a
-    href="https://wa.me/{{ whatsapp_number }}?text={{ whatsapp_text }}"
+    href="{{ whatsapp_url }}"
     class="whatsapp-float-btn"
     target="_blank"
     rel="noopener noreferrer"
@@ -1287,6 +1231,7 @@
     </svg>
     <span>Chat with us</span>
   </a>
+  {% endif %}
 
 </body>
 </html>
