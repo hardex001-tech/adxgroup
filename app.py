@@ -55,6 +55,16 @@ from core.auth import (
 from core.mailer import get_outbox, send_login_alert
 from core.notifier import get_all_leads, record_client_lead
 from core.scanner import normalize_domain, run_full_diagnostic
+from core.offers_config import (
+    BOOKING_URL,
+    CASE_STUDIES,
+    NDPC_OFFICIAL_URL,
+    PARTNER_DPCO_NAME,
+    PARTNERS_LIST,
+    WHATSAPP_NUMBER,
+    WHATSAPP_PREFILLED_MESSAGE,
+)
+from core.offers_data import OFFERS_DICT, READINESS_QUESTIONS, SECTORS_LIST
 
 BASE_DIR = Path(__file__).resolve().parent
 init_db()
@@ -220,6 +230,31 @@ async def sitemap_xml():
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://adxgroup.tech/solutions/shield</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://adxgroup.tech/solutions/comply</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://adxgroup.tech/solutions/resilience</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://adxgroup.tech/solutions/ai-automation</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://adxgroup.tech/readiness-check</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
 </urlset>"""
     return Response(content=xml_content, media_type="application/xml")
 
@@ -231,7 +266,18 @@ async def home(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"user": user},
+        context={
+            "user": user,
+            "offers": OFFERS_DICT,
+            "sectors": SECTORS_LIST,
+            "whatsapp_number": WHATSAPP_NUMBER,
+            "whatsapp_text": urllib.parse.quote(WHATSAPP_PREFILLED_MESSAGE),
+            "booking_url": BOOKING_URL,
+            "ndpc_url": NDPC_OFFICIAL_URL,
+            "dpco_name": PARTNER_DPCO_NAME,
+            "partners": PARTNERS_LIST,
+            "case_studies": CASE_STUDIES,
+        },
     )
 
 
@@ -1121,6 +1167,46 @@ async def page_do_not_sell(request: Request):
 
 
 
+@asgi_app.get("/solutions/{slug}", response_class=HTMLResponse)
+async def page_solution_detail(request: Request, slug: str):
+    """Render individual solution pages for the Four Offers."""
+    clean_slug = slug.strip().lower()
+    if clean_slug not in OFFERS_DICT:
+        raise HTTPException(status_code=404, detail="Solution offer not found.")
+
+    offer = OFFERS_DICT[clean_slug]
+    user = _current_user(request)
+    return templates.TemplateResponse(
+        request=request,
+        name="solution_page.html",
+        context={
+            "user": user,
+            "offer": offer,
+            "whatsapp_number": WHATSAPP_NUMBER,
+            "whatsapp_text": urllib.parse.quote(WHATSAPP_PREFILLED_MESSAGE),
+            "booking_url": BOOKING_URL,
+        },
+    )
+
+
+@asgi_app.get("/readiness-check", response_class=HTMLResponse)
+async def page_readiness_check(request: Request):
+    """Render the Free NDPA and Security Readiness Check."""
+    user = _current_user(request)
+    return templates.TemplateResponse(
+        request=request,
+        name="readiness_check.html",
+        context={
+            "user": user,
+            "questions": READINESS_QUESTIONS,
+            "sectors": SECTORS_LIST,
+            "whatsapp_number": WHATSAPP_NUMBER,
+            "whatsapp_text": urllib.parse.quote(WHATSAPP_PREFILLED_MESSAGE),
+            "booking_url": BOOKING_URL,
+        },
+    )
+
+
 @asgi_app.exception_handler(404)
 async def custom_404_handler(request: Request, exc: Exception):
     if request.url.path.startswith("/api/"):
@@ -1297,6 +1383,73 @@ async def api_submit_lead(payload: LeadRequest):
     if not result["gate_4_passed"]:
         raise HTTPException(status_code=400, detail=result["error"])
     return JSONResponse(content={"ok": True, "data": result})
+
+
+class ReadinessCheckRequest(BaseModel):
+    name: str
+    email: str
+    company: str
+    sector: str
+    score: int
+    risk_band: str
+    consent: bool
+    hp_token: Optional[str] = ""
+
+
+@asgi_app.post("/api/readiness-check")
+async def api_submit_readiness_check(request: Request, payload: ReadinessCheckRequest):
+    if payload.hp_token:
+        return JSONResponse(content={"ok": True, "message": "Readiness assessment received."})
+
+    if not payload.consent:
+        raise HTTPException(
+            status_code=400,
+            detail="Consent is required to submit your readiness assessment.",
+        )
+
+    client_ip = request.client.host if request.client else "unknown"
+    if not _check_rate_limit(f"rc_ip:{client_ip}", max_requests=5, window_seconds=600):
+        raise HTTPException(
+            status_code=429,
+            detail="Assessment submission rate limit exceeded. Please wait before submitting again.",
+        )
+
+    clean_name = payload.name.strip()
+    clean_email = payload.email.strip()
+    clean_company = payload.company.strip()
+    clean_sector = payload.sector.strip()
+
+    if not clean_email or "@" not in clean_email:
+        raise HTTPException(status_code=400, detail="A valid business email address is required.")
+    if not clean_name or not clean_company:
+        raise HTTPException(status_code=400, detail="Name and company are required.")
+
+    summary_msg = (
+        f"Sector: {clean_sector} | "
+        f"Readiness Score: {payload.score}/10 | "
+        f"Risk Band: {payload.risk_band}"
+    )
+
+    result = record_client_lead(
+        company_or_name=f"{clean_name} ({clean_company})",
+        email=clean_email,
+        division=f"NDPA Readiness Check ({payload.risk_band} Risk)",
+        message=summary_msg,
+        domain="",
+    )
+
+    if not result.get("gate_4_passed"):
+        raise HTTPException(status_code=400, detail=result.get("error", "Failed to log assessment."))
+
+    return JSONResponse(
+        content={
+            "ok": True,
+            "lead_id": result["lead"]["id"],
+            "score": payload.score,
+            "risk_band": payload.risk_band,
+            "confirmation": result.get("confirmation", "Assessment logged successfully."),
+        }
+    )
 
 
 # Expose native ASGI app on Vercel, or WSGI-compatible `app` for Azure Gunicorn runner
