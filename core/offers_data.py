@@ -2,12 +2,33 @@
 Detailed content models and specifications for ADX Group's 4 core solution offers.
 """
 
-from core.offers_config import (
-    PRICING_CONFIG,
-    TIMELINE_CONFIG,
-    PARTNER_DPCO_NAME,
-    BOOKING_URL,
+from core.public_config import (
+    get_dpco_partner_name,
+    get_booking_url,
+    get_offer_price,
+    get_offer_timeline,
 )
+
+def _build_dpco_notice() -> str:
+    dpco = get_dpco_partner_name()
+    if dpco:
+        partner_ref = f"working in collaboration with our licensed DPCO partner ({dpco})."
+    else:
+        partner_ref = "Annual NDPC filings are made through a licensed DPCO."
+    return (
+        f"Under the Nigeria Data Protection Act 2023, annual Compliance Audit Returns (CAR) "
+        f"must be formally filed with the NDPC by a licensed Data Protection Compliance Organisation (DPCO). "
+        f"ADX Group provides personal-data mapping, technical safeguards readiness, and breach notification planning. "
+        f"{partner_ref} "
+        f"ADX Group does not independently issue statutory regulatory audit certificates."
+    )
+
+
+def _build_dpco_step_desc() -> str:
+    dpco = get_dpco_partner_name()
+    if dpco:
+        return f"We assemble the technical audit documentation and coordinate directly with {dpco} for formal filing with the NDPC."
+    return "We assemble the technical audit documentation and coordinate with a licensed DPCO for formal filing with the NDPC."
 
 OFFERS_DICT = {
     "shield": {
@@ -54,10 +75,10 @@ OFFERS_DICT = {
             "Active penetration testing or adversary simulation beyond authentication and identity configuration.",
             "Provisioning or direct licensing costs of third-party identity providers (e.g., Okta, Google Workspace licenses).",
         ],
-        "timeline": TIMELINE_CONFIG["shield"],
-        "pricing": PRICING_CONFIG["shield"],
+        "timeline": get_offer_timeline("shield"),
+        "pricing": {"NGN": get_offer_price("shield", "NGN"), "USD": get_offer_price("shield", "USD")},
         "cta_label": "Book an Email & Identity Review",
-        "cta_url": BOOKING_URL,
+        "cta_url": get_booking_url(),
         "meta_title": "ADX Shield | Email Fraud, DMARC & Identity Defense Nigeria",
         "meta_description": "Protect your domain against executive spoofing, BEC fraud, and credential compromise with ADX Shield. Staged DMARC, MFA rollout, and vendor risk checks.",
         "seo_keywords": "DMARC setup Nigeria, business email fraud protection Nigeria, BEC defense Lagos, SPF DKIM enforcement",
@@ -84,13 +105,7 @@ OFFERS_DICT = {
             "DPO-as-a-Service support: advisory guidance for your designated Data Protection Officer on internal policies and data subject requests.",
             "Filing coordination: structured handoff of your compliance documentation to a licensed Data Protection Compliance Organisation (DPCO) for formal filing.",
         ],
-        "dpco_notice": (
-            f"Statutory Notice: Under the Nigeria Data Protection Act 2023, annual Compliance Audit Returns (CAR) "
-            f"must be filed with the Nigeria Data Protection Commission (NDPC) through a licensed Data Protection "
-            f"Compliance Organisation (DPCO). ADX Group provides technical audit, data mapping, and readiness engineering, "
-            f"and works in direct collaboration with our licensed DPCO partner, {PARTNER_DPCO_NAME}, for formal statutory filing. "
-            f"ADX Group is an engineering consultancy and does not independently issue statutory audit certificates."
-        ),
+        "dpco_notice": _build_dpco_notice(),
         "engagement_steps": [
             {
                 "step": "01",
@@ -105,7 +120,7 @@ OFFERS_DICT = {
             {
                 "step": "03",
                 "title": "DPCO Audit Filing Handoff",
-                "desc": f"We assemble the technical audit documentation and coordinate directly with {PARTNER_DPCO_NAME} for formal filing with the NDPC.",
+                "desc": _build_dpco_step_desc(),
             },
         ],
         "not_included": [
@@ -113,10 +128,10 @@ OFFERS_DICT = {
             "Independent issuance of DPCO audit seals (all statutory returns are filed by our licensed DPCO partner).",
             "Legal representation in court or formal regulatory litigation.",
         ],
-        "timeline": TIMELINE_CONFIG["comply"],
-        "pricing": PRICING_CONFIG["comply"],
+        "timeline": get_offer_timeline("comply"),
+        "pricing": {"NGN": get_offer_price("comply", "NGN"), "USD": get_offer_price("comply", "USD")},
         "cta_label": "Schedule an NDPA Readiness Review",
-        "cta_url": BOOKING_URL,
+        "cta_url": get_booking_url(),
         "meta_title": "ADX Comply | NDPA Compliance & Readiness Engineering Nigeria",
         "meta_description": "Prepare your organization for NDPA 2023 compliance. Data mapping, breach plans, technical safeguards, and licensed DPCO filing coordination in Nigeria.",
         "seo_keywords": "NDPA compliance Nigeria, data protection compliance for fintech Nigeria, NDPC audit readiness, DPCO partner Abuja",
@@ -165,10 +180,10 @@ OFFERS_DICT = {
             "Re-writing application codebase logic unrelated to database connection pooling or persistence.",
             "Hardware repairs for physical on-premise servers (cloud and virtualized environments only).",
         ],
-        "timeline": TIMELINE_CONFIG["resilience"],
-        "pricing": PRICING_CONFIG["resilience"],
+        "timeline": get_offer_timeline("resilience"),
+        "pricing": {"NGN": get_offer_price("resilience", "NGN"), "USD": get_offer_price("resilience", "USD")},
         "cta_label": "Book a Resilience Consultation",
-        "cta_url": BOOKING_URL,
+        "cta_url": get_booking_url(),
         "meta_title": "ADX Resilience | Tested Backups & Disaster Recovery Nigeria",
         "meta_description": "Ensure business continuity with tested encrypted backups, restore drills, uptime monitoring, and managed disaster recovery retainers by ADX Group.",
         "seo_keywords": "disaster recovery Nigeria, cloud backup drills Lagos, database ransomware protection, uptime monitoring Abuja",
@@ -217,10 +232,10 @@ OFFERS_DICT = {
             "Unrestricted autonomous write access to production financial ledgers without human authorization gates.",
             "Third-party LLM API consumption token costs (billed directly by model providers).",
         ],
-        "timeline": TIMELINE_CONFIG["ai-automation"],
-        "pricing": PRICING_CONFIG["ai-automation"],
+        "timeline": get_offer_timeline("ai-automation"),
+        "pricing": {"NGN": get_offer_price("ai-automation", "NGN"), "USD": get_offer_price("ai-automation", "USD")},
         "cta_label": "Explore AI Automation Architecture",
-        "cta_url": BOOKING_URL,
+        "cta_url": get_booking_url(),
         "meta_title": "ADX AI and Automation | Private AI & Workflow Automation Nigeria",
         "meta_description": "Private document-search assistants, workflow automation, and agent security rules with zero data retention. Engineered securely in Nigeria by ADX Group.",
         "seo_keywords": "private AI assistant Nigeria, enterprise workflow automation Lagos, secure RAG architecture, AI guardrails Abuja",
