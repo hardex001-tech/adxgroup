@@ -20,7 +20,7 @@ import os
 import secrets
 import urllib.parse
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import httpx
 from a2wsgi import ASGIMiddleware
