@@ -157,6 +157,13 @@ def init_db() -> None:
             "ALTER TABLE users ADD COLUMN verification_code TEXT DEFAULT ''",
             "ALTER TABLE users ADD COLUMN reset_token TEXT DEFAULT ''",
             "ALTER TABLE users ADD COLUMN reset_code TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN last_login_ip TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN known_ips TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN mfa_enabled INTEGER DEFAULT 1",
+            "ALTER TABLE users ADD COLUMN mfa_secret TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN temp_2fa_code TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN temp_2fa_expires TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN temp_2fa_pending_ip TEXT DEFAULT ''",
         ):
             try:
                 conn.execute(col_stmt)
@@ -370,8 +377,8 @@ def complete_password_reset(token_or_code: str, new_password: str) -> Dict[str, 
 
 
 
-def login_email_user(identifier: str, password: str) -> Dict[str, Any]:
-    """Authenticate an existing user by username or email and password."""
+def login_email_user(identifier: str, password: str, client_ip: str = "", is_proxy_or_vpn: bool = False) -> Dict[str, Any]:
+    """Authenticate an existing user by username or email and password, challenging anomalous new IPs with 6-digit 2FA."""
     init_db()
     clean_id = identifier.strip().lower()
     if not clean_id:
@@ -399,6 +406,46 @@ def login_email_user(identifier: str, password: str) -> Dict[str, Any]:
                 else:
                     raise ValueError("Incorrect password. Please verify your credentials or click Create Account.")
             user_id = row["id"]
+            user_email = row["email"]
+            user_name = row["name"]
+            last_ip = row["last_login_ip"] or ""
+            known = [ip.strip() for ip in (row["known_ips"] or "").split(",") if ip.strip()]
+
+            # If user has an existing login IP and connects from a brand new IP or Proxy/VPN
+            if last_ip and client_ip and client_ip != "127.0.0.1" and client_ip != "Remote Client":
+                if client_ip != last_ip and client_ip not in known:
+                    # Trigger 6-digit anomalous IP challenge!
+                    otp_code = f"{secrets.randbelow(900000) + 100000}"
+                    expires_at = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=15)).strftime("%Y-%m-%d %H:%M:%S UTC")
+                    conn.execute(
+                        "UPDATE users SET temp_2fa_code = ?, temp_2fa_expires = ?, temp_2fa_pending_ip = ? WHERE id = ?",
+                        (otp_code, expires_at, client_ip, user_id),
+                    )
+                    conn.commit()
+
+                    try:
+                        from core.mailer import send_2fa_challenge_email
+                        send_2fa_challenge_email(user_email, user_name, otp_code, client_ip, is_proxy_or_vpn)
+                    except Exception as exc:
+                        print(f"[AUTH 2FA] Could not send challenge email: {exc}")
+
+                    return {
+                        "mfa_required": True,
+                        "email": user_email,
+                        "client_ip": client_ip,
+                        "message": "New device or anomalous IP detected. A 6-digit verification code has been dispatched to your email.",
+                    }
+
+            # Update known IPs and last login IP
+            if client_ip:
+                if client_ip not in known:
+                    known.append(client_ip)
+                conn.execute(
+                    "UPDATE users SET last_login_ip = ?, known_ips = ? WHERE id = ?",
+                    (client_ip, ",".join(known), user_id),
+                )
+                conn.commit()
+
         else:
             if "@" not in clean_id:
                 raise ValueError("Account not found. Please verify your username/email or click Create Account.")
@@ -408,15 +455,82 @@ def login_email_user(identifier: str, password: str) -> Dict[str, Any]:
             pw_hash = _hash_password(password)
             cur = conn.execute(
                 """
-                INSERT INTO users (name, email, username, company, password_hash, provider, role, created_at)
-                VALUES (?, ?, ?, '', ?, 'email', ?, ?)
+                INSERT INTO users (name, email, username, company, password_hash, provider, role, last_login_ip, known_ips, created_at)
+                VALUES (?, ?, ?, '', ?, 'email', ?, ?, ?, ?)
                 """,
-                (clean_name, clean_email, clean_email.split("@")[0].lower(), pw_hash, role, _now_str()),
+                (clean_name, clean_email, clean_email.split("@")[0].lower(), pw_hash, role, client_ip, client_ip, _now_str()),
             )
             user_id = cur.lastrowid
             conn.commit()
 
     return create_session(user_id)
+
+
+def verify_login_2fa_code(email: str, code: str, client_ip: str = "") -> Dict[str, Any]:
+    """Verify 6-digit OTP code dispatched for anomalous IP / new device login."""
+    init_db()
+    clean_email = (email or "").strip().lower()
+    clean_code = (code or "").strip()
+    if not clean_code or len(clean_code) < 6:
+        raise ValueError("Please enter the 6-digit confirmation code from your email.")
+
+    with _get_conn() as conn:
+        row = conn.execute("SELECT * FROM users WHERE email = ?", (clean_email,)).fetchone()
+        if not row:
+            raise ValueError("Account not found.")
+
+        stored_code = row["temp_2fa_code"] or ""
+        if not stored_code or stored_code != clean_code:
+            raise ValueError("Invalid verification code. Please check your email or click Resend Code.")
+
+        # Approve this IP into known_ips
+        current_known = [ip.strip() for ip in (row["known_ips"] or "").split(",") if ip.strip()]
+        new_ip = client_ip or row["temp_2fa_pending_ip"] or "Verified Device"
+        if new_ip and new_ip not in current_known:
+            current_known.append(new_ip)
+
+        conn.execute(
+            """
+            UPDATE users 
+            SET temp_2fa_code = '', 
+                temp_2fa_expires = '', 
+                temp_2fa_pending_ip = '', 
+                last_login_ip = ?, 
+                known_ips = ?
+            WHERE id = ?
+            """,
+            (new_ip, ",".join(current_known), row["id"]),
+        )
+        conn.commit()
+
+        # Send instant login success notification
+        try:
+            from core.mailer import send_login_alert
+            send_login_alert(row["email"], row["name"], new_ip)
+        except Exception:
+            pass
+
+        return create_session(row["id"])
+
+
+def resend_login_2fa_code(email: str, client_ip: str = "") -> Dict[str, Any]:
+    """Resend fresh 6-digit OTP code for pending anomalous IP login."""
+    init_db()
+    clean_email = (email or "").strip().lower()
+    with _get_conn() as conn:
+        row = conn.execute("SELECT * FROM users WHERE email = ?", (clean_email,)).fetchone()
+        if not row:
+            raise ValueError("Account not found.")
+        new_code = f"{secrets.randbelow(900000) + 100000}"
+        expires_at = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=15)).strftime("%Y-%m-%d %H:%M:%S UTC")
+        conn.execute(
+            "UPDATE users SET temp_2fa_code = ?, temp_2fa_expires = ?, temp_2fa_pending_ip = ? WHERE id = ?",
+            (new_code, expires_at, client_ip, row["id"]),
+        )
+        conn.commit()
+        from core.mailer import send_2fa_challenge_email
+        send_2fa_challenge_email(row["email"], row["name"], new_code, client_ip)
+        return {"ok": True, "message": f"A new 6-digit security code was dispatched to {row['email']}."}
 
 
 def _format_user(u: Dict[str, Any]) -> Dict[str, Any]:

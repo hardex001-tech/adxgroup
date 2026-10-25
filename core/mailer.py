@@ -364,3 +364,79 @@ contact@adxgroup.tech | https://adxgroup.tech
     _record_to_outbox(record)
     return record
 
+
+def send_2fa_challenge_email(email: str, name: str, code: str, ip: str, is_proxy_or_vpn: bool = False) -> Dict[str, Any]:
+    """Dispatch instantaneous 6-digit confirmation code for anomalous IP / new device login."""
+    clean_email = email.strip().lower()
+    clean_name = name.strip() or clean_email.split("@")[0].title()
+    now_str = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+    subject = f"Your ADX 2FA Code: {code} (New Device / IP Sign-In)"
+
+    text_body = f"""Hello {clean_name},
+
+A sign-in attempt was detected from a new device or IP address:
+Account:     {clean_email}
+Origin IP:   {ip or 'Unspecified'}
+Time:        {now_str}
+
+YOUR 6-DIGIT VERIFICATION CODE:
+================================
+         {code}
+================================
+
+Enter this code in your browser to authorize this device and access your ADX Console. This code expires in 15 minutes.
+
+If this was not you, someone knows your password. Lock down your account immediately at https://adxgroup.tech/login?reset=immediate
+
+ADX Group Zero-Trust Security Incident Desk
+security@adxgroup.tech
+"""
+
+    html_body = f"""<!DOCTYPE html>
+<html>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; background: #0b1120; color: #f8fafc;">
+  <div style="max-width: 540px; margin: 0 auto; background: #111827; border-radius: 14px; border: 1px solid rgba(56, 189, 248, 0.35); padding: 36px; box-shadow: 0 12px 35px rgba(0,0,0,0.6);">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+      <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 10px #38bdf8;"></span>
+      <h2 style="color: #ffffff; margin: 0; font-size: 1.3rem; font-weight: 800;">ADX Multi-Factor Authentication</h2>
+    </div>
+    
+    <p style="font-size: 14px; color: #cbd5e1; line-height: 1.6; margin-bottom: 18px;">
+      Hello <strong style="color: #ffffff;">{clean_name}</strong>, a sign-in was initiated from a <strong style="color: #38bdf8;">new device or IP address</strong> ({ip or 'Edge Proxy'}).
+    </p>
+
+    <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 22px; text-align: center; margin: 24px 0;">
+      <div style="font-size: 11px; font-family: monospace; color: #94a3b8; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;">6-DIGIT VERIFICATION CODE</div>
+      <div style="font-size: 36px; font-family: monospace; font-weight: 800; letter-spacing: 8px; color: #38bdf8; text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);">{code}</div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 8px;">Valid for 15 minutes &bull; Do not share this code</div>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin: 20px 0; background: rgba(15, 23, 42, 0.5); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+      <tr><td style="padding: 8px 12px; color: #94a3b8;">Account:</td><td style="padding: 8px 12px; font-weight: 700; color: #ffffff;">{clean_email}</td></tr>
+      <tr><td style="padding: 8px 12px; color: #94a3b8;">Attempt IP:</td><td style="padding: 8px 12px; font-family: monospace; font-weight: 700; color: #38bdf8;">{ip or 'Confidential'}</td></tr>
+      <tr><td style="padding: 8px 12px; color: #94a3b8;">Timestamp:</td><td style="padding: 8px 12px; color: #ffffff;">{now_str}</td></tr>
+    </table>
+
+    <div style="font-size: 11px; color: #64748b; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
+      If you did not initiate this request, someone may be trying to access your account. Change your password immediately.<br>
+      ADX Group Cyber Security Incident Desk &bull; Silent Innovation. Absolute Defense.
+    </div>
+  </div>
+</body>
+</html>"""
+
+    sent = _send_smtp_email(clean_email, subject, html_body, text_body)
+
+    record = {
+        "id": f"ADX-2FA-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
+        "timestamp": now_str,
+        "type": "LOGIN_2FA_CHALLENGE",
+        "to": clean_email,
+        "code": code,
+        "ip": ip,
+        "smtp_dispatched": sent,
+        "status": "SENT_VIA_SMTP" if sent else "LOGGED_LOCAL",
+    }
+    _record_to_outbox(record)
+    return record

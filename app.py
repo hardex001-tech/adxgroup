@@ -40,6 +40,8 @@ from core.auth import (
     request_password_reset,
     complete_password_reset,
     resend_verification_email,
+    verify_login_2fa_code,
+    resend_login_2fa_code,
     update_user_profile,
     verify_email_token,
 )
@@ -369,9 +371,28 @@ async def api_login(request: Request, payload: LoginRequest):
         user_identifier = (payload.identifier or payload.email or "").strip()
         if not user_identifier:
             raise HTTPException(status_code=400, detail="Please enter your username or email address.")
-        sess = login_email_user(identifier=user_identifier, password=payload.password)
-        redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
+
         sec_ctx = _extract_client_security_context(request)
+        sess = login_email_user(
+            identifier=user_identifier,
+            password=payload.password,
+            client_ip=sec_ctx["ip"],
+            is_proxy_or_vpn=sec_ctx["is_proxy_or_vpn"]
+        )
+
+        # Step-up 2FA Challenge for anomalous new IP / mobile device
+        if sess.get("mfa_required"):
+            return JSONResponse(
+                content={
+                    "ok": True,
+                    "mfa_required": True,
+                    "email": sess["email"],
+                    "client_ip": sess["client_ip"],
+                    "message": sess["message"],
+                }
+            )
+
+        redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
         try:
             send_login_alert(
                 email=sess["user"]["email"],
@@ -382,6 +403,7 @@ async def api_login(request: Request, payload: LoginRequest):
             )
         except Exception:
             pass
+
         resp = JSONResponse(
             content={"ok": True, "user": sess["user"], "token": sess["token"], "redirect": redirect_to}
         )
@@ -389,6 +411,42 @@ async def api_login(request: Request, payload: LoginRequest):
         return resp
     except ValueError as ve:
         raise HTTPException(status_code=401, detail=str(ve))
+
+
+class Verify2FARequest(BaseModel):
+    email: str
+    code: str
+
+
+@asgi_app.post("/api/auth/verify-2fa")
+async def api_verify_2fa(request: Request, payload: Verify2FARequest):
+    """Verify 6-digit OTP confirmation code for anomalous new device or IP login."""
+    try:
+        sec_ctx = _extract_client_security_context(request)
+        sess = verify_login_2fa_code(payload.email, payload.code, client_ip=sec_ctx["ip"])
+        redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
+        resp = JSONResponse(
+            content={"ok": True, "user": sess["user"], "token": sess["token"], "redirect": redirect_to}
+        )
+        _set_auth_cookie(resp, sess["token"])
+        return resp
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+
+
+class Resend2FARequest(BaseModel):
+    email: str
+
+
+@asgi_app.post("/api/auth/resend-2fa")
+async def api_resend_2fa(request: Request, payload: Resend2FARequest):
+    """Resend 6-digit confirmation code for anomalous new device or IP login."""
+    try:
+        sec_ctx = _extract_client_security_context(request)
+        result = resend_login_2fa_code(payload.email, client_ip=sec_ctx["ip"])
+        return JSONResponse(content=result)
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
 
 
 @asgi_app.get("/api/auth/verify")

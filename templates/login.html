@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign In | ADX Group Enterprise Console</title>
   <meta name="description" content="Sign in to the ADX Group Enterprise Security Console. Sovereign cloud systems, private AI agents, and perimeter threat telemetry." />
-  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.42" />
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.43" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/css/style.css?v=2026.42" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.43" />
   <style>
     :root {
       --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -490,7 +490,7 @@
 <body>
 
   <!-- Lit Background Watermark Emblem -->
-  <img src="/static/logo.svg?v=2026.42" alt="" class="watermark-logo" />
+  <img src="/static/logo.svg?v=2026.43" alt="" class="watermark-logo" />
 
   <div class="auth-page-wrapper">
     <div class="auth-split-grid">
@@ -499,7 +499,7 @@
       <div class="auth-card">
         <div class="auth-header">
           <a href="/" style="display: inline-block;">
-            <img src="/static/logo.svg?v=2026.42" alt="ADX Group" class="auth-logo" />
+            <img src="/static/logo.svg?v=2026.43" alt="ADX Group" class="auth-logo" />
           </a>
           <div style="display: flex; justify-content: center;">
             <div class="status-badge">
@@ -618,6 +618,46 @@
             Don't have an account? <a href="javascript:void(0)" onclick="switchTab('signup')" style="color: #2563eb; font-weight: 600; text-decoration: none;">Create free account &rarr;</a>
           </div>
         </form>
+
+        <!-- Anomalous IP / New Device 2FA Challenge Panel -->
+        <div id="mfa-panel" class="hidden" style="margin-top: 14px; background: rgba(15, 23, 42, 0.94); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 16px; padding: 26px 22px; color: #f8fafc; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; color: #38bdf8;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <h3 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 6px;">New Device / IP Verification</h3>
+          <p style="font-size: 0.84rem; color: #cbd5e1; margin-bottom: 18px; line-height: 1.5;">
+            An authentication request was detected from a new location or IP address. We dispatched a 6-digit confirmation code to <strong id="mfa-email-display" style="color: #38bdf8;"></strong>.
+          </p>
+          
+          <div class="form-group" style="margin-bottom: 16px;">
+            <input
+              type="text"
+              id="mfa-code-input"
+              class="form-control"
+              placeholder="••••••"
+              maxlength="6"
+              style="text-align: center; font-family: var(--font-mono); font-size: 1.6rem; letter-spacing: 0.35em; font-weight: 800; height: 50px;"
+              autocomplete="one-time-code"
+            />
+          </div>
+
+          <button type="button" class="btn-submit" onclick="submitMfaCode()">
+            Authorize Device &amp; Launch Console
+          </button>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 0.8rem;">
+            <a href="javascript:void(0)" onclick="resendMfaCode()" style="color: #38bdf8; text-decoration: none; font-weight: 600;">
+              Resend Security Code
+            </a>
+            <a href="javascript:void(0)" onclick="cancelMfa()" style="color: #94a3b8; text-decoration: none;">
+              Cancel
+            </a>
+          </div>
+          <div id="mfa-status" style="font-size: 0.82rem; margin-top: 12px; font-weight: 600;"></div>
+        </div>
 
         <!-- Zero-Trust Forgot Password Panel -->
         <div id="forgot-password-panel" class="hidden" style="margin-top: 14px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 18px; color: #f8fafc;">
@@ -803,6 +843,77 @@
         input.type = "password";
         btn.innerHTML = svgEyeOpen;
       }
+    }
+
+
+    let pendingMfaEmail = "";
+
+    async function submitMfaCode() {
+      const code = document.getElementById("mfa-code-input").value.trim();
+      const statusEl = document.getElementById("mfa-status");
+      statusEl.textContent = "";
+      if (!code || code.length < 6) {
+        statusEl.style.color = "#ef4444";
+        statusEl.textContent = "Please enter the 6-digit confirmation code from your email.";
+        return;
+      }
+      statusEl.style.color = "#38bdf8";
+      statusEl.textContent = "Verifying cryptographic security code...";
+
+      try {
+        const res = await fetch("/api/auth/verify-2fa", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: pendingMfaEmail, code }),
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          if (data.token) localStorage.setItem("adx_session_token", data.token);
+          if (data.user) localStorage.setItem("adx_user", JSON.stringify(data.user));
+          window.location.href = getRedirectUrl(data.redirect);
+        } else {
+          statusEl.style.color = "#ef4444";
+          statusEl.textContent = data.detail || "Invalid confirmation code.";
+        }
+      } catch (err) {
+        statusEl.style.color = "#ef4444";
+        statusEl.textContent = "Network error verifying 2FA confirmation code.";
+      }
+    }
+
+    async function resendMfaCode() {
+      const statusEl = document.getElementById("mfa-status");
+      statusEl.style.color = "#38bdf8";
+      statusEl.textContent = "Dispatching fresh 6-digit confirmation code...";
+      try {
+        const res = await fetch("/api/auth/resend-2fa", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: pendingMfaEmail }),
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          statusEl.style.color = "#34d399";
+          statusEl.textContent = data.message || "Fresh code sent to your email!";
+        } else {
+          statusEl.style.color = "#ef4444";
+          statusEl.textContent = data.detail || "Could not resend code.";
+        }
+      } catch (err) {
+        statusEl.style.color = "#ef4444";
+        statusEl.textContent = "Network error requesting new code.";
+      }
+    }
+
+    function cancelMfa() {
+      document.getElementById("mfa-panel").classList.add("hidden");
+      document.getElementById("signin-form").classList.remove("hidden");
+      const ssoG = document.querySelector(".sso-grid");
+      if (ssoG) ssoG.classList.remove("hidden");
+      const divEl = document.querySelector(".divider");
+      if (divEl) divEl.classList.remove("hidden");
+      const tabsEl = document.querySelector(".auth-tabs");
+      if (tabsEl) tabsEl.classList.remove("hidden");
     }
 
     function switchTab(mode) {
@@ -1032,6 +1143,20 @@
       });
       const data = await res.json();
       if (res.ok && data.ok) {
+        if (data.mfa_required) {
+          pendingMfaEmail = data.email;
+          document.getElementById("signin-form").classList.add("hidden");
+          const ssoG = document.querySelector(".sso-grid");
+          if (ssoG) ssoG.classList.add("hidden");
+          const divEl = document.querySelector(".divider");
+          if (divEl) divEl.classList.add("hidden");
+          const tabsEl = document.querySelector(".auth-tabs");
+          if (tabsEl) tabsEl.classList.add("hidden");
+          document.getElementById("mfa-panel").classList.remove("hidden");
+          document.getElementById("mfa-email-display").textContent = data.email;
+          document.getElementById("mfa-code-input").focus();
+          return;
+        }
         if (data.token) localStorage.setItem("adx_session_token", data.token);
         if (data.user) localStorage.setItem("adx_user", JSON.stringify(data.user));
         window.location.href = getRedirectUrl(data.redirect);
@@ -1066,6 +1191,6 @@
       }
     });
   </script>
-  <script src="/static/js/main.js?v=2026.42"></script>
+  <script src="/static/js/main.js?v=2026.43"></script>
 </body>
 </html>
