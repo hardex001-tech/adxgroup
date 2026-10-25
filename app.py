@@ -1,3 +1,10 @@
+import os
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
 """
 ADX Group (adxgroup.tech) — Main FastAPI Application Controller.
 Includes:
