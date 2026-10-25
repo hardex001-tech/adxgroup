@@ -37,6 +37,8 @@ from core.auth import (
     login_email_user,
     record_scan_event,
     register_email_user,
+    request_password_reset,
+    complete_password_reset,
     resend_verification_email,
     update_user_profile,
     verify_email_token,
@@ -110,11 +112,23 @@ class RegisterRequest(BaseModel):
     email: str
     password: str
     company: Optional[str] = ""
+    username: Optional[str] = ""
 
 
 class LoginRequest(BaseModel):
-    email: str
+    email: Optional[str] = ""
+    identifier: Optional[str] = ""
     password: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    identifier: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    password: str
+
 
 
 class OAuthQuickRequest(BaseModel):
@@ -295,6 +309,7 @@ async def api_register(payload: RegisterRequest):
             email=payload.email,
             password=payload.password,
             company=payload.company or "",
+            username=payload.username or "",
         )
         redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
         resp = JSONResponse(
@@ -309,11 +324,14 @@ async def api_register(payload: RegisterRequest):
 @asgi_app.post("/api/auth/login")
 async def api_login(request: Request, payload: LoginRequest):
     try:
-        sess = login_email_user(email=payload.email, password=payload.password)
+        user_identifier = (payload.identifier or payload.email or "").strip()
+        if not user_identifier:
+            raise HTTPException(status_code=400, detail="Please enter your username or email address.")
+        sess = login_email_user(identifier=user_identifier, password=payload.password)
         redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
         client_ip = request.client.host if request.client else "Remote Client"
         try:
-            send_login_alert(payload.email, sess["user"]["name"], client_ip)
+            send_login_alert(sess["user"]["email"], sess["user"]["name"], client_ip)
         except Exception:
             pass
         resp = JSONResponse(
@@ -349,6 +367,27 @@ async def api_resend_verification(request: Request):
         return {"ok": True, "message": f"Verification security email dispatched to {user['email']}."}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@asgi_app.post("/api/auth/forgot-password")
+async def api_forgot_password(payload: ForgotPasswordRequest):
+    """Initiate zero-trust password recovery for a given username or email."""
+    try:
+        res = request_password_reset(payload.identifier)
+        return res
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+
+
+@asgi_app.post("/api/auth/reset-password")
+async def api_reset_password(payload: ResetPasswordRequest):
+    """Set new password via verified cryptographic reset token or 6-digit OTP."""
+    try:
+        res = complete_password_reset(payload.token, payload.password)
+        return res
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+
 
 
 @asgi_app.post("/api/auth/oauth")
@@ -550,6 +589,329 @@ async def api_google_token_auth(payload: GoogleTokenPayload):
     resp = JSONResponse(content={"ok": True, "user": sess["user"], "token": sess["token"], "redirect": target_url})
     _set_auth_cookie(resp, sess["token"])
     return resp
+
+
+# =========================================================================
+# Multi-Provider SSO Endpoints (Microsoft, GitHub, Apple)
+# =========================================================================
+
+@asgi_app.get("/api/auth/microsoft/login")
+async def api_microsoft_login(request: Request, scan: Optional[str] = ""):
+    """Redirect user directly to Microsoft Azure AD / Entra ID OAuth gateway."""
+    client_id = os.environ.get("MICROSOFT_CLIENT_ID", "").strip()
+    if not client_id:
+        return RedirectResponse(
+            url=f"/login?sso_setup=Microsoft&scan={urllib.parse.quote_plus(scan or '')}",
+            status_code=302,
+        )
+
+    host = request.headers.get("host", "adxgroup.tech")
+    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
+    redirect_uri = f"{proto}://{host}/api/auth/microsoft/callback"
+
+    state_payload = {"csrf": secrets.token_urlsafe(16), "scan": scan or ""}
+    state_str = urllib.parse.quote_plus(json.dumps(state_payload))
+
+    params = {
+        "client_id": client_id,
+        "response_type": "code",
+        "redirect_uri": redirect_uri,
+        "response_mode": "query",
+        "scope": "openid email profile User.Read",
+        "state": state_str,
+        "prompt": "select_account",
+    }
+    ms_url = f"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?{urllib.parse.urlencode(params)}"
+    return RedirectResponse(url=ms_url, status_code=302)
+
+
+@asgi_app.get("/api/auth/microsoft/callback")
+async def api_microsoft_callback(
+    request: Request,
+    code: Optional[str] = None,
+    error: Optional[str] = None,
+    state: Optional[str] = None,
+):
+    """Receive Microsoft authorization code, fetch user profile, and sign in."""
+    scan_domain = ""
+    if state:
+        try:
+            state_data = json.loads(urllib.parse.unquote_plus(state))
+            scan_domain = state_data.get("scan", "")
+        except Exception:
+            pass
+
+    if error or not code:
+        err_msg = error or "Microsoft sign-in was cancelled."
+        return RedirectResponse(url=f"/login?error={urllib.parse.quote_plus(err_msg)}", status_code=302)
+
+    client_id = os.environ.get("MICROSOFT_CLIENT_ID", "").strip()
+    client_secret = os.environ.get("MICROSOFT_CLIENT_SECRET", "").strip()
+    host = request.headers.get("host", "adxgroup.tech")
+    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
+    redirect_uri = f"{proto}://{host}/api/auth/microsoft/callback"
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as http_client:
+            token_res = await http_client.post(
+                "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                data={
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "code": code,
+                    "redirect_uri": redirect_uri,
+                    "grant_type": "authorization_code",
+                },
+            )
+            if token_res.status_code != 200:
+                return RedirectResponse(
+                    url="/login?error=Failed+to+exchange+Microsoft+authorization+code.",
+                    status_code=302,
+                )
+            token_data = token_res.json()
+            access_token = token_data.get("access_token")
+
+            userinfo_res = await http_client.get(
+                "https://graph.microsoft.com/v1.0/me",
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+            if userinfo_res.status_code != 200:
+                return RedirectResponse(
+                    url="/login?error=Failed+to+fetch+Microsoft+profile.",
+                    status_code=302,
+                )
+            profile = userinfo_res.json()
+    except Exception as exc:
+        print(f"[MICROSOFT OAUTH] Network error: {exc}")
+        return RedirectResponse(url="/login?error=Network+timeout+during+Microsoft+authentication.", status_code=302)
+
+    email = (profile.get("mail") or profile.get("userPrincipalName") or "").strip().lower()
+    name = (profile.get("displayName") or "").strip() or email.split("@")[0].title()
+
+    if not email:
+        return RedirectResponse(url="/login?error=No+email+returned+from+Microsoft+account.", status_code=302)
+
+    sess = create_or_login_oauth_user(email=email, name=name, provider="microsoft", company="")
+
+    client_ip = request.client.host if request.client else "Microsoft SSO"
+    try:
+        send_login_alert(email, name, client_ip)
+    except Exception:
+        pass
+
+    target_url = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
+    if scan_domain and sess["user"]["role"] != "admin":
+        target_url = f"/dashboard?scan={urllib.parse.quote_plus(scan_domain)}"
+
+    html_content = f"""<!DOCTYPE html><html><body><script>
+      localStorage.setItem("adx_session_token", {json.dumps(sess["token"])});
+      localStorage.setItem("adx_user", {json.dumps(json.dumps(sess["user"]))});
+      window.location.href = {json.dumps(target_url)};
+    </script></body></html>"""
+    resp = HTMLResponse(content=html_content)
+    _set_auth_cookie(resp, sess["token"])
+    return resp
+
+
+@asgi_app.get("/api/auth/github/login")
+async def api_github_login(request: Request, scan: Optional[str] = ""):
+    """Redirect user directly to GitHub OAuth application."""
+    client_id = os.environ.get("GITHUB_CLIENT_ID", "").strip()
+    if not client_id:
+        return RedirectResponse(
+            url=f"/login?sso_setup=GitHub&scan={urllib.parse.quote_plus(scan or '')}",
+            status_code=302,
+        )
+
+    host = request.headers.get("host", "adxgroup.tech")
+    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
+    redirect_uri = f"{proto}://{host}/api/auth/github/callback"
+
+    state_payload = {"csrf": secrets.token_urlsafe(16), "scan": scan or ""}
+    state_str = urllib.parse.quote_plus(json.dumps(state_payload))
+
+    params = {
+        "client_id": client_id,
+        "redirect_uri": redirect_uri,
+        "scope": "read:user user:email",
+        "state": state_str,
+    }
+    github_url = f"https://github.com/login/oauth/authorize?{urllib.parse.urlencode(params)}"
+    return RedirectResponse(url=github_url, status_code=302)
+
+
+@asgi_app.get("/api/auth/github/callback")
+async def api_github_callback(
+    request: Request,
+    code: Optional[str] = None,
+    error: Optional[str] = None,
+    state: Optional[str] = None,
+):
+    """Receive GitHub authorization code, exchange for verified developer profile, and sign in."""
+    scan_domain = ""
+    if state:
+        try:
+            state_data = json.loads(urllib.parse.unquote_plus(state))
+            scan_domain = state_data.get("scan", "")
+        except Exception:
+            pass
+
+    if error or not code:
+        err_msg = error or "GitHub sign-in was cancelled."
+        return RedirectResponse(url=f"/login?error={urllib.parse.quote_plus(err_msg)}", status_code=302)
+
+    client_id = os.environ.get("GITHUB_CLIENT_ID", "").strip()
+    client_secret = os.environ.get("GITHUB_CLIENT_SECRET", "").strip()
+    host = request.headers.get("host", "adxgroup.tech")
+    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
+    redirect_uri = f"{proto}://{host}/api/auth/github/callback"
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as http_client:
+            token_res = await http_client.post(
+                "https://github.com/login/oauth/access_token",
+                headers={"Accept": "application/json"},
+                data={
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "code": code,
+                    "redirect_uri": redirect_uri,
+                },
+            )
+            if token_res.status_code != 200:
+                return RedirectResponse(
+                    url="/login?error=Failed+to+exchange+GitHub+authorization+code.",
+                    status_code=302,
+                )
+            token_data = token_res.json()
+            access_token = token_data.get("access_token")
+
+            user_res = await http_client.get(
+                "https://api.github.com/user",
+                headers={"Authorization": f"Bearer {access_token}", "User-Agent": "ADXGroup-Auth"},
+            )
+            if user_res.status_code != 200:
+                return RedirectResponse(
+                    url="/login?error=Failed+to+fetch+profile+from+GitHub.",
+                    status_code=302,
+                )
+            gh_user = user_res.json()
+            email = (gh_user.get("email") or "").strip().lower()
+            if not email:
+                emails_res = await http_client.get(
+                    "https://api.github.com/user/emails",
+                    headers={"Authorization": f"Bearer {access_token}", "User-Agent": "ADXGroup-Auth"},
+                )
+                if emails_res.status_code == 200:
+                    for em in emails_res.json():
+                        if em.get("primary") and em.get("verified"):
+                            email = em.get("email", "").strip().lower()
+                            break
+                        if not email and em.get("verified"):
+                            email = em.get("email", "").strip().lower()
+    except Exception as exc:
+        print(f"[GITHUB OAUTH] Network error: {exc}")
+        return RedirectResponse(url="/login?error=Network+timeout+during+GitHub+authentication.", status_code=302)
+
+    if not email:
+        return RedirectResponse(url="/login?error=No+verified+email+returned+from+GitHub+account.", status_code=302)
+
+    name = (gh_user.get("name") or gh_user.get("login") or "").strip() or email.split("@")[0].title()
+    company = (gh_user.get("company") or "").strip().lstrip("@")
+
+    sess = create_or_login_oauth_user(email=email, name=name, provider="github", company=company)
+
+    client_ip = request.client.host if request.client else "GitHub SSO"
+    try:
+        send_login_alert(email, name, client_ip)
+    except Exception:
+        pass
+
+    target_url = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
+    if scan_domain and sess["user"]["role"] != "admin":
+        target_url = f"/dashboard?scan={urllib.parse.quote_plus(scan_domain)}"
+
+    html_content = f"""<!DOCTYPE html><html><body><script>
+      localStorage.setItem("adx_session_token", {json.dumps(sess["token"])});
+      localStorage.setItem("adx_user", {json.dumps(json.dumps(sess["user"]))});
+      window.location.href = {json.dumps(target_url)};
+    </script></body></html>"""
+    resp = HTMLResponse(content=html_content)
+    _set_auth_cookie(resp, sess["token"])
+    return resp
+
+
+@asgi_app.get("/api/auth/apple/login")
+async def api_apple_login(request: Request, scan: Optional[str] = ""):
+    """Redirect user directly to Sign in with Apple gateway."""
+    client_id = os.environ.get("APPLE_CLIENT_ID", "").strip()
+    if not client_id:
+        return RedirectResponse(
+            url=f"/login?sso_setup=Apple&scan={urllib.parse.quote_plus(scan or '')}",
+            status_code=302,
+        )
+
+    host = request.headers.get("host", "adxgroup.tech")
+    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
+    redirect_uri = f"{proto}://{host}/api/auth/apple/callback"
+
+    state_payload = {"csrf": secrets.token_urlsafe(16), "scan": scan or ""}
+    state_str = urllib.parse.quote_plus(json.dumps(state_payload))
+
+    params = {
+        "client_id": client_id,
+        "redirect_uri": redirect_uri,
+        "response_type": "code id_token",
+        "response_mode": "form_post",
+        "scope": "name email",
+        "state": state_str,
+    }
+    apple_url = f"https://appleid.apple.com/auth/authorize?{urllib.parse.urlencode(params)}"
+    return RedirectResponse(url=apple_url, status_code=302)
+
+
+@asgi_app.api_route("/api/auth/apple/callback", methods=["GET", "POST"])
+async def api_apple_callback(request: Request):
+    """Receive Apple authentication callback."""
+    return RedirectResponse(url="/login?sso_setup=Apple", status_code=302)
+
+
+# =========================================================================
+# Legal & Regulatory Compliance Pages (DSA, EAA, NDPA, GDPR)
+# =========================================================================
+
+@asgi_app.get("/privacy", response_class=HTMLResponse)
+async def page_privacy(request: Request):
+    """Render the Enterprise Privacy & Data Governance Statement."""
+    user = _current_user(request)
+    return templates.TemplateResponse(
+        request=request,
+        name="legal.html",
+        context={"user": user, "tab": "privacy", "title": "Privacy Policy & Data Protection"},
+    )
+
+
+@asgi_app.get("/terms", response_class=HTMLResponse)
+async def page_terms(request: Request):
+    """Render the Enterprise Service Terms & Security Diagnostic Agreement."""
+    user = _current_user(request)
+    return templates.TemplateResponse(
+        request=request,
+        name="legal.html",
+        context={"user": user, "tab": "terms", "title": "Terms of Service"},
+    )
+
+
+@asgi_app.get("/cookies", response_class=HTMLResponse)
+async def page_cookies(request: Request):
+    """Render the Cookie Transparency & Consent Governance Statement."""
+    user = _current_user(request)
+    return templates.TemplateResponse(
+        request=request,
+        name="legal.html",
+        context={"user": user, "tab": "cookies", "title": "Cookie Policy & Telemetry Governance"},
+    )
+
 
 
 @asgi_app.post("/api/domains/add")

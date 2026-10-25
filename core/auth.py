@@ -99,6 +99,7 @@ def init_db() -> None:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
+                username TEXT DEFAULT '',
                 company TEXT DEFAULT '',
                 password_hash TEXT NOT NULL,
                 provider TEXT DEFAULT 'email',
@@ -150,9 +151,12 @@ def init_db() -> None:
             """
         )
         for col_stmt in (
+            "ALTER TABLE users ADD COLUMN username TEXT DEFAULT ''",
             "ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0",
             "ALTER TABLE users ADD COLUMN verification_token TEXT DEFAULT ''",
             "ALTER TABLE users ADD COLUMN verification_code TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN reset_token TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN reset_code TEXT DEFAULT ''",
         ):
             try:
                 conn.execute(col_stmt)
@@ -202,12 +206,13 @@ def create_or_login_oauth_user(email: str, name: str, provider: str = "google", 
                 conn.execute("UPDATE users SET role = 'admin' WHERE id = ?", (user_id,))
         else:
             random_pw = _hash_password(secrets.token_urlsafe(24))
+            clean_username = clean_email.split("@")[0].lower()
             cur = conn.execute(
                 """
-                INSERT INTO users (name, email, company, password_hash, provider, role, email_verified, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, 1, ?)
+                INSERT INTO users (name, email, username, company, password_hash, provider, role, email_verified, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)
                 """,
-                (clean_name, clean_email, company.strip(), random_pw, provider, role, _now_str()),
+                (clean_name, clean_email, clean_username, company.strip(), random_pw, provider, role, _now_str()),
             )
             user_id = cur.lastrowid
         conn.commit()
@@ -215,11 +220,12 @@ def create_or_login_oauth_user(email: str, name: str, provider: str = "google", 
     return create_session(user_id)
 
 
-def register_email_user(name: str, email: str, password: str, company: str = "") -> Dict[str, Any]:
-    """Register a new account with email and password."""
+def register_email_user(name: str, email: str, password: str, company: str = "", username: str = "") -> Dict[str, Any]:
+    """Register a new account with email, username, and password."""
     init_db()
     clean_email = email.strip().lower()
     clean_name = name.strip()
+    clean_username = (username or clean_email.split("@")[0]).strip().lower()
     if not clean_email or "@" not in clean_email:
         raise ValueError("Please enter a valid email address.")
     if len(password) < 6:
@@ -233,16 +239,16 @@ def register_email_user(name: str, email: str, password: str, company: str = "")
 
     with _get_conn() as conn:
         conn.execute("DELETE FROM deleted_accounts WHERE email = ?", (clean_email,))
-        existing = conn.execute("SELECT id FROM users WHERE email = ?", (clean_email,)).fetchone()
+        existing = conn.execute("SELECT id FROM users WHERE email = ? OR username = ?", (clean_email, clean_username)).fetchone()
         if existing:
-            raise ValueError("An account with this email already exists. Please sign in instead.")
+            raise ValueError("An account with this email or username already exists. Please sign in instead.")
 
         cur = conn.execute(
             """
-            INSERT INTO users (name, email, company, password_hash, provider, role, email_verified, verification_token, verification_code, created_at)
-            VALUES (?, ?, ?, ?, 'email', ?, ?, ?, ?, ?)
+            INSERT INTO users (name, email, username, company, password_hash, provider, role, email_verified, verification_token, verification_code, created_at)
+            VALUES (?, ?, ?, ?, ?, 'email', ?, ?, ?, ?, ?)
             """,
-            (clean_name, clean_email, company.strip(), pw_hash, role, is_verified, v_token, v_code, _now_str()),
+            (clean_name, clean_email, clean_username, company.strip(), pw_hash, role, is_verified, v_token, v_code, _now_str()),
         )
         user_id = cur.lastrowid
         conn.commit()
@@ -298,43 +304,114 @@ def resend_verification_email(user_id: int) -> Dict[str, Any]:
         return {"ok": True, "email": row["email"]}
 
 
-def login_email_user(email: str, password: str) -> Dict[str, Any]:
-    """Authenticate an existing email/password user, or auto-provision across serverless instances."""
+def request_password_reset(identifier: str) -> Dict[str, Any]:
+    """Generate a password reset token & 6-digit OTP and dispatch via cryptographic mailer."""
     init_db()
-    clean_email = email.strip().lower()
-    if not clean_email or "@" not in clean_email:
-        raise ValueError("Please enter a valid email address.")
+    clean_id = (identifier or "").strip().lower()
+    if not clean_id:
+        raise ValueError("Please provide your username or email address.")
+
+    with _get_conn() as conn:
+        row = conn.execute(
+            "SELECT * FROM users WHERE email = ? OR username = ? OR lower(name) = ?",
+            (clean_id, clean_id, clean_id),
+        ).fetchone()
+
+        if not row:
+            # For security, do not leak whether an account exists, but return uniform response
+            return {"ok": True, "message": "If an account matches your details, a security reset link has been dispatched."}
+
+        reset_token = secrets.token_urlsafe(32)
+        reset_code = f"{secrets.randbelow(900000) + 100000}"
+        conn.execute(
+            "UPDATE users SET reset_token = ?, reset_code = ? WHERE id = ?",
+            (reset_token, reset_code, row["id"]),
+        )
+        conn.commit()
+
+        try:
+            from core.mailer import send_password_reset_email
+            send_password_reset_email(row["email"], row["name"], reset_token, reset_code)
+        except Exception as exc:
+            print(f"[AUTH] Password reset email failed: {exc}")
+
+        return {
+            "ok": True,
+            "message": f"Security password reset instructions sent to {row['email']}.",
+            "email": row["email"],
+        }
+
+
+def complete_password_reset(token_or_code: str, new_password: str) -> Dict[str, Any]:
+    """Validate reset token or 6-digit code and update user's password."""
+    init_db()
+    clean_val = (token_or_code or "").strip()
+    if not clean_val:
+        raise ValueError("Invalid or expired password reset token.")
+    if len(new_password) < 6:
+        raise ValueError("Password must be at least 6 characters.")
+
+    with _get_conn() as conn:
+        row = conn.execute(
+            "SELECT * FROM users WHERE reset_token = ? OR reset_code = ?",
+            (clean_val, clean_val),
+        ).fetchone()
+        if not row:
+            raise ValueError("Invalid or expired password reset token. Please request a new link.")
+
+        new_hash = _hash_password(new_password)
+        conn.execute(
+            "UPDATE users SET password_hash = ?, reset_token = '', reset_code = '' WHERE id = ?",
+            (new_hash, row["id"]),
+        )
+        conn.commit()
+
+    return {"ok": True, "message": "Password updated successfully. You may now sign in."}
+
+
+
+def login_email_user(identifier: str, password: str) -> Dict[str, Any]:
+    """Authenticate an existing user by username or email and password."""
+    init_db()
+    clean_id = identifier.strip().lower()
+    if not clean_id:
+        raise ValueError("Please enter your username or email address.")
     if len(password) < 6:
         raise ValueError("Password must be at least 6 characters.")
 
-    role = "admin" if clean_email in OWNER_EMAILS else "client"
-    clean_name = clean_email.split("@")[0].title()
-
     with _get_conn() as conn:
-        deleted = conn.execute("SELECT 1 FROM deleted_accounts WHERE email = ?", (clean_email,)).fetchone()
+        deleted = conn.execute("SELECT 1 FROM deleted_accounts WHERE email = ?", (clean_id,)).fetchone()
         if deleted:
             raise ValueError("This account was permanently deleted. Please register for a new account.")
 
-        row = conn.execute("SELECT * FROM users WHERE email = ?", (clean_email,)).fetchone()
+        row = conn.execute(
+            "SELECT * FROM users WHERE email = ? OR username = ? OR lower(name) = ?",
+            (clean_id, clean_id, clean_id),
+        ).fetchone()
+
         if row:
+            role = row["role"]
             if not _verify_password(password, row["password_hash"]):
-                # If owner/admin email and password changed, update it so owner is never locked out
-                if role == "admin":
+                if role == "admin" and (clean_id in OWNER_EMAILS or row["email"] in OWNER_EMAILS):
                     pw_hash = _hash_password(password)
                     conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (pw_hash, row["id"]))
                     conn.commit()
                 else:
-                    raise ValueError("Incorrect password for this email. Check your password or click Create Account.")
+                    raise ValueError("Incorrect password. Please verify your credentials or click Create Account.")
             user_id = row["id"]
         else:
-            # Serverless auto-provisioning: If container was recycled, seamlessly provision user record with this password
+            if "@" not in clean_id:
+                raise ValueError("Account not found. Please verify your username/email or click Create Account.")
+            clean_email = clean_id
+            role = "admin" if clean_email in OWNER_EMAILS else "client"
+            clean_name = clean_email.split("@")[0].title()
             pw_hash = _hash_password(password)
             cur = conn.execute(
                 """
-                INSERT INTO users (name, email, company, password_hash, provider, role, created_at)
-                VALUES (?, ?, '', ?, 'email', ?, ?)
+                INSERT INTO users (name, email, username, company, password_hash, provider, role, created_at)
+                VALUES (?, ?, ?, '', ?, 'email', ?, ?)
                 """,
-                (clean_name, clean_email, pw_hash, role, _now_str()),
+                (clean_name, clean_email, clean_email.split("@")[0].lower(), pw_hash, role, _now_str()),
             )
             user_id = cur.lastrowid
             conn.commit()
@@ -349,6 +426,7 @@ def _format_user(u: Dict[str, Any]) -> Dict[str, Any]:
     hex_code = hashlib.sha256(seed).hexdigest()[:8].upper()
     user_copy["uid"] = f"ADX-{hex_code}"
     user_copy["email_verified"] = int(user_copy.get("email_verified", 0))
+    user_copy["username"] = user_copy.get("username") or (user_copy.get("email", "").split("@")[0].lower() if "@" in user_copy.get("email", "") else f"user_{user_copy.get('id', 1)}")
     return user_copy
 
 
@@ -360,7 +438,7 @@ def create_session(user_id: int) -> Dict[str, Any]:
 
     with _get_conn() as conn:
         user_row = conn.execute(
-            "SELECT id, name, email, company, provider, role, created_at FROM users WHERE id = ?",
+            "SELECT id, name, email, username, company, provider, role, email_verified, created_at FROM users WHERE id = ?",
             (user_id,),
         ).fetchone()
         user_dict = dict(user_row) if user_row else {

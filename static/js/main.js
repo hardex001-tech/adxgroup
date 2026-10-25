@@ -1133,6 +1133,122 @@ document.addEventListener("DOMContentLoaded", () => {
     requestAnimationFrame(drawFrame);
   }
 
+  // =========================================================================
+  // Cookie Consent Management (Glovo / DSA / EAA / NDPA / GDPR Compliant)
+  // =========================================================================
+  window.openCookieModal = function () {
+    const modalBackdrop = document.getElementById("adx-cookie-modal-backdrop");
+    if (modalBackdrop) modalBackdrop.classList.remove("hidden");
+  };
+
+  window.closeCookieModal = function () {
+    const modalBackdrop = document.getElementById("adx-cookie-modal-backdrop");
+    if (modalBackdrop) modalBackdrop.classList.add("hidden");
+  };
+
+  window.acceptAllCookies = function () {
+    try {
+      const consent = {
+        essential: true,
+        telemetry: true,
+        decidedAt: new Date().toISOString(),
+        status: "ACCEPTED_ALL",
+      };
+      localStorage.setItem("adx_cookie_consent", JSON.stringify(consent));
+    } catch (e) {}
+    window.closeCookieModal();
+    if (window.showAdxNotice) {
+      window.showAdxNotice("Privacy preferences saved. All features and telemetry active.", "success", "Cookie Consent Active");
+    }
+  };
+
+  window.denyCookies = function () {
+    try {
+      const consent = {
+        essential: true,
+        telemetry: false,
+        decidedAt: new Date().toISOString(),
+        status: "DENIED_NON_ESSENTIAL",
+      };
+      localStorage.setItem("adx_cookie_consent", JSON.stringify(consent));
+    } catch (e) {}
+    window.closeCookieModal();
+    if (window.showAdxNotice) {
+      window.showAdxNotice("Non-essential telemetry denied. Strictly essential security cookies active.", "info", "Zero-Trust Privacy Applied");
+    }
+  };
+
+  window.toggleCookieDetails = function () {
+    const details = document.getElementById("adx-cookie-details");
+    if (details) details.classList.toggle("hidden");
+  };
+
+  window.saveCustomCookiePreferences = function () {
+    const optIn = document.getElementById("chk-telemetry") ? document.getElementById("chk-telemetry").checked : false;
+    try {
+      const consent = {
+        essential: true,
+        telemetry: optIn,
+        decidedAt: new Date().toISOString(),
+        status: optIn ? "CUSTOM_ACCEPTED" : "CUSTOM_DENIED",
+      };
+      localStorage.setItem("adx_cookie_consent", JSON.stringify(consent));
+    } catch (e) {}
+    window.closeCookieModal();
+    if (window.showAdxNotice) {
+      window.showAdxNotice("Custom cookie choices saved successfully.", "success", "Preferences Updated");
+    }
+  };
+
+  setTimeout(() => {
+    try {
+      const saved = localStorage.getItem("adx_cookie_consent");
+      if (!saved) {
+        window.openCookieModal();
+      }
+    } catch (e) {}
+  }, 1200);
+
+  // =========================================================================
+  // FAQ Accordion
+  // =========================================================================
+  window.toggleFaq = function (faqId) {
+    const item = document.getElementById(faqId);
+    if (!item) return;
+    const isActive = item.classList.contains("active");
+    document.querySelectorAll(".faq-item").forEach((el) => el.classList.remove("active"));
+    if (!isActive) {
+      item.classList.add("active");
+    }
+  };
+
+  // =========================================================================
+  // Capabilities Showcase Interactive Tab Switcher
+  // =========================================================================
+  window.switchCapabilityTab = function (tabId) {
+    document.querySelectorAll(".capability-tab-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.getAttribute("data-tab") === tabId);
+    });
+    document.querySelectorAll(".capability-pane").forEach((pane) => {
+      pane.classList.toggle("hidden", pane.id !== `pane-${tabId}`);
+    });
+  };
+
+  window.runSimulatedAudit = function () {
+    const termBody = document.getElementById("sim-terminal-output");
+    if (!termBody) return;
+    termBody.innerHTML = `
+      <span style="color: #60a5fa;">$ adx audit --domain adxgroup.tech --compliance-mode 2026-cve</span><br>
+      <span style="color: #94a3b8;">[INIT] Handshaking with edge telemetry cluster...</span><br>
+      <span style="color: #10b981;">[DNS] Resolving A/AAAA records: IP 76.76.21.21 (Verified Vercel Global Edge)</span><br>
+      <span style="color: #10b981;">[TLS] Handshake: TLS 1.3 Forward Secrecy &bull; Modern AEAD Cipher &bull; Zero Weakness</span><br>
+      <span style="color: #10b981;">[MAIL] DMARC Policy: p=reject &bull; SPF &amp; DKIM Hardened against BEC Spoofing</span><br>
+      <span style="color: #10b981;">[HEADERS] Content-Security-Policy &amp; HSTS 63072000s max-age active</span><br>
+      <span style="color: #10b981;">[CVE] Scanning 2026 Attack Vectors: CVE-2026-109618, CVE-2026-31044: PROTECTED</span><br>
+      <span style="color: #38bdf8; font-weight: 700;">[RESULT] Audit Score: 98/100 (GRADE A+ EXCELLENT) &bull; Verified Zero-Trust Stance</span>
+    `;
+  };
+
   initQuantumOrbitalBackground();
 
   function escapeHtml(str) {

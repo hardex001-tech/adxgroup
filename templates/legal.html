@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title or "Legal Governance & Regulatory Compliance" }} | ADX Group</title>
+  <meta name="description" content="Legal and regulatory compliance documentation for ADX Group, covering NDPA, GDPR, DSA, EAA, and Cookie Governance." />
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.39" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.39" />
+  <style>
+    .legal-container {
+      max-width: 960px;
+      margin: 40px auto 80px;
+      padding: 0 24px;
+    }
+    .legal-card {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 42px 48px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 14px 34px -10px rgba(15,23,42,0.06);
+    }
+    .legal-header {
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .legal-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .legal-tab-link {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--text-muted);
+      transition: all 0.16s ease;
+    }
+    .legal-tab-link.active {
+      background: #0f172a;
+      color: #ffffff;
+    }
+    .legal-content h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 28px 0 12px;
+      letter-spacing: -0.02em;
+    }
+    .legal-content h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 20px 0 8px;
+    }
+    .legal-content p, .legal-content li {
+      font-size: 0.93rem;
+      color: #475569;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+    .legal-content ul {
+      padding-left: 24px;
+      margin-bottom: 16px;
+    }
+    .legal-badge-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .legal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: #334155;
+    }
+    .cookie-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.88rem;
+    }
+    .cookie-table th, .cookie-table td {
+      border: 1px solid #e2e8f0;
+      padding: 12px 14px;
+      text-align: left;
+    }
+    .cookie-table th {
+      background: #f8fafc;
+      font-weight: 700;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="/" class="brand">
+        <img src="/static/logo.svg?v=2026.39" alt="ADX Group Logo" style="width: 38px; height: 38px;" />
+        <div>
+          <span class="brand-text">ADX GROUP</span>
+          <span class="brand-motto">Silent Innovation. Absolute Defense.</span>
+        </div>
+      </a>
+      <nav class="nav-links">
+        <a href="/">&larr; Return to Home</a>
+        {% if user %}
+          <a href="/dashboard" class="btn btn-primary">Open Console</a>
+        {% else %}
+          <a href="/login" class="btn btn-primary">Sign In</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <div class="legal-container">
+    <div class="legal-card">
+      <div class="legal-header">
+        <div class="legal-badge-strip">
+          <span class="legal-badge">DSA COMPLIANT</span>
+          <span class="legal-badge">EAA ACCESSIBILITY (WCAG 2.1 AA)</span>
+          <span class="legal-badge">NDPA / NDPR CERTIFIED</span>
+          <span class="legal-badge">GDPR ALIGNED</span>
+        </div>
+        <h1 style="font-size: 2rem; font-weight: 800; color: #0f172a; margin-top: 14px; letter-spacing: -0.03em;">
+          Enterprise Trust &amp; Legal Governance
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 6px;">
+          ADX Group Architectural Baseline &bull; Lead Cyber Systems Architect: Abdulrazaq Adeyemi &bull; Last Revised: 2026
+        </p>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="legal-tabs">
+        <a href="/privacy" class="legal-tab-link {% if tab == 'privacy' %}active{% endif %}">Privacy Policy</a>
+        <a href="/terms" class="legal-tab-link {% if tab == 'terms' %}active{% endif %}">Terms of Service</a>
+        <a href="/cookies" class="legal-tab-link {% if tab == 'cookies' %}active{% endif %}">Cookie Policy &amp; Telemetry</a>
+      </div>
+
+      <div class="legal-content">
+        {% if tab == 'privacy' %}
+          <h2>Enterprise Privacy Policy &amp; Data Protection</h2>
+          <p>
+            At ADX Group (operating via <code>adxgroup.tech</code>), we maintain a strict Zero-Data-Leak mandate. This Privacy Policy details our handling of organizational identifiers, telemetry queries, and authentication records in strict accordance with the Nigeria Data Protection Act (NDPA / NDPR), the General Data Protection Regulation (GDPR), and the European Digital Services Act (DSA).
+          </p>
+
+          <h3>1. Data Controller Identity &amp; Contact</h3>
+          <p>
+            The Data Controller responsible for perimeter telemetry and identity verification processing is <strong>ADX Group Cyber Systems</strong>, under the direction of Lead Cyber Systems Architect Abdulrazaq Adeyemi. For data subject requests, right-to-be-forgotten petitions, or compliance inquiries, contact our dedicated security desk at <a href="mailto:contact@adxgroup.tech" style="color: #2563eb;">contact@adxgroup.tech</a>.
+          </p>
+
+          <h3>2. Zero-Retention Diagnostic Queries</h3>
+          <p>
+            When an organization or authorized user submits a domain for infrastructure diagnostic via our 6-Gate Audit Engine, ADX processes public Internet routing records, SSL/TLS handshake certificates, SPF/DMARC records, and HTTP response headers. We do not inspect, intercept, store, or modify private payload contents. Diagnostic records are ephemeral and bound solely to your authenticated workspace.
+          </p>
+
+          <h3>3. Zero-Data-Leak Autonomous AI Systems</h3>
+          <p>
+            All enterprise artificial intelligence queries executed through the ADX Intelligence division utilize dedicated private memory structures. Customer proprietary code, architectural secrets, and compliance records are never exposed to public LLM training datasets or multi-tenant pipelines.
+          </p>
+
+          <h3>4. User Rights Under NDPA &amp; GDPR</h3>
+          <p>
+            Every user is entitled to full sovereign control over their records, including the right of access, rectification, data portability, and unconditional account deletion. Users can permanently purge their account and all associated telemetry records directly within the ADX Console at any time.
+          </p>
+
+        {% elif tab == 'terms' %}
+          <h2>Enterprise Terms of Service</h2>
+          <p>
+            These Terms of Service govern your access to and utilization of ADX Group software, automated diagnostic telemetry, and autonomous cyber consulting services.
+          </p>
+
+          <h3>1. Non-Intrusive Diagnostic Authorization</h3>
+          <p>
+            By initiating an audit query on <code>adxgroup.tech</code>, you affirm that you possess authorization to evaluate the public perimeter posture of the specified domain, or are conducting high-level defensive reconnaissance. ADX Group diagnostic tools operate strictly through passive, non-intrusive protocols without invasive penetration attempts or service degradation.
+          </p>
+
+          <h3>2. Zero-Trust Gateway &amp; Account Responsibility</h3>
+          <p>
+            Authentication credentials and session tokens issued by ADX Group must be safeguarded. ADX Group employs PBKDF2-SHA256 password hashing and cryptographic session verification. Users agree not to attempt reverse engineering of ADX perimeter scoring algorithms or circumvent rate-limiting guardrails.
+          </p>
+
+          <h3>3. Service Availability SLA</h3>
+          <p>
+            ADX Group targets a 99.99% architecture availability SLA for sovereign cloud endpoints and real-time telemetry diagnostics. Scheduled maintenance windows and upstream cloud edge provider anomalies are mitigated via multi-cloud routing topologies.
+          </p>
+
+          <h3>4. Limitation of Liability</h3>
+          <p>
+            Security audit scores and automated recommendations are provided on an engineering evaluation basis. Organizations remain responsible for reviewing remediation diffs before merging them into production environments.
+          </p>
+
+        {% else %}
+          <h2>Cookie Policy &amp; Telemetry Governance</h2>
+          <p>
+            This Cookie Policy explains how ADX Group utilizes cookies and local storage tokens to provide zero-trust identity authentication and non-intrusive threat telemetry in full compliance with the European Digital Services Act (DSA) and European Accessibility Act (EAA).
+          </p>
+
+          <h3>1. Categories of Cookies We Deploy</h3>
+          <table class="cookie-table">
+            <thead>
+              <tr>
+                <th>Cookie Name</th>
+                <th>Type</th>
+                <th>Purpose</th>
+                <th>Retention</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>adx_session_token</code></td>
+                <td>Essential (Strictly Required)</td>
+                <td>Cryptographic authentication token verifying active console sessions and preventing CSRF attacks.</td>
+                <td>Session / 7 Days</td>
+              </tr>
+              <tr>
+                <td><code>adx_cookie_consent</code></td>
+                <td>Essential (Preference)</td>
+                <td>Records your explicit cookie consent and telemetry choices made in the management modal.</td>
+                <td>1 Year</td>
+              </tr>
+              <tr>
+                <td><code>adx_telemetry_opt</code></td>
+                <td>Non-Essential (Telemetry)</td>
+                <td>Measures edge diagnostic latency and non-identifying perimeter vulnerability trends.</td>
+                <td>30 Days</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>2. Managing Your Cookie Choices</h3>
+          <p>
+            You have total sovereign control over non-essential cookies. You can modify your choices at any moment by clicking the button below:
+          </p>
+          <div style="margin: 20px 0;">
+            <button type="button" class="btn btn-primary" onclick="openCookieModal()">
+              Open Cookie Management Modal
+            </button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Corporate Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border: none; padding-top: 0;">
+        <div>&copy; 2026 ADX Group. All rights reserved. Silent Innovation. Absolute Defense.</div>
+        <div>adxgroup.tech</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/js/main.js?v=2026.39"></script>
+</body>
+</html>

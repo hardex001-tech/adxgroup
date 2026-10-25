@@ -243,3 +243,76 @@ contact@adxgroup.tech
     }
     _record_to_outbox(record)
     return record
+
+
+def send_password_reset_email(email: str, name: str, token: str, code: str) -> Dict[str, Any]:
+    """Send cryptographic password reset email with 6-digit OTP code and direct reset link."""
+    clean_email = email.strip().lower()
+    clean_name = name.strip() or clean_email.split("@")[0].title()
+    reset_url = f"{APP_BASE_URL}/login?reset_token={token}"
+    now_str = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+    subject = f"ADX Group Security: Password Reset Request ({code})"
+
+    text_body = f"""Hello {clean_name},
+
+A password reset was requested for your ADX Group Console account ({clean_email}).
+
+Your 6-Digit Verification Code is: {code}
+
+Alternatively, reset your password directly by visiting:
+{reset_url}
+
+This password reset link expires in 60 minutes.
+
+If you did not request this reset, your account is secure and you may safely disregard this message.
+
+ADX Group Cyber Security Desk
+contact@adxgroup.tech | https://adxgroup.tech
+"""
+
+    html_body = f"""<!DOCTYPE html>
+<html>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; background: #f8fafc; color: #0f172a;">
+  <div style="max-width: 540px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 14px rgba(15,23,42,0.06);">
+    <div style="background: #0f172a; padding: 22px 28px; border-bottom: 2px solid #2563eb;">
+      <span style="color: #ffffff; font-size: 17px; font-weight: 800; letter-spacing: -0.3px;">ADX GROUP</span>
+      <span style="display: block; color: #94a3b8; font-size: 11px; text-transform: uppercase; margin-top: 2px;">Zero-Trust Password Recovery Gateway</span>
+    </div>
+    <div style="padding: 28px;">
+      <h2 style="color: #0f172a; margin-top: 0; font-size: 19px;">Reset Your Console Password</h2>
+      <p style="font-size: 14px; color: #475569; line-height: 1.55;">
+        Hello <strong>{clean_name}</strong>, a request was received to reset your password. Use the verification code below or click the direct button to set a new password.
+      </p>
+      <div style="background: #f1f5f9; border-radius: 8px; border: 1px solid #cbd5e1; padding: 18px; text-align: center; margin: 20px 0;">
+        <span style="display: block; font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; margin-bottom: 6px;">Your 6-Digit Password Reset Code</span>
+        <span style="font-family: monospace; font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #2563eb;">{code}</span>
+      </div>
+      <div style="text-align: center; margin: 24px 0;">
+        <a href="{reset_url}" style="background: #0f172a; color: #ffffff; text-decoration: none; padding: 12px 26px; border-radius: 6px; font-size: 14px; font-weight: 700; display: inline-block;">
+          Set New Password &rarr;
+        </a>
+      </div>
+      <p style="font-size: 12px; color: #64748b; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 14px; margin: 0;">
+        This token expires in 60 minutes. If you did not initiate this request, no action is needed.
+      </p>
+    </div>
+  </div>
+</body>
+</html>"""
+
+    sent = _send_smtp_email(clean_email, subject, html_body, text_body)
+
+    record = {
+        "id": f"ADX-RESET-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
+        "timestamp": now_str,
+        "type": "PASSWORD_RESET",
+        "to": clean_email,
+        "code": code,
+        "token": token,
+        "smtp_dispatched": sent,
+        "status": "SENT_VIA_SMTP" if sent else "QUEUED_OUTBOX",
+    }
+    _record_to_outbox(record)
+    return record
+

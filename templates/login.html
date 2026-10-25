@@ -4,16 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign In | ADX Group Enterprise Console</title>
-  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.38" />
+  <meta name="description" content="Sign in to the ADX Group Enterprise Security Console. Sovereign cloud systems, private AI agents, and perimeter threat telemetry." />
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.39" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/css/style.css?v=2026.38" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.39" />
   <style>
     :root {
       --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
-      --bg-page: #f8fafc;
       --card-bg: #ffffff;
       --text-main: #0f172a;
       --text-muted: #64748b;
@@ -29,13 +29,15 @@
     }
 
     body {
-      background-color: var(--bg-page);
+      background-color: #0b1120;
       background-image: 
-        radial-gradient(ellipse 80% 50% at 50% -10%, #dbeafe 0%, #f8fafc 80%),
-        linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
-      background-size: 100% 100%, 40px 40px, 40px 40px;
-      color: var(--text-main);
+        radial-gradient(ellipse 70% 50% at 50% -10%, rgba(37, 99, 235, 0.35) 0%, transparent 75%),
+        radial-gradient(circle at 85% 80%, rgba(2, 132, 199, 0.22) 0%, transparent 60%),
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+      background-attachment: fixed;
+      color: #f8fafc;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -45,21 +47,22 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Subtle Watermark Logo in Background */
+    /* Illuminated Sovereign Emblem Watermark in Lit Background */
     .watermark-logo {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 760px;
-      max-width: 92vw;
+      width: 860px;
+      max-width: 95vw;
       height: auto;
-      opacity: 0.035;
+      opacity: 0.065;
+      filter: drop-shadow(0 0 100px rgba(37, 99, 235, 0.6));
       pointer-events: none;
       z-index: 1;
     }
 
-    /* Main 2-Column Split Container */
+    /* Main Split Container */
     .auth-page-wrapper {
       position: relative;
       z-index: 2;
@@ -67,37 +70,38 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 40px 20px;
+      padding: 48px 20px;
     }
 
     .auth-split-grid {
       width: 100%;
-      max-width: 1100px;
+      max-width: 1120px;
       display: grid;
-      grid-template-columns: 460px 1fr;
-      gap: 36px;
+      grid-template-columns: 480px 1fr;
+      gap: 42px;
       align-items: center;
     }
 
-    /* Left Card: Clean Authentication */
+    /* Left Card: Clean Porcelain Authentication Card */
     .auth-card {
       background: var(--card-bg);
-      border: 1px solid var(--border-subtle);
+      border: 1px solid rgba(226, 232, 240, 0.95);
       border-radius: 20px;
       padding: 38px 34px;
       box-shadow: 
-        0 1px 3px rgba(0, 0, 0, 0.03),
-        0 16px 40px -10px rgba(15, 23, 42, 0.08);
+        0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 24px 60px -15px rgba(0, 0, 0, 0.45);
+      color: var(--text-main);
     }
 
     .auth-header {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
 
     .auth-logo {
-      width: 48px;
-      height: 48px;
+      width: 52px;
+      height: 52px;
       margin-bottom: 12px;
       display: inline-block;
       transition: transform 0.2s ease;
@@ -132,7 +136,7 @@
     }
 
     .auth-header h1 {
-      font-size: 1.45rem;
+      font-size: 1.55rem;
       font-weight: 800;
       color: var(--text-main);
       margin-bottom: 6px;
@@ -140,41 +144,49 @@
     }
 
     .auth-header p {
-      font-size: 0.85rem;
+      font-size: 0.86rem;
       color: var(--text-muted);
       line-height: 1.45;
     }
 
+    /* 4-Provider Responsive SSO Grid */
+    .sso-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
 
-
-    /* 1-Click Direct Google OAuth Button */
-    .btn-google-sso {
-      display: flex;
+    .btn-sso {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      width: 100%;
-      padding: 12px 16px;
-      border-radius: 10px;
+      gap: 9px;
+      padding: 10px 12px;
+      border-radius: 9px;
       background: #ffffff;
-      color: #0f172a;
-      border: 1px solid var(--border-subtle);
-      font-size: 0.92rem;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+      font-size: 0.85rem;
       font-weight: 600;
       font-family: var(--font-sans);
       text-decoration: none;
       cursor: pointer;
-      transition: all 0.18s ease;
+      transition: all 0.16s ease;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-      margin-bottom: 16px;
     }
 
-    .btn-google-sso:hover {
+    .btn-sso:hover {
       background: #f8fafc;
-      border-color: #cbd5e1;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      border-color: #94a3b8;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
       transform: translateY(-1px);
     }
+
+    .btn-sso-google:hover { border-color: #4285f4; }
+    .btn-sso-ms:hover { border-color: #05a6f0; }
+    .btn-sso-gh:hover { border-color: #0f172a; color: #000; }
+    .btn-sso-apple:hover { border-color: #000000; color: #000; }
 
     .divider {
       display: flex;
@@ -194,13 +206,8 @@
       border-bottom: 1px solid var(--border-subtle);
     }
 
-    .divider:not(:empty)::before {
-      margin-right: 14px;
-    }
-
-    .divider:not(:empty)::after {
-      margin-left: 14px;
-    }
+    .divider:not(:empty)::before { margin-right: 14px; }
+    .divider:not(:empty)::after { margin-left: 14px; }
 
     /* Switch Tabs */
     .auth-tabs {
@@ -233,7 +240,7 @@
     }
 
     .form-group {
-      margin-bottom: 13px;
+      margin-bottom: 14px;
     }
 
     .form-group label {
@@ -303,7 +310,7 @@
       background: #0f172a;
       color: #ffffff;
       font-weight: 700;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       cursor: pointer;
       font-family: var(--font-sans);
       margin-top: 6px;
@@ -312,7 +319,7 @@
 
     .btn-submit:hover {
       background: #1e293b;
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
       transform: translateY(-1px);
     }
 
@@ -340,7 +347,7 @@
       color: #0f172a;
     }
 
-    /* Right Column: Prestigious Enterprise Showcase */
+    /* Right Column: High-Tech Enterprise Architecture Showcase */
     .showcase-column {
       padding: 20px 10px;
     }
@@ -353,26 +360,26 @@
       font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.08em;
-      color: #2563eb;
+      color: #60a5fa;
       text-transform: uppercase;
       margin-bottom: 14px;
     }
 
     .showcase-title {
-      font-size: 2.1rem;
+      font-size: 2.2rem;
       font-weight: 800;
       line-height: 1.2;
-      color: #0f172a;
+      color: #ffffff;
       letter-spacing: -0.03em;
       margin-bottom: 12px;
     }
 
     .showcase-subtitle {
-      font-size: 0.95rem;
-      color: #475569;
-      line-height: 1.55;
-      margin-bottom: 30px;
-      max-width: 520px;
+      font-size: 0.98rem;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 28px;
+      max-width: 540px;
     }
 
     .pillar-stack {
@@ -383,30 +390,30 @@
     }
 
     .pillar-item {
-      background: #ffffff;
-      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
       border-radius: 14px;
       padding: 16px 18px;
       display: flex;
       gap: 14px;
       align-items: flex-start;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
       transition: all 0.2s ease;
     }
 
     .pillar-item:hover {
-      border-color: #cbd5e1;
+      border-color: rgba(96, 165, 250, 0.4);
+      background: rgba(30, 41, 59, 0.85);
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px -6px rgba(15, 23, 42, 0.08);
     }
 
     .pillar-icon-box {
       width: 40px;
       height: 40px;
       border-radius: 10px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #2563eb;
+      background: rgba(37, 99, 235, 0.2);
+      border: 1px solid rgba(96, 165, 250, 0.35);
+      color: #60a5fa;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -415,15 +422,15 @@
     }
 
     .pillar-content h3 {
-      font-size: 0.94rem;
+      font-size: 0.95rem;
       font-weight: 700;
-      color: #0f172a;
+      color: #ffffff;
       margin-bottom: 4px;
     }
 
     .pillar-content p {
-      font-size: 0.82rem;
-      color: #64748b;
+      font-size: 0.83rem;
+      color: #94a3b8;
       line-height: 1.45;
     }
 
@@ -432,10 +439,10 @@
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
-      padding-top: 14px;
-      border-top: 1px solid #e2e8f0;
-      font-size: 0.78rem;
-      color: #64748b;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.8rem;
+      color: #94a3b8;
       font-family: var(--font-mono);
     }
 
@@ -443,19 +450,17 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #059669;
+      background: #10b981;
     }
 
     .hidden {
       display: none !important;
     }
 
-
-
     @media (max-width: 960px) {
       .auth-split-grid {
         grid-template-columns: 1fr;
-        max-width: 480px;
+        max-width: 490px;
         gap: 28px;
       }
       .showcase-column {
@@ -470,17 +475,17 @@
 </head>
 <body>
 
-  <!-- Clean Subtle Watermark Logo in Background -->
-  <img src="/static/logo.svg?v=2026.38" alt="" class="watermark-logo" />
+  <!-- Lit Background Watermark Emblem -->
+  <img src="/static/logo.svg?v=2026.39" alt="" class="watermark-logo" />
 
   <div class="auth-page-wrapper">
     <div class="auth-split-grid">
 
-      <!-- LEFT COLUMN: Authentic Zero-Trust Auth Card -->
+      <!-- LEFT COLUMN: Authentic Porcelain Auth Card -->
       <div class="auth-card">
         <div class="auth-header">
           <a href="/" style="display: inline-block;">
-            <img src="/static/logo.svg?v=2026.38" alt="ADX Group" class="auth-logo" />
+            <img src="/static/logo.svg?v=2026.39" alt="ADX Group" class="auth-logo" />
           </a>
           <div style="display: flex; justify-content: center;">
             <div class="status-badge">
@@ -491,18 +496,49 @@
           <h1>Console Sign In</h1>
           <p>Access your Cloud Systems, Autonomous AI Agents &amp; Perimeter Intelligence Console.</p>
         </div>
-        <!-- 1-Click Direct Google OAuth Gateway -->
-        <a href="/api/auth/google/login" id="google-login-btn" class="btn-google-sso">
-          <svg width="18" height="18" viewBox="0 0 24 24">
-            <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z"/>
-            <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/>
-            <path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 12.3s.6 3.3 1.6 5.3l3.7-2.8z"/>
-            <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5L1.6 16c1.9 3.9 5.8 7 10.4 7z"/>
-          </svg>
-          <span>Continue with Google</span>
-        </a>
 
-        <div class="divider">OR WORK EMAIL</div>
+        <!-- 4-Provider 1-Click Direct SSO Buttons (Google, Microsoft, GitHub, Apple) -->
+        <div class="sso-grid">
+          <!-- Google SSO -->
+          <a href="/api/auth/google/login" id="sso-google" class="btn-sso btn-sso-google" title="Continue with Google">
+            <svg width="17" height="17" viewBox="0 0 24 24">
+              <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z"/>
+              <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/>
+              <path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 12.3s.6 3.3 1.6 5.3l3.7-2.8z"/>
+              <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5L1.6 16c1.9 3.9 5.8 7 10.4 7z"/>
+            </svg>
+            <span>Google</span>
+          </a>
+
+          <!-- Microsoft SSO -->
+          <a href="/api/auth/microsoft/login" id="sso-microsoft" class="btn-sso btn-sso-ms" title="Continue with Microsoft">
+            <svg width="17" height="17" viewBox="0 0 23 23">
+              <path fill="#f35325" d="M1 1h10v10H1z"/>
+              <path fill="#81bc06" d="M12 1h10v10H12z"/>
+              <path fill="#05a6f0" d="M1 12h10v10H1z"/>
+              <path fill="#ffba08" d="M12 12h10v10H12z"/>
+            </svg>
+            <span>Microsoft</span>
+          </a>
+
+          <!-- GitHub SSO -->
+          <a href="/api/auth/github/login" id="sso-github" class="btn-sso btn-sso-gh" title="Continue with GitHub">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="#0f172a">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+            </svg>
+            <span>GitHub</span>
+          </a>
+
+          <!-- Apple SSO -->
+          <a href="/api/auth/apple/login" id="sso-apple" class="btn-sso btn-sso-apple" title="Continue with Apple">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="#0f172a">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.38c.62-.75 1.04-1.8 0.92-2.85-.9.04-1.99.6-2.61 1.35-.55.63-1.03 1.66-.9 2.68 1.01.08 2.01-.5 2.59-1.18z"/>
+            </svg>
+            <span>Apple</span>
+          </a>
+        </div>
+
+        <div class="divider">OR USERNAME / WORK EMAIL</div>
 
         <!-- Mode Switch Tabs -->
         <div class="auth-tabs">
@@ -512,50 +548,121 @@
 
         <div id="auth-error" class="auth-error"></div>
 
-        <!-- Sign In Form -->
+        <!-- Sign In Form (Username / Email & Password) -->
         <form id="signin-form">
           <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" id="signin-email" class="form-control" placeholder="name@company.com" required />
+            <label for="signin-identifier">Username or Work Email *</label>
+            <input
+              type="text"
+              id="signin-identifier"
+              class="form-control"
+              placeholder="e.g. username or name@company.com"
+              required
+              autocomplete="username"
+            />
           </div>
+
           <div class="form-group">
-            <label>Password</label>
+            <label for="signin-password">Password *</label>
             <div class="pwd-field-wrap">
-              <input type="password" id="signin-password" class="form-control" placeholder="••••••••" required />
-              <button type="button" class="pwd-eye-btn" id="btn-toggle-signin" onclick="togglePasswordVisibility('signin-password', this)" title="Show / Hide Password">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <input
+                type="password"
+                id="signin-password"
+                class="form-control"
+                placeholder="••••••••"
+                required
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="pwd-eye-btn"
+                id="btn-toggle-signin"
+                onclick="togglePasswordVisibility('signin-password', this)"
+                title="Show / Hide Password"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </button>
             </div>
           </div>
+
+          <!-- Remember Username & Forgot Password Row (Inspired by UoPeople) -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0 16px; font-size: 0.82rem;">
+            <label style="display: flex; align-items: center; gap: 7px; color: #475569; cursor: pointer; font-weight: 500;">
+              <input type="checkbox" id="remember-username" style="accent-color: #2563eb; width: 15px; height: 15px;" />
+              <span>Remember username</span>
+            </label>
+            <a href="javascript:void(0)" onclick="toggleForgotPassword(true)" style="color: #2563eb; text-decoration: none; font-weight: 600;">
+              Forgot your password?
+            </a>
+          </div>
+
           <button type="submit" class="btn-submit">Sign In to Workspace</button>
           <div style="margin-top: 14px; text-align: center; font-size: 0.82rem; color: var(--text-muted);">
             Don't have an account? <a href="javascript:void(0)" onclick="switchTab('signup')" style="color: #2563eb; font-weight: 600; text-decoration: none;">Create free account &rarr;</a>
           </div>
         </form>
 
+        <!-- Zero-Trust Forgot Password Panel -->
+        <div id="forgot-password-panel" class="hidden" style="margin-top: 14px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 18px;">
+          <div style="font-weight: 700; font-size: 0.92rem; color: #0f172a; margin-bottom: 6px;">Zero-Trust Password Recovery</div>
+          <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px; line-height: 1.45;">
+            Enter your registered username or email. We will dispatch a 6-digit cryptographic security code to reset your password.
+          </p>
+          <div class="form-group">
+            <input type="text" id="reset-identifier" class="form-control" placeholder="username or name@company.com" />
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn-submit" style="height: 38px; font-size: 0.82rem;" onclick="handleForgotPasswordSubmit()">
+              Send Reset Link
+            </button>
+            <button type="button" style="height: 38px; padding: 0 14px; background: transparent; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; cursor: pointer; color: #64748b;" onclick="toggleForgotPassword(false)">
+              Cancel
+            </button>
+          </div>
+          <div id="reset-status" style="font-size: 0.8rem; margin-top: 10px;"></div>
+        </div>
+
+        <!-- Reset Password With Token Panel (If arriving from email link) -->
+        <div id="set-password-panel" class="hidden" style="margin-top: 14px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 18px;">
+          <div style="font-weight: 700; font-size: 0.92rem; color: #1e3a8a; margin-bottom: 6px;">Set New Account Password</div>
+          <p style="font-size: 0.82rem; color: #3b82f6; margin-bottom: 12px;">
+            Enter your new password below (minimum 6 characters).
+          </p>
+          <div class="form-group">
+            <input type="password" id="new-password-input" class="form-control" placeholder="New Password (min 6 chars)" />
+          </div>
+          <button type="button" class="btn-submit" onclick="handleCompleteResetSubmit()">
+            Save New Password &amp; Sign In
+          </button>
+        </div>
+
         <!-- Sign Up Form -->
         <form id="signup-form" class="hidden">
           <div class="form-group">
-            <label>Full Name *</label>
+            <label for="signup-name">Full Name *</label>
             <input type="text" id="signup-name" class="form-control" placeholder="e.g., Alex Vance" required />
           </div>
           <div class="form-group">
-            <label>Company / Organization</label>
+            <label for="signup-username">Desired Username *</label>
+            <input type="text" id="signup-username" class="form-control" placeholder="e.g., alex_vance" required />
+          </div>
+          <div class="form-group">
+            <label for="signup-company">Company / Organization</label>
             <input type="text" id="signup-company" class="form-control" placeholder="e.g., Acme FinTech Ltd" />
           </div>
           <div class="form-group">
-            <label>Work Email *</label>
+            <label for="signup-email">Work Email *</label>
             <input type="email" id="signup-email" class="form-control" placeholder="name@company.com" required />
           </div>
           <div class="form-group">
-            <label>Create Password (min. 6 chars) *</label>
+            <label for="signup-password">Create Password (min. 6 chars) *</label>
             <div class="pwd-field-wrap">
               <input type="password" id="signup-password" class="form-control" placeholder="••••••••" required />
               <button type="button" class="pwd-eye-btn" id="btn-toggle-signup" onclick="togglePasswordVisibility('signup-password', this)" title="Show / Hide Password">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
@@ -583,7 +690,7 @@
         </div>
         <h2 class="showcase-title">Built for High-Consequence Digital Infrastructure</h2>
         <p class="showcase-subtitle">
-          ADX Group provides sovereign enterprise capabilities across modern cloud runtimes, autonomous neural agents, and deep perimeter security.
+          ADX Group provides sovereign enterprise capabilities across modern cloud runtimes, autonomous neural agents, and deep perimeter security diagnostics.
         </p>
 
         <div class="pillar-stack">
@@ -626,7 +733,7 @@
             </div>
             <div class="pillar-content">
               <h3>Perimeter Defense &amp; Threat Intelligence</h3>
-              <p>Live host IP, TLS handshake telemetry, and continuous zero-day vulnerability intelligence feed.</p>
+              <p>Live host IP, TLS handshake telemetry, and continuous 2026 CVE attack vector stress testing.</p>
             </div>
           </div>
         </div>
@@ -645,17 +752,15 @@
     </div>
   </div>
 
-
-
   <script>
     const svgEyeOpen = `
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
         <circle cx="12" cy="12" r="3"></circle>
       </svg>
     `;
     const svgEyeOff = `
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
         <line x1="1" y1="1" x2="23" y2="23"></line>
       </svg>
@@ -679,6 +784,7 @@
       const tabSignin = document.getElementById("tab-signin");
       const tabSignup = document.getElementById("tab-signup");
       document.getElementById("auth-error").textContent = "";
+      toggleForgotPassword(false);
 
       if (mode === "signin") {
         signinForm.classList.remove("hidden");
@@ -693,12 +799,90 @@
       }
     }
 
+    function toggleForgotPassword(show) {
+      const panel = document.getElementById("forgot-password-panel");
+      const signinForm = document.getElementById("signin-form");
+      if (show) {
+        panel.classList.remove("hidden");
+        signinForm.classList.add("hidden");
+        const curId = document.getElementById("signin-identifier").value.trim();
+        if (curId) document.getElementById("reset-identifier").value = curId;
+      } else {
+        panel.classList.add("hidden");
+        signinForm.classList.remove("hidden");
+      }
+    }
 
+    async function handleForgotPasswordSubmit() {
+      const identifier = document.getElementById("reset-identifier").value.trim();
+      const statusBox = document.getElementById("reset-status");
+      if (!identifier) {
+        statusBox.style.color = "#dc2626";
+        statusBox.textContent = "Please provide your username or work email.";
+        return;
+      }
+      statusBox.style.color = "#2563eb";
+      statusBox.textContent = "Dispatching security recovery token...";
+
+      try {
+        const res = await fetch("/api/auth/forgot-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identifier }),
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          statusBox.style.color = "#059669";
+          statusBox.textContent = data.message || "Password reset instructions dispatched to your email.";
+        } else {
+          statusBox.style.color = "#dc2626";
+          statusBox.textContent = data.detail || "Unable to process password reset.";
+        }
+      } catch (err) {
+        statusBox.style.color = "#dc2626";
+        statusBox.textContent = "Network error during password reset request.";
+      }
+    }
+
+    async function handleCompleteResetSubmit() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get("reset_token");
+      const newPassword = document.getElementById("new-password-input").value;
+      const errBox = document.getElementById("auth-error");
+
+      if (!newPassword || newPassword.length < 6) {
+        errBox.textContent = "Password must be at least 6 characters.";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/auth/reset-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, password: newPassword }),
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          errBox.style.color = "#059669";
+          errBox.textContent = "Password updated! You can now sign in.";
+          document.getElementById("set-password-panel").classList.add("hidden");
+          document.getElementById("signin-form").classList.remove("hidden");
+        } else {
+          errBox.textContent = data.detail || "Could not update password.";
+        }
+      } catch (err) {
+        errBox.textContent = "Network error during password update.";
+      }
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const pendingScan = urlParams.get("scan") || urlParams.get("domain") || "";
     const isLogout = urlParams.get("logout") === "true";
     const isDeleted = urlParams.get("deleted") === "true";
+    const resetToken = urlParams.get("reset_token");
+    const ssoSetup = urlParams.get("sso_setup");
+    const googleSetup = urlParams.get("google_setup");
+    const authError = urlParams.get("error");
 
     function getRedirectUrl(defaultUrl) {
       if (pendingScan) {
@@ -707,11 +891,59 @@
       return defaultUrl || "/dashboard";
     }
 
-    if (isDeleted) {
-      try {
-        localStorage.clear();
-      } catch (e) {}
-      const errBox = document.getElementById("auth-error");
+    // Load saved username if remembered
+    try {
+      const savedUser = localStorage.getItem("adx_remembered_username");
+      if (savedUser) {
+        const idInput = document.getElementById("signin-identifier");
+        if (idInput) idInput.value = savedUser;
+        const chk = document.getElementById("remember-username");
+        if (chk) chk.checked = true;
+      }
+    } catch (e) {}
+
+    // Update SSO Links with pending scan query
+    if (pendingScan) {
+      ["sso-google", "sso-microsoft", "sso-github", "sso-apple"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          const base = el.getAttribute("href").split("?")[0];
+          el.href = `${base}?scan=${encodeURIComponent(pendingScan)}`;
+        }
+      });
+      const subText = document.querySelector(".auth-header p");
+      if (subText) {
+        subText.innerHTML = `Authenticate to unlock your audit workspace for <strong style="color: #2563eb; font-family: var(--font-mono);">${pendingScan}</strong>`;
+      }
+    }
+
+    // Handle Reset Token in URL
+    if (resetToken) {
+      document.getElementById("signin-form").classList.add("hidden");
+      document.getElementById("set-password-panel").classList.remove("hidden");
+    }
+
+    // Informational Alerts for Setup or Errors
+    const errBox = document.getElementById("auth-error");
+    if (ssoSetup || googleSetup === "needed") {
+      const provider = ssoSetup || "Google";
+      if (errBox) {
+        errBox.style.color = "#92400e";
+        errBox.style.background = "#fffbeb";
+        errBox.style.border = "1px solid #fde68a";
+        errBox.style.padding = "12px 14px";
+        errBox.style.borderRadius = "8px";
+        errBox.style.fontSize = "0.82rem";
+        errBox.style.lineHeight = "1.5";
+        errBox.style.marginBottom = "14px";
+        errBox.innerHTML = `<strong>${provider} SSO Configuration:</strong> To enable direct 1-click ${provider} Sign-In, add <code>${provider.toUpperCase()}_CLIENT_ID</code> and <code>${provider.toUpperCase()}_CLIENT_SECRET</code> to your Vercel Environment Variables. You can also sign in directly below with your <strong>Username or Work Email</strong>.`;
+      }
+    } else if (authError) {
+      if (errBox) {
+        errBox.textContent = authError;
+      }
+    } else if (isDeleted) {
+      try { localStorage.clear(); } catch (e) {}
       if (errBox) {
         errBox.style.color = "#059669";
         errBox.textContent = "Your account and workspace data have been permanently deleted.";
@@ -721,7 +953,6 @@
         localStorage.removeItem("adx_session_token");
         localStorage.removeItem("adx_user");
       } catch (e) {}
-      const errBox = document.getElementById("auth-error");
       if (errBox) {
         errBox.style.color = "#0284c7";
         errBox.textContent = "You have successfully signed out of ADX.";
@@ -745,52 +976,28 @@
       });
     }
 
-    if (pendingScan) {
-      const googleBtn = document.getElementById("google-login-btn");
-      if (googleBtn) {
-        googleBtn.href = `/api/auth/google/login?scan=${encodeURIComponent(pendingScan)}`;
-      }
-      const subText = document.querySelector(".auth-header p");
-      if (subText) {
-        subText.innerHTML = `Authenticate to unlock your audit workspace for <strong style="color: #2563eb; font-family: var(--font-mono);">${pendingScan}</strong>`;
-      }
-    }
-
-    const googleSetup = urlParams.get("google_setup");
-    const authError = urlParams.get("error");
-    if (googleSetup === "needed") {
-      const errBox = document.getElementById("auth-error");
-      if (errBox) {
-        errBox.style.color = "#b45309";
-        errBox.style.background = "#fffbeb";
-        errBox.style.border = "1px solid #fde68a";
-        errBox.style.padding = "10px 14px";
-        errBox.style.borderRadius = "8px";
-        errBox.style.fontSize = "0.82rem";
-        errBox.style.lineHeight = "1.45";
-        errBox.style.marginBottom = "14px";
-        errBox.innerHTML = "<strong>Google OAuth Credentials Needed:</strong> To enable 1-click Google Sign-In, add your <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> in Vercel Environment Variables. You can also sign in directly below with your Work Email.";
-      }
-    } else if (authError) {
-      const errBox = document.getElementById("auth-error");
-      if (errBox) {
-        errBox.textContent = authError;
-      }
-    }
-
-
-
+    // Submit Sign In Form (Username / Email + Password)
     document.getElementById("signin-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = document.getElementById("signin-email").value.trim();
+      const identifier = document.getElementById("signin-identifier").value.trim();
       const password = document.getElementById("signin-password").value;
+      const remember = document.getElementById("remember-username").checked;
       const errBox = document.getElementById("auth-error");
       errBox.textContent = "";
+
+      // Remember username in localStorage if checked
+      try {
+        if (remember) {
+          localStorage.setItem("adx_remembered_username", identifier);
+        } else {
+          localStorage.removeItem("adx_remembered_username");
+        }
+      } catch (e) {}
 
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ identifier, password }),
       });
       const data = await res.json();
       if (res.ok && data.ok) {
@@ -798,13 +1005,15 @@
         if (data.user) localStorage.setItem("adx_user", JSON.stringify(data.user));
         window.location.href = getRedirectUrl(data.redirect);
       } else {
-        errBox.textContent = data.detail || "Invalid email or password.";
+        errBox.textContent = data.detail || "Invalid username/email or password.";
       }
     });
 
+    // Submit Sign Up Form
     document.getElementById("signup-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("signup-name").value.trim();
+      const username = document.getElementById("signup-username").value.trim();
       const company = document.getElementById("signup-company").value.trim();
       const email = document.getElementById("signup-email").value.trim();
       const password = document.getElementById("signup-password").value;
@@ -814,7 +1023,7 @@
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, company, email, password }),
+        body: JSON.stringify({ name, username, company, email, password }),
       });
       const data = await res.json();
       if (res.ok && data.ok) {
@@ -826,6 +1035,6 @@
       }
     });
   </script>
-  <script src="/static/js/main.js?v=2026.38"></script>
+  <script src="/static/js/main.js?v=2026.39"></script>
 </body>
 </html>
