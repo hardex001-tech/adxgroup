@@ -28,6 +28,7 @@ def make_signed_token(user_data: Dict[str, Any]) -> str:
         "company": user_data.get("company", ""),
         "provider": user_data.get("provider", "email"),
         "role": user_data.get("role", "client"),
+        "email_verified": int(user_data.get("email_verified", 0)),
         "created_at": user_data.get("created_at", _now_str()),
         "exp": int(time.time()) + (30 * 86400),  # 30 days
     }
@@ -62,6 +63,7 @@ def decode_signed_token(token: str) -> Optional[Dict[str, Any]]:
             "company": payload.get("company", ""),
             "provider": payload.get("provider", "email"),
             "role": payload.get("role", "client"),
+            "email_verified": int(payload.get("email_verified", 0)),
             "created_at": payload.get("created_at", "2026-10-24"),
         }
     except Exception:
@@ -101,6 +103,9 @@ def init_db() -> None:
                 password_hash TEXT NOT NULL,
                 provider TEXT DEFAULT 'email',
                 role TEXT DEFAULT 'client',
+                email_verified INTEGER DEFAULT 0,
+                verification_token TEXT DEFAULT '',
+                verification_code TEXT DEFAULT '',
                 created_at TEXT NOT NULL
             );
 
@@ -144,6 +149,16 @@ def init_db() -> None:
             );
             """
         )
+        for col_stmt in (
+            "ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0",
+            "ALTER TABLE users ADD COLUMN verification_token TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN verification_code TEXT DEFAULT ''",
+        ):
+            try:
+                conn.execute(col_stmt)
+            except Exception:
+                pass
+        conn.commit()
 
 
 def _hash_password(password: str, salt: Optional[str] = None) -> str:
@@ -208,6 +223,9 @@ def register_email_user(name: str, email: str, password: str, company: str = "")
 
     role = "admin" if clean_email in OWNER_EMAILS else "client"
     pw_hash = _hash_password(password)
+    v_token = secrets.token_urlsafe(32)
+    v_code = f"{secrets.randbelow(900000) + 100000}"
+    is_verified = 1 if role == "admin" else 0
 
     with _get_conn() as conn:
         conn.execute("DELETE FROM deleted_accounts WHERE email = ?", (clean_email,))
@@ -217,15 +235,63 @@ def register_email_user(name: str, email: str, password: str, company: str = "")
 
         cur = conn.execute(
             """
-            INSERT INTO users (name, email, company, password_hash, provider, role, created_at)
-            VALUES (?, ?, ?, ?, 'email', ?, ?)
+            INSERT INTO users (name, email, company, password_hash, provider, role, email_verified, verification_token, verification_code, created_at)
+            VALUES (?, ?, ?, ?, 'email', ?, ?, ?, ?, ?)
             """,
-            (clean_name, clean_email, company.strip(), pw_hash, role, _now_str()),
+            (clean_name, clean_email, company.strip(), pw_hash, role, is_verified, v_token, v_code, _now_str()),
         )
         user_id = cur.lastrowid
         conn.commit()
 
+    # Dispatch verification email via mailer
+    try:
+        from core.mailer import send_verification_email
+        send_verification_email(clean_email, clean_name, v_token, v_code)
+    except Exception as exc:
+        print(f"[AUTH] Could not dispatch verification email: {exc}")
+
     return create_session(user_id)
+
+
+def verify_email_token(token_or_code: str) -> Optional[Dict[str, Any]]:
+    """Validate verification token or 6-digit OTP code and mark account verified."""
+    clean_val = (token_or_code or "").strip()
+    if not clean_val:
+        return None
+    init_db()
+    with _get_conn() as conn:
+        row = conn.execute(
+            "SELECT * FROM users WHERE verification_token = ? OR verification_code = ?",
+            (clean_val, clean_val),
+        ).fetchone()
+        if not row:
+            return None
+        conn.execute(
+            "UPDATE users SET email_verified = 1, verification_token = '', verification_code = '' WHERE id = ?",
+            (row["id"],),
+        )
+        conn.commit()
+        updated_row = conn.execute("SELECT * FROM users WHERE id = ?", (row["id"],)).fetchone()
+        return _format_user(dict(updated_row))
+
+
+def resend_verification_email(user_id: int) -> Dict[str, Any]:
+    """Regenerate verification token and dispatch fresh security verification email."""
+    init_db()
+    v_token = secrets.token_urlsafe(32)
+    v_code = f"{secrets.randbelow(900000) + 100000}"
+    with _get_conn() as conn:
+        row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+        if not row:
+            raise ValueError("Account not found.")
+        conn.execute(
+            "UPDATE users SET verification_token = ?, verification_code = ? WHERE id = ?",
+            (v_token, v_code, user_id),
+        )
+        conn.commit()
+        from core.mailer import send_verification_email
+        send_verification_email(row["email"], row["name"], v_token, v_code)
+        return {"ok": True, "email": row["email"]}
 
 
 def login_email_user(email: str, password: str) -> Dict[str, Any]:
@@ -278,6 +344,7 @@ def _format_user(u: Dict[str, Any]) -> Dict[str, Any]:
     seed = (str(user_copy.get("email", "")) + str(user_copy.get("id", ""))).encode("utf-8")
     hex_code = hashlib.sha256(seed).hexdigest()[:8].upper()
     user_copy["uid"] = f"ADX-{hex_code}"
+    user_copy["email_verified"] = int(user_copy.get("email_verified", 0))
     return user_copy
 
 

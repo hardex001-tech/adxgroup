@@ -22,6 +22,7 @@ from core.ai_engine import ask_adx_ai_consultant, generate_ai_executive_summary
 from core.auth import (
     add_monitored_domain,
     create_or_login_oauth_user,
+    create_session,
     delete_session,
     delete_user_account,
     get_admin_command_center_data,
@@ -31,8 +32,11 @@ from core.auth import (
     login_email_user,
     record_scan_event,
     register_email_user,
+    resend_verification_email,
     update_user_profile,
+    verify_email_token,
 )
+from core.mailer import get_outbox, send_login_alert
 from core.notifier import get_all_leads, record_client_lead
 from core.scanner import normalize_domain, run_full_diagnostic
 
@@ -243,6 +247,7 @@ async def owner_admin_console(request: Request):
             "user": user,
             "admin_data": admin_data,
             "leads": leads,
+            "outbox": get_outbox(),
         },
     )
 
@@ -297,10 +302,15 @@ async def api_register(payload: RegisterRequest):
 
 
 @asgi_app.post("/api/auth/login")
-async def api_login(payload: LoginRequest):
+async def api_login(request: Request, payload: LoginRequest):
     try:
         sess = login_email_user(email=payload.email, password=payload.password)
         redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
+        client_ip = request.client.host if request.client else "Remote Client"
+        try:
+            send_login_alert(payload.email, sess["user"]["name"], client_ip)
+        except Exception:
+            pass
         resp = JSONResponse(
             content={"ok": True, "user": sess["user"], "token": sess["token"], "redirect": redirect_to}
         )
@@ -308,6 +318,32 @@ async def api_login(payload: LoginRequest):
         return resp
     except ValueError as ve:
         raise HTTPException(status_code=401, detail=str(ve))
+
+
+@asgi_app.get("/api/auth/verify")
+async def api_verify_email(token: str):
+    """Validate verification token or 6-digit OTP code and redirect to dashboard."""
+    user = verify_email_token(token)
+    if not user:
+        return RedirectResponse(url="/dashboard?verify_error=invalid_token", status_code=302)
+    sess = create_session(user["id"])
+    target = "/admin" if user.get("role") == "admin" else "/dashboard?verified=true"
+    resp = RedirectResponse(url=target, status_code=302)
+    _set_auth_cookie(resp, sess["token"])
+    return resp
+
+
+@asgi_app.post("/api/auth/resend-verify")
+async def api_resend_verification(request: Request):
+    """Dispatch a fresh verification email to the current authenticated user."""
+    user = _current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    try:
+        resend_verification_email(user["id"])
+        return {"ok": True, "message": f"Verification security email dispatched to {user['email']}."}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @asgi_app.post("/api/auth/oauth")

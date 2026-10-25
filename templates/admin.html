@@ -235,6 +235,58 @@
       </form>
       <div id="ai-token-status" style="margin-top: 12px; font-size: 0.86rem; font-family: var(--font-mono);"></div>
     </div>
+
+    <!-- 5. Outbox & Email Verification Dispatch -->
+    <div class="panel-card" style="margin-top: 32px; border-color: rgba(37, 99, 235, 0.35);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <span class="section-eyebrow">Cryptographic Dispatch Ledger</span>
+          <h3>Security Emails &amp; Verification Outbox</h3>
+        </div>
+        <span class="badge-true" style="font-size: 0.75rem;">Zoho Mail SMTP: smtp.zoho.com</span>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 14px;">
+        Real-time ledger of account verification codes, magic links, and login security notices dispatched via Zoho Mail.
+      </p>
+      <div class="truth-table-wrap">
+        <table class="truth-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Recipient</th>
+              <th>Type</th>
+              <th>Verification Code</th>
+              <th>Status</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if outbox %}
+              {% for item in outbox %}
+              <tr>
+                <td style="font-family: var(--font-mono); font-size: 0.78rem;">{{ item.id }}</td>
+                <td style="font-family: var(--font-mono); color: var(--accent-cyan);">{{ item.to }}</td>
+                <td><span class="badge-warn" style="font-size: 0.72rem;">{{ item.type }}</span></td>
+                <td style="font-family: var(--font-mono); font-weight: 700; color: #2563eb;">{{ item.code or 'N/A' }}</td>
+                <td style="font-size: 0.8rem;">
+                  {% if item.smtp_dispatched %}
+                    <span style="color: #10b981; font-weight: 700;">Delivered via SMTP</span>
+                  {% else %}
+                    <span style="color: #f59e0b; font-weight: 600;">Queued / Ready</span>
+                  {% endif %}
+                </td>
+                <td style="font-size: 0.75rem; color: var(--text-muted);">{{ item.timestamp }}</td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="6" style="color: var(--text-muted); padding: 16px;">No verification emails dispatched yet. New signups will appear here automatically.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </main>
 
   <footer class="site-footer" style="margin-top: 0; padding: 32px 0;">

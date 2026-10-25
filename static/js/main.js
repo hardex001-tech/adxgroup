@@ -232,7 +232,41 @@ document.addEventListener("DOMContentLoaded", () => {
         scanForm.dispatchEvent(new Event("submit"));
       }, 350);
     }
+
+    if (urlParams.get("verified") === "true") {
+      window.showAdxNotice("Zero-Trust Identity Confirmed. Email address successfully verified.", "success", "Account Security Active");
+    } else if (urlParams.get("verify_error")) {
+      window.showAdxNotice("The verification link was invalid or has expired. Please request a new verification code below.", "error", "Verification Alert");
+    }
   }
+
+  window.resendVerificationEmail = async function () {
+    const btn = document.getElementById("resend-verify-btn");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Dispatching...";
+    }
+    try {
+      const res = await fetch("/api/auth/resend-verify", { method: "POST" });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        window.showAdxNotice(data.message || "Verification email dispatched.", "success", "Security Dispatch");
+        if (btn) btn.textContent = "Dispatched!";
+      } else {
+        window.showAdxNotice(data.detail || "Could not resend email.", "error", "Dispatch Failed");
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Resend Verification Email";
+        }
+      }
+    } catch (err) {
+      window.showAdxNotice("Network error while dispatching email.", "error", "Network Error");
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Resend Verification Email";
+      }
+    }
+  };
 
   // 2. Conversational ADX AI Security Architect (Zero Markdown Stars)
   const chatForm = document.getElementById("ai-chat-form");

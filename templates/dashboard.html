@@ -233,6 +233,26 @@
     <!-- Right Workspace Content -->
     <main>
 
+      {% if user.email_verified == 0 %}
+      <!-- Zero-Trust Security Verification Banner -->
+      <div id="verify-banner" style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 14px 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <div>
+            <strong style="color: #92400e; font-size: 0.9rem;">Identity Verification Pending:</strong>
+            <span style="color: #b45309; font-size: 0.85rem;">A security confirmation code was dispatched to <strong>{{ user.email }}</strong>. Verify your address to secure your perimeter reports.</span>
+          </div>
+        </div>
+        <button id="resend-verify-btn" type="button" class="btn btn-outline" style="padding: 6px 14px; font-size: 0.8rem; border-color: #d97706; color: #b45309;" onclick="resendVerificationEmail()">
+          Resend Verification Email
+        </button>
+      </div>
+      {% endif %}
+
       <!-- TAB 1: Live Infrastructure & Perimeter Diagnostic -->
       <div id="tab-view-scanner" class="console-tab-view">
         <div class="scanner-card" style="margin-bottom: 28px;">
