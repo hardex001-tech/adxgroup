@@ -304,17 +304,24 @@
             Audits live host IP telemetry, TLS cipher suites, and DNS hygiene (SPF, DMARC, CORS) to verify complete infrastructure resilience.
           </p>
 
-          <form id="scan-form" class="scanner-form">
-            <input
-              type="text"
-              id="scan-domain-input"
-              class="scanner-input"
-              placeholder="Enter company domain to audit (e.g., google.com, github.com, or yourcompany.com)"
-              required
-            />
-            <button type="submit" id="scan-submit-btn" class="btn btn-primary" style="white-space: nowrap;">
-              Run Infrastructure Audit
-            </button>
+          <form id="scan-form" class="scanner-form" style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; gap: 8px; width: 100%;">
+              <input
+                type="text"
+                id="scan-domain-input"
+                class="scanner-input"
+                placeholder="Enter company domain to audit (e.g., google.com, github.com, or yourcompany.com)"
+                required
+                style="flex: 1;"
+              />
+              <button type="submit" id="scan-submit-btn" class="btn btn-primary" style="white-space: nowrap;">
+                Run Infrastructure Audit
+              </button>
+            </div>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text-muted); cursor: pointer; user-select: none;">
+              <input type="checkbox" id="scan-consent-checkbox" required checked style="accent-color: var(--accent-primary);" />
+              <span>I confirm I am authorized to audit this domain's public DNS and perimeter records (passive public-record diagnostic only).</span>
+            </label>
           </form>
 
           <!-- Dynamic Results Container -->

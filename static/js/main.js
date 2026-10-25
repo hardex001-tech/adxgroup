@@ -72,6 +72,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const domain = domainInput.value.trim();
       if (!domain) return;
 
+      const consentBox = document.getElementById("scan-consent-checkbox");
+      if (consentBox && !consentBox.checked) {
+        window.showAdxNotice("Please confirm domain authorization consent before initiating diagnostic telemetry.", "error", "Authorization Required");
+        return;
+      }
+
       scanBtn.disabled = true;
       scanBtn.textContent = "Inspecting Host IP, TLS & 2026 CVEs...";
 
@@ -79,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch("/api/scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ domain }),
+          body: JSON.stringify({ domain, consent: true }),
         });
 
         if (res.status === 401) {
@@ -1262,4 +1268,78 @@ document.addEventListener("DOMContentLoaded", () => {
   function escapeJsArg(str) {
     return String(str || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
   }
+
+  // =========================================================================
+  // Contact & Consultation Request Submission Form
+  // =========================================================================
+  window.submitContactForm = async function(event) {
+    if (event) event.preventDefault();
+    const form = document.getElementById("contact-consult-form");
+    const notice = document.getElementById("contact-form-notice");
+    const btn = document.getElementById("contact-submit-btn");
+    if (!form || !btn) return;
+
+    const hpToken = document.getElementById("contact-hp-token") ? document.getElementById("contact-hp-token").value : "";
+    const name = document.getElementById("contact-name") ? document.getElementById("contact-name").value.trim() : "";
+    const email = document.getElementById("contact-email") ? document.getElementById("contact-email").value.trim() : "";
+    const division = document.getElementById("contact-division") ? document.getElementById("contact-division").value : "ADX Cyber — Security Audit";
+    const domain = document.getElementById("contact-domain") ? document.getElementById("contact-domain").value.trim() : "";
+    const message = document.getElementById("contact-message") ? document.getElementById("contact-message").value.trim() : "";
+
+    if (!name || !email) {
+      if (notice) {
+        notice.style.display = "block";
+        notice.style.background = "rgba(239, 68, 68, 0.15)";
+        notice.style.color = "#f87171";
+        notice.textContent = "Please provide your name/organization and corporate work email.";
+      }
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Submitting Consultation Request...";
+
+    try {
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_or_name: name,
+          email: email,
+          division: division,
+          domain: domain,
+          message: message,
+          hp_token: hpToken,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        if (notice) {
+          notice.style.display = "block";
+          notice.style.background = "rgba(16, 185, 129, 0.15)";
+          notice.style.color = "#34d399";
+          notice.textContent = "Consultation request received. Our systems engineering desk will review your scope and follow up.";
+        }
+        form.reset();
+      } else {
+        if (notice) {
+          notice.style.display = "block";
+          notice.style.background = "rgba(239, 68, 68, 0.15)";
+          notice.style.color = "#f87171";
+          notice.textContent = data.detail || "Unable to submit inquiry. Please email contact@adxgroup.tech.";
+        }
+      }
+    } catch (err) {
+      if (notice) {
+        notice.style.display = "block";
+        notice.style.background = "rgba(239, 68, 68, 0.15)";
+        notice.style.color = "#f87171";
+        notice.textContent = "Network error while transmitting request. Please email contact@adxgroup.tech directly.";
+      }
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Submit Security Consultation Request";
+    }
+  };
+
 });

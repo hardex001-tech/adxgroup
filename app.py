@@ -102,6 +102,7 @@ def _current_user(request: Request) -> Optional[Dict[str, Any]]:
 
 class ScanRequest(BaseModel):
     domain: str
+    consent: Optional[bool] = False
 
 
 class ChatRequest(BaseModel):
@@ -114,6 +115,7 @@ class LeadRequest(BaseModel):
     division: Optional[str] = "ADX Cyber — Security Audit"
     domain: Optional[str] = ""
     message: Optional[str] = ""
+    hp_token: Optional[str] = ""
 
 
 class RegisterRequest(BaseModel):
@@ -1128,6 +1130,20 @@ async def health_check():
     }
 
 
+# Sliding-window rate limiter for diagnostic endpoints
+_SCAN_RATE_LIMITS: Dict[str, List[float]] = {}
+
+def _check_rate_limit(key: str, max_requests: int = 5, window_seconds: float = 600.0) -> bool:
+    now = time.time()
+    timestamps = _SCAN_RATE_LIMITS.setdefault(key, [])
+    timestamps = [t for t in timestamps if now - t < window_seconds]
+    _SCAN_RATE_LIMITS[key] = timestamps
+    if len(timestamps) >= max_requests:
+        return False
+    timestamps.append(now)
+    return True
+
+
 @asgi_app.post("/api/scan")
 async def api_scan_domain(request: Request, payload: ScanRequest):
     """Run the 6-gate security diagnostic inside the authenticated Console."""
@@ -1137,6 +1153,25 @@ async def api_scan_domain(request: Request, payload: ScanRequest):
             status_code=401,
             detail="Please sign in with your Work Email to run the 6-Gate Security Diagnostic.",
         )
+
+    if not payload.consent:
+        raise HTTPException(
+            status_code=400,
+            detail="Diagnostic execution requires confirmed authorization consent. Please check the authorization box before running perimeter diagnostics.",
+        )
+
+    client_ip = request.client.host if request.client else "unknown"
+    if not _check_rate_limit(f"ip:{client_ip}", max_requests=5, window_seconds=600):
+        raise HTTPException(
+            status_code=429,
+            detail="Perimeter scan rate limit exceeded (5 requests per 10 minutes). Please wait before initiating another audit.",
+        )
+    if user and not _check_rate_limit(f"user:{user['id']}", max_requests=10, window_seconds=600):
+        raise HTTPException(
+            status_code=429,
+            detail="Account scan rate limit exceeded (10 requests per 10 minutes). Please wait before initiating another audit.",
+        )
+
     try:
         scan_data = await run_full_diagnostic(payload.domain)
         scan_data["ai_executive_summary"] = generate_ai_executive_summary(scan_data)
@@ -1229,6 +1264,8 @@ async def api_save_ai_token(request: Request, payload: AdminAiTokenRequest):
 
 @asgi_app.post("/api/lead")
 async def api_submit_lead(payload: LeadRequest):
+    if payload.hp_token:
+        return JSONResponse(content={"ok": True, "message": "Inquiry received."})
     result = record_client_lead(
         company_or_name=payload.company_or_name,
         email=payload.email,

@@ -188,17 +188,24 @@
         </p>
 
         <div style="background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: 14px; padding: 14px; margin-bottom: 22px; max-width: 580px;">
-          <form id="landing-gate-form" class="scanner-form">
-            <input
-              type="text"
-              id="landing-domain-input"
-              class="scanner-input"
-              placeholder="Enter company domain to inspect (e.g., company.com)"
-              required
-            />
-            <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
-              Run Infrastructure Audit
-            </button>
+          <form id="landing-gate-form" class="scanner-form" style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; gap: 8px; width: 100%;">
+              <input
+                type="text"
+                id="landing-domain-input"
+                class="scanner-input"
+                placeholder="Enter company domain to inspect (e.g., company.com)"
+                required
+                style="flex: 1;"
+              />
+              <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+                Run Infrastructure Audit
+              </button>
+            </div>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--text-muted); cursor: pointer; user-select: none;">
+              <input type="checkbox" id="landing-consent-checkbox" required checked style="accent-color: var(--accent-primary);" />
+              <span>I confirm I am authorized to audit this domain's public DNS and perimeter records.</span>
+            </label>
           </form>
         </div>
 

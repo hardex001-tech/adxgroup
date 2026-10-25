@@ -17,6 +17,18 @@ from urllib.parse import urlparse
 import httpx
 
 
+FQDN_REGEX = re.compile(
+    r"^(?=.{1,253}$)(?!-)[a-z0-9-]{1,63}(?<!-)(\.[a-z0-9-]{1,63}(?<!-))*\.[a-z]{2,63}$",
+    re.IGNORECASE,
+)
+
+RESERVED_DOMAINS = {
+    "localhost", "broadcasthost", "localdomain",
+}
+RESERVED_SUFFIXES = (
+    ".local", ".internal", ".localhost", ".test", ".corp", ".lan", ".home.arpa", ".arpa", ".invalid", ".example"
+)
+
 def normalize_domain(raw_input: str) -> str:
     """Clean user input into a bare domain hostname."""
     cleaned = raw_input.strip().lower()
@@ -26,7 +38,7 @@ def normalize_domain(raw_input: str) -> str:
         cleaned = "https://" + cleaned
     parsed = urlparse(cleaned)
     host = parsed.netloc or parsed.path
-    host = host.split("@")[-1].split(":")[0].strip("/")
+    host = host.split("@")[-1].split(":")[0].strip("/").strip(".")
     return host
 
 
@@ -427,28 +439,66 @@ async def check_http_and_cve_surface(
     }
 
 
+BLOCKED_SSRF_NETWORKS = [
+    ipaddress.ip_network("10.0.0.0/8"),
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.168.0.0/16"),
+    ipaddress.ip_network("127.0.0.0/8"),
+    ipaddress.ip_network("169.254.0.0/16"),
+    ipaddress.ip_network("0.0.0.0/8"),
+    ipaddress.ip_network("100.64.0.0/10"),
+    ipaddress.ip_network("198.18.0.0/15"),
+    ipaddress.ip_network("::1/128"),
+    ipaddress.ip_network("fc00::/7"),
+    ipaddress.ip_network("fe80::/10"),
+    ipaddress.ip_network("::/128"),
+]
+
 def is_ssrf_forbidden_ip(ip_str: str) -> bool:
     """Detect private, loopback, link-local, reserved, or cloud metadata IPs to prevent SSRF attacks."""
     try:
         ip = ipaddress.ip_address(ip_str.strip())
-        return (
-            ip.is_private or
-            ip.is_loopback or
-            ip.is_link_local or
-            ip.is_multicast or
-            ip.is_reserved or
-            ip.is_unspecified or
-            str(ip).startswith("169.254.")
-        )
     except ValueError:
-        return False
+        return True  # Malformed IP is treated as unsafe
+
+    if (
+        ip.is_private
+        or ip.is_loopback
+        or ip.is_link_local
+        or ip.is_multicast
+        or ip.is_reserved
+        or ip.is_unspecified
+    ):
+        return True
+
+    for net in BLOCKED_SSRF_NETWORKS:
+        if ip in net:
+            return True
+
+    return False
 
 
 async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
     """Execute 6-Gate External + Deep Hidden 2026 CVE Threat Assessment."""
     domain = normalize_domain(raw_domain)
-    if not domain or "." not in domain:
-        raise ValueError("Please provide a valid domain name (e.g., github.com or company.com).")
+    if not domain:
+        raise ValueError("Please provide a domain name (e.g., company.com).")
+
+    # Reject raw IP addresses
+    try:
+        ipaddress.ip_address(domain)
+        raise ValueError("Raw IP addresses cannot be audited directly. Please provide a fully-qualified domain name (FQDN).")
+    except ValueError as e:
+        if "Raw IP" in str(e):
+            raise
+
+    # Validate FQDN structure
+    if not FQDN_REGEX.match(domain):
+        raise ValueError("Invalid domain format. Must be a valid fully-qualified domain name (e.g., company.com) without spaces or invalid symbols.")
+
+    # Reject reserved/internal domains
+    if domain in RESERVED_DOMAINS or domain.endswith(RESERVED_SUFFIXES):
+        raise ValueError(f"Domain '{domain}' is a reserved internal or local namespace. Probing local networks is prohibited under ADX Zero-Trust policy.")
 
     async with httpx.AsyncClient(verify=False) as client:
         a_records, mx_records = await asyncio.gather(
