@@ -1377,3 +1377,210 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
 });
+
+
+/* =========================================================================
+   Task A & D: Single-Source Currency Switcher (NGN / USD)
+   ========================================================================= */
+
+window.setOfferCurrency = function(curr) {
+  const targetCurr = (curr || "NGN").toUpperCase();
+  try {
+    localStorage.setItem("adx_currency", targetCurr);
+  } catch (e) {}
+
+  // Update button active state
+  document.querySelectorAll(".currency-btn").forEach((btn) => {
+    if (btn.getAttribute("data-currency") === targetCurr) {
+      btn.classList.add("active");
+      btn.setAttribute("aria-pressed", "true");
+    } else {
+      btn.classList.remove("active");
+      btn.setAttribute("aria-pressed", "false");
+    }
+  });
+
+  // Update all price display nodes
+  document.querySelectorAll(".price-val").forEach((el) => {
+    const val = el.getAttribute("data-" + targetCurr.toLowerCase());
+    if (val) {
+      el.textContent = val;
+    }
+  });
+};
+
+// Initialize saved currency preference on load
+document.addEventListener("DOMContentLoaded", () => {
+  let saved = "NGN";
+  try {
+    saved = localStorage.getItem("adx_currency") || "NGN";
+  } catch (e) {}
+  window.setOfferCurrency(saved);
+});
+
+/* =========================================================================
+   Task C: Free NDPA & Security Readiness Check Scoring & Lead Submission
+   ========================================================================= */
+
+window.calculateReadinessScore = function() {
+  const form = document.getElementById("readiness-quiz-form");
+  if (!form) return null;
+
+  let yesCount = 0;
+  let answeredCount = 0;
+  const totalQuestions = 10;
+
+  for (let i = 1; i <= totalQuestions; i++) {
+    const qName = "q" + i;
+    const selected = form.querySelector('input[name="' + qName + '"]:checked');
+    if (selected) {
+      answeredCount++;
+      if (selected.value === "yes") {
+        yesCount++;
+      }
+    }
+  }
+
+  return {
+    score: yesCount,
+    answeredCount: answeredCount,
+    totalQuestions: totalQuestions,
+    isComplete: answeredCount === totalQuestions
+  };
+};
+
+window.onQuizAnswerChange = function() {
+  const result = window.calculateReadinessScore();
+  if (!result) return;
+
+  const resultBox = document.getElementById("quiz-result-box");
+  const badge = document.getElementById("result-badge");
+  const title = document.getElementById("result-title");
+  const fraction = document.getElementById("result-score-fraction");
+  const summary = document.getElementById("result-summary");
+  const recommendation = document.getElementById("result-recommendation");
+
+  if (!resultBox || !badge || !title || !fraction || !summary || !recommendation) return;
+
+  // Reveal calculation when at least 5 questions or all 10 are answered
+  if (result.answeredCount >= 5) {
+    resultBox.style.display = "block";
+    fraction.textContent = result.score + "/" + result.totalQuestions;
+
+    if (result.score <= 4) {
+      // High Risk Band (0 to 4 yes)
+      badge.textContent = "High Risk Band";
+      badge.style.background = "rgba(239, 68, 68, 0.18)";
+      badge.style.color = "#f87171";
+      badge.style.border = "1px solid rgba(239, 68, 68, 0.45)";
+      resultBox.style.borderColor = "rgba(239, 68, 68, 0.4)";
+
+      title.textContent = "Critical Security & NDPA Safeguard Exposure";
+      summary.textContent = "Your organization is currently operating with critical technical and compliance gaps. Fundamental safeguards such as formal personal data mapping, reportable breach notification procedures, or domain spoofing defense appear absent or unverified, creating severe regulatory exposure under NDPA 2023.";
+      recommendation.textContent = "Immediate perimeter triage required. We recommend scheduling an emergency review to establish basic email authentication (SPF/DKIM/DMARC), implement enforced MFA, and conduct baseline personal data mapping.";
+    } else if (result.score <= 7) {
+      // Medium Risk Band (5 to 7 yes)
+      badge.textContent = "Medium Risk Band";
+      badge.style.background = "rgba(245, 158, 11, 0.18)";
+      badge.style.color = "#fbbf24";
+      badge.style.border = "1px solid rgba(245, 158, 11, 0.45)";
+      resultBox.style.borderColor = "rgba(245, 158, 11, 0.4)";
+
+      title.textContent = "Moderate Security Baseline with Critical Compliance Gaps";
+      summary.textContent = "Baseline IT controls appear partially deployed, but high-consequence compliance and operational recovery gaps remain. Key statutory requirements (including third-party vendor DPAs, tested backup restore drills, or designated DPO oversight) must be formalized before your annual audit cycle.";
+      recommendation.textContent = "Close high-consequence exposure gaps before your next annual audit return cycle. Conduct an internal access review, formalize incident response procedures, and schedule a restore verification drill.";
+    } else {
+      // Low Risk Band (8 to 10 yes)
+      badge.textContent = "Low Risk Band";
+      badge.style.background = "rgba(16, 185, 129, 0.18)";
+      badge.style.color = "#34d399";
+      badge.style.border = "1px solid rgba(16, 185, 129, 0.45)";
+      resultBox.style.borderColor = "rgba(16, 185, 129, 0.4)";
+
+      title.textContent = "Strong Operational Baseline & Audit Readiness";
+      summary.textContent = "Your responses indicate a mature defense posture with active data governance and identity protections. Focus now shifts toward formal statutory compliance filings and continuous configuration drift testing.";
+      recommendation.textContent = "Formalize your annual Compliance Audit Return (CAR) with a licensed DPCO partner and run regular simulated recovery drills to prevent configuration drift.";
+    }
+  }
+};
+
+window.submitReadinessCheck = async function() {
+  const form = document.getElementById("readiness-quiz-form");
+  const submitBtn = document.getElementById("submit-quiz-btn");
+  const statusNode = document.getElementById("quiz-submit-status");
+  const confirmBox = document.getElementById("quiz-confirmation-box");
+
+  if (!form || !submitBtn) return;
+
+  const result = window.calculateReadinessScore();
+  if (!result || result.answeredCount < result.totalQuestions) {
+    alert("Please answer all 10 diagnostic questions to generate an accurate readiness assessment.");
+    // Find the first unanswered question and scroll to it
+    for (let i = 1; i <= 10; i++) {
+      if (!form.querySelector('input[name="q' + i + '"]:checked')) {
+        const fieldset = form.querySelector('.quiz-question-card[data-qid="q' + i + '"]');
+        if (fieldset) {
+          fieldset.scrollIntoView({ behavior: "smooth", block: "center" });
+          fieldset.style.borderColor = "#ef4444";
+        }
+        break;
+      }
+    }
+    return;
+  }
+
+  const nameInput = document.getElementById("lead-name");
+  const emailInput = document.getElementById("lead-email");
+  const companyInput = document.getElementById("lead-company");
+  const sectorInput = document.getElementById("lead-sector");
+  const consentInput = document.getElementById("lead-consent");
+  const hpInput = document.getElementById("quiz-hp-token");
+
+  if (!consentInput || !consentInput.checked) {
+    alert("Please acknowledge the privacy consent checkbox to submit your readiness assessment.");
+    return;
+  }
+
+  let riskBand = "Medium";
+  if (result.score <= 4) riskBand = "High";
+  else if (result.score >= 8) riskBand = "Low";
+
+  const payload = {
+    name: nameInput ? nameInput.value.trim() : "",
+    email: emailInput ? emailInput.value.trim() : "",
+    company: companyInput ? companyInput.value.trim() : "",
+    sector: sectorInput ? sectorInput.value : "",
+    score: result.score,
+    risk_band: riskBand,
+    consent: consentInput.checked,
+    hp_token: hpInput ? hpInput.value : ""
+  };
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Submitting Assessment...";
+  if (statusNode) statusNode.textContent = "Processing your diagnostic score...";
+
+  try {
+    const res = await fetch("/api/readiness-check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      if (confirmBox) confirmBox.style.display = "block";
+      if (statusNode) statusNode.textContent = "Diagnostic registered (" + (data.lead_id || "Logged") + ").";
+      submitBtn.textContent = "Assessment Submitted";
+      confirmBox.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else {
+      if (statusNode) statusNode.textContent = data.detail || "Submission failed. Please try again.";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit & View Detailed Analysis";
+    }
+  } catch (err) {
+    if (statusNode) statusNode.textContent = "Network error. Please email contact@adxgroup.tech.";
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit & View Detailed Analysis";
+  }
+};

@@ -1835,3 +1835,128 @@ footer,
     scroll-behavior: auto !important;
   }
 }
+
+
+/* =========================================================================
+   Task A, C, D: Solutions, Currency Toggle, Readiness Check, WhatsApp Float
+   ========================================================================= */
+
+.currency-toggle-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.currency-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  min-height: 44px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.currency-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.currency-btn.active {
+  background: var(--accent-primary, #2563eb);
+  color: #ffffff;
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.currency-btn:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+
+/* WhatsApp Floating Click-to-Chat Button */
+.whatsapp-float-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 998;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #25d366;
+  color: #0b1120;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 10px 18px;
+  min-height: 48px;
+  min-width: 48px;
+  border-radius: 50px;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35), 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.whatsapp-float-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.45), 0 4px 10px rgba(0, 0, 0, 0.5);
+  color: #000000;
+}
+
+.whatsapp-float-btn:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.whatsapp-float-btn svg {
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .whatsapp-float-btn {
+    bottom: 20px;
+    right: 16px;
+    padding: 10px 14px;
+  }
+  .whatsapp-float-btn span {
+    display: none;
+  }
+}
+
+/* Readiness Check Quiz Cards */
+.quiz-question-card {
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.quiz-question-card:focus-within {
+  border-color: rgba(56, 189, 248, 0.6) !important;
+  background: rgba(15, 23, 42, 0.9) !important;
+}
+
+.quiz-option-label {
+  transition: all 0.15s ease;
+}
+
+.quiz-option-label:hover {
+  background: rgba(30, 41, 59, 0.8) !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+}
+
+.quiz-option-label:has(input:checked) {
+  border-color: var(--accent-primary, #2563eb) !important;
+  background: rgba(37, 99, 235, 0.15) !important;
+}
+
+/* Nav links mobile wrap optimization */
+@media (max-width: 900px) {
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+}
