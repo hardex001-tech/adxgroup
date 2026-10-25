@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Owner Command Center | ADX Group</title>
-  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.35" />
-  <link rel="stylesheet" href="/static/css/style.css?v=2026.35" />
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.36" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.36" />
   <style>
     .kpi-grid {
       display: grid;
@@ -102,7 +102,7 @@
             {% if admin_data.users %}
               {% for u in admin_data.users %}
               <tr>
-                <td style="font-family: var(--font-mono);">#ADX-00{{ u.id }}</td>
+                <td style="font-family: var(--font-mono);">ADX-00{{ u.id }}</td>
                 <td><strong>{{ u.name }}</strong></td>
                 <td style="font-family: var(--font-mono); color: var(--accent-cyan);">{{ u.email }}</td>
                 <td>{{ u.company or 'Personal' }}</td>

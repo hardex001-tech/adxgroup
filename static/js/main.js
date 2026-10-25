@@ -578,7 +578,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <div class="tel-cell">
           <span>Transport Protocol</span>
-          <strong>${escapeHtml(tel.tls_protocol || "TLS")} (${escapeHtml(tel.cipher_suite || "AEAD")})</strong>
+          <strong>${escapeHtml(tel.tls_protocol || "TLS")}${tel.cipher_suite && tel.cipher_suite !== "AEAD" && tel.cipher_suite !== "None" ? ` &bull; ${escapeHtml(tel.cipher_suite)}` : ""}</strong>
         </div>
         <div class="tel-cell">
           <span>Certificate CA</span>
@@ -611,7 +611,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <table class="truth-table">
         <thead>
           <tr>
-            <th style="width: 40px;">#</th>
+            <th style="width: 40px;">Item</th>
             <th style="width: 240px;">Inspection Parameter</th>
             <th style="width: 145px; text-align: center;">Verification State</th>
             <th>Technical Finding &amp; Guidance</th>

@@ -472,10 +472,10 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
 
     gates = [
         {
-            "gate_id": "#01",
+            "gate_id": "1",
             "vector": "TLS / SSL Handshake & Cipher Suite",
             "cve_ref": "",
-            "condition": "Valid CA certificate chain, TLS 1.2/1.3 & strong AEAD cipher",
+            "condition": "Valid CA certificate chain, TLS 1.2/1.3 cryptographic transport",
             "state": bool(ssl_res["passed"]),
             "status_label": "VERIFIED (TRUE)" if ssl_res["passed"] else "ATTENTION REQUIRED (FALSE)",
             "severity": "LOW" if ssl_res["passed"] else "HIGH",
@@ -488,7 +488,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "remediation": ssl_res["admin_fix"],
         },
         {
-            "gate_id": "#02",
+            "gate_id": "2",
             "vector": "DNS Domain Authentication (SPF & DMARC)",
             "cve_ref": "",
             "condition": "Strict SPF (-all) & enforced DMARC (p=reject / quarantine)",
@@ -504,7 +504,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "remediation": dns_res["admin_fix"],
         },
         {
-            "gate_id": "#03",
+            "gate_id": "3",
             "vector": "Browser Security Headers & Frame Sandboxing",
             "cve_ref": "",
             "condition": "HSTS, CSP, X-Frame-Options, Nosniff & Permissions-Policy",
@@ -520,7 +520,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "remediation": http_res["headers_fix"],
         },
         {
-            "gate_id": "#04",
+            "gate_id": "4",
             "vector": "API Cross-Origin Policy & CORS Boundary",
             "cve_ref": "",
             "condition": "Strict origin whitelist on credentialed API responses",
@@ -536,7 +536,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "remediation": http_res["cors_fix"],
         },
         {
-            "gate_id": "#05",
+            "gate_id": "5",
             "vector": "Server Banner & Information Masking",
             "cve_ref": "",
             "condition": "Zero exposed /.env, /.git files & masked server version banners",
@@ -552,7 +552,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "remediation": http_res["exposure_fix"],
         },
         {
-            "gate_id": "#06",
+            "gate_id": "6",
             "vector": "Network Edge & DNS Routing Resilience",
             "cve_ref": "",
             "condition": "Multi-IP redundant DNS resolution and edge proxy listener",
@@ -599,7 +599,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
         "mx_count": len(mx_records),
         "latency_ms": ssl_res.get("latency_ms", 0),
         "tls_protocol": ssl_res.get("tls_version", "TLS"),
-        "cipher_suite": ssl_res.get("cipher", "AEAD"),
+        "cipher_suite": ssl_res.get("cipher", "Verified TLS Cipher"),
         "cert_issuer": ssl_res.get("issuer", "Unissued"),
         "cert_serial": ssl_res.get("serial", "N/A"),
         "server_banner": http_res.get("server_banner", "Hidden / Protected"),
@@ -614,7 +614,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "surface": f"{ssl_res['tls_version']} / {ssl_res['cipher']}",
             "status": "MITIGATED" if ssl_res["passed"] else "EXPOSED",
             "passed": bool(ssl_res["passed"]),
-            "gate_id": "#01",
+            "gate_id": "1",
         },
         {
             "cve_id": "CWE-290 (2026-BEC)",
@@ -623,7 +623,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "surface": "SPF / DMARC DNS Policy",
             "status": "MITIGATED" if dns_res["passed"] else "EXPOSED",
             "passed": bool(dns_res["passed"]),
-            "gate_id": "#02",
+            "gate_id": "2",
         },
         {
             "cve_id": "CVE-2026-30891",
@@ -632,7 +632,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "surface": f"HTTP Edge ({telemetry['server_banner']})",
             "status": "MITIGATED" if http_res["headers_passed"] else "EXPOSED",
             "passed": bool(http_res["headers_passed"]),
-            "gate_id": "#03",
+            "gate_id": "3",
         },
         {
             "cve_id": "CVE-2026-31044",
@@ -641,7 +641,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "surface": "CORS & Session Cookie Boundary",
             "status": "MITIGATED" if http_res["cors_passed"] else "EXPOSED",
             "passed": bool(http_res["cors_passed"]),
-            "gate_id": "#04",
+            "gate_id": "4",
         },
         {
             "cve_id": "CVE-2026-109618",
@@ -650,7 +650,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "surface": f"Runtime Stack ({telemetry['server_banner']})",
             "status": "MITIGATED" if http_res["exposure_passed"] else "EXPOSED",
             "passed": bool(http_res["exposure_passed"]),
-            "gate_id": "#05",
+            "gate_id": "5",
         },
         {
             "cve_id": "CVE-2026-109619",
@@ -659,7 +659,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "surface": "Internal Runtime & Authenticated APIs",
             "status": "UNVERIFIED (PASSIVE SCAN)",
             "passed": False,
-            "gate_id": "#06",
+            "gate_id": "6",
         },
     ]
 
