@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign In | ADX Group Enterprise Console</title>
   <meta name="description" content="Sign in to the ADX Group Enterprise Security Console. Sovereign cloud systems, private AI agents, and perimeter threat telemetry." />
-  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.39" />
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.40" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/css/style.css?v=2026.39" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.40" />
   <style>
     :root {
       --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -476,7 +476,7 @@
 <body>
 
   <!-- Lit Background Watermark Emblem -->
-  <img src="/static/logo.svg?v=2026.39" alt="" class="watermark-logo" />
+  <img src="/static/logo.svg?v=2026.40" alt="" class="watermark-logo" />
 
   <div class="auth-page-wrapper">
     <div class="auth-split-grid">
@@ -485,7 +485,7 @@
       <div class="auth-card">
         <div class="auth-header">
           <a href="/" style="display: inline-block;">
-            <img src="/static/logo.svg?v=2026.39" alt="ADX Group" class="auth-logo" />
+            <img src="/static/logo.svg?v=2026.40" alt="ADX Group" class="auth-logo" />
           </a>
           <div style="display: flex; justify-content: center;">
             <div class="status-badge">
@@ -675,8 +675,21 @@
           </div>
         </form>
 
-        <div class="auth-footer">
+        <div class="auth-footer" style="margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border-subtle); text-align: center;">
           <a href="/">&larr; Return to adxgroup.tech homepage</a>
+          <div style="font-size: 0.76rem; color: #64748b; margin-top: 12px; line-height: 1.55;">
+            &copy; 2026 ADX Group. All rights reserved. Silent Innovation. Absolute Defense.<br>
+            Our <a href="/terms" style="color: #2563eb; text-decoration: underline;">Terms and Conditions</a> detail our trademark and copyright rights. Any unauthorized use is expressly prohibited.
+          </div>
+          <div style="display: flex; justify-content: center; gap: 12px; margin-top: 8px; font-size: 0.74rem;">
+            <a href="/privacy" style="color: #64748b; text-decoration: none;">Privacy Policy</a>
+            <span>&bull;</span>
+            <a href="/terms" style="color: #64748b; text-decoration: none;">Terms of Service</a>
+            <span>&bull;</span>
+            <a href="/cookies" style="color: #64748b; text-decoration: none;">Cookie Notice</a>
+            <span>&bull;</span>
+            <a href="/do-not-sell" style="color: #64748b; text-decoration: none;">Do Not Sell/Share My Info</a>
+          </div>
         </div>
       </div>
 
@@ -931,12 +944,16 @@
         errBox.style.color = "#92400e";
         errBox.style.background = "#fffbeb";
         errBox.style.border = "1px solid #fde68a";
-        errBox.style.padding = "12px 14px";
+        errBox.style.padding = "12px 32px 12px 14px";
         errBox.style.borderRadius = "8px";
         errBox.style.fontSize = "0.82rem";
         errBox.style.lineHeight = "1.5";
         errBox.style.marginBottom = "14px";
-        errBox.innerHTML = `<strong>${provider} SSO Configuration:</strong> To enable direct 1-click ${provider} Sign-In, add <code>${provider.toUpperCase()}_CLIENT_ID</code> and <code>${provider.toUpperCase()}_CLIENT_SECRET</code> to your Vercel Environment Variables. You can also sign in directly below with your <strong>Username or Work Email</strong>.`;
+        errBox.style.position = "relative";
+        errBox.innerHTML = `
+          <button type="button" onclick="this.parentElement.style.display='none'" style="position: absolute; right: 8px; top: 8px; background: none; border: none; font-size: 18px; line-height: 1; color: #92400e; cursor: pointer; padding: 0 4px;" title="Dismiss">&times;</button>
+          <strong>${provider} SSO Configuration:</strong> To enable direct 1-click ${provider} Sign-In, add <code>${provider.toUpperCase()}_CLIENT_ID</code> and <code>${provider.toUpperCase()}_CLIENT_SECRET</code> to your Vercel Environment Variables. You can also sign in directly below with your <strong>Username or Work Email</strong>.
+        `;
       }
     } else if (authError) {
       if (errBox) {
@@ -1035,6 +1052,6 @@
       }
     });
   </script>
-  <script src="/static/js/main.js?v=2026.39"></script>
+  <script src="/static/js/main.js?v=2026.40"></script>
 </body>
 </html>

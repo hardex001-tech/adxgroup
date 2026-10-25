@@ -4,42 +4,42 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{ title or "Legal Governance & Regulatory Compliance" }} | ADX Group</title>
-  <meta name="description" content="Legal and regulatory compliance documentation for ADX Group, covering NDPA, GDPR, DSA, EAA, and Cookie Governance." />
-  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.39" />
+  <meta name="description" content="Legal and regulatory compliance documentation for ADX Group, covering NDPA, GDPR, DSA, EAA, CCPA/CPRA, and express prohibitions against unauthorized use." />
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2026.40" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/css/style.css?v=2026.39" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.40" />
   <style>
     .legal-container {
-      max-width: 960px;
+      max-width: 980px;
       margin: 40px auto 80px;
       padding: 0 24px;
     }
     .legal-card {
       background: #ffffff;
       border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 42px 48px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 14px 34px -10px rgba(15,23,42,0.06);
+      border-radius: 18px;
+      padding: 44px 50px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 16px 36px -10px rgba(15,23,42,0.06);
     }
     .legal-header {
       border-bottom: 1px solid var(--border-subtle);
       padding-bottom: 24px;
-      margin-bottom: 32px;
+      margin-bottom: 30px;
     }
     .legal-tabs {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       margin-bottom: 28px;
       border-bottom: 1px solid var(--border-subtle);
       padding-bottom: 12px;
       flex-wrap: wrap;
     }
     .legal-tab-link {
-      padding: 8px 16px;
+      padding: 9px 18px;
       border-radius: 8px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 600;
       text-decoration: none;
       color: var(--text-muted);
@@ -48,29 +48,62 @@
     .legal-tab-link.active {
       background: #0f172a;
       color: #ffffff;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.12);
+    }
+    .legal-tab-link:hover:not(.active) {
+      background: #f1f5f9;
+      color: #0f172a;
     }
     .legal-content h2 {
-      font-size: 1.45rem;
+      font-size: 1.55rem;
       font-weight: 800;
       color: var(--text-main);
-      margin: 28px 0 12px;
-      letter-spacing: -0.02em;
+      margin: 28px 0 14px;
+      letter-spacing: -0.025em;
     }
     .legal-content h3 {
-      font-size: 1.1rem;
+      font-size: 1.12rem;
       font-weight: 700;
-      color: #1e293b;
-      margin: 20px 0 8px;
+      color: #0f172a;
+      margin: 24px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .legal-content p, .legal-content li {
-      font-size: 0.93rem;
-      color: #475569;
-      line-height: 1.7;
-      margin-bottom: 12px;
+      font-size: 0.94rem;
+      color: #334155;
+      line-height: 1.75;
+      margin-bottom: 14px;
     }
-    .legal-content ul {
+    .legal-content ul, .legal-content ol {
       padding-left: 24px;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
+    }
+    .legal-content strong {
+      color: #0f172a;
+    }
+    .prohibition-box {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-left: 4px solid #ef4444;
+      border-radius: 10px;
+      padding: 20px 22px;
+      margin: 20px 0 24px;
+    }
+    .prohibition-box h4 {
+      color: #991b1b;
+      font-size: 0.98rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .prohibition-box p, .prohibition-box li {
+      color: #7f1d1d;
+      font-size: 0.9rem;
+      line-height: 1.6;
     }
     .legal-badge-strip {
       display: flex;
@@ -86,9 +119,9 @@
       background: #f1f5f9;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-family: var(--font-mono);
-      font-weight: 600;
+      font-weight: 700;
       color: #334155;
     }
     .cookie-table {
@@ -107,6 +140,35 @@
       font-weight: 700;
       color: #0f172a;
     }
+    .sans-footer-notice {
+      text-align: center;
+      padding: 24px 0 10px;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 40px;
+      font-size: 0.88rem;
+      color: #64748b;
+      line-height: 1.6;
+    }
+    .sans-footer-notice a {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+    .sans-link-strip {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      font-size: 0.84rem;
+    }
+    .sans-link-strip a {
+      color: #475569;
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+    .sans-link-strip a:hover {
+      color: #2563eb;
+    }
   </style>
 </head>
 <body>
@@ -115,7 +177,7 @@
   <header class="navbar">
     <div class="container nav-inner">
       <a href="/" class="brand">
-        <img src="/static/logo.svg?v=2026.39" alt="ADX Group Logo" style="width: 38px; height: 38px;" />
+        <img src="/static/logo.svg?v=2026.40" alt="ADX Group Logo" style="width: 38px; height: 38px;" />
         <div>
           <span class="brand-text">ADX GROUP</span>
           <span class="brand-motto">Silent Innovation. Absolute Defense.</span>
@@ -136,16 +198,16 @@
     <div class="legal-card">
       <div class="legal-header">
         <div class="legal-badge-strip">
-          <span class="legal-badge">DSA COMPLIANT</span>
-          <span class="legal-badge">EAA ACCESSIBILITY (WCAG 2.1 AA)</span>
-          <span class="legal-badge">NDPA / NDPR CERTIFIED</span>
-          <span class="legal-badge">GDPR ALIGNED</span>
+          <span class="legal-badge">COPYRIGHT &amp; TRADEMARK PROTECTED</span>
+          <span class="legal-badge">UNAUTHORIZED USE EXPRESSLY PROHIBITED</span>
+          <span class="legal-badge">DSA &bull; EAA COMPLIANT</span>
+          <span class="legal-badge">NDPA &bull; GDPR ALIGNED</span>
         </div>
         <h1 style="font-size: 2rem; font-weight: 800; color: #0f172a; margin-top: 14px; letter-spacing: -0.03em;">
           Enterprise Trust &amp; Legal Governance
         </h1>
         <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 6px;">
-          ADX Group Architectural Baseline &bull; Lead Cyber Systems Architect: Abdulrazaq Adeyemi &bull; Last Revised: 2026
+          ADX Group Architectural Baseline &bull; Lead Cyber Systems Architect: Abdulrazaq Adeyemi &bull; Operational Headquarters: Abuja, Nigeria &bull; Worldwide Operations
         </p>
       </div>
 
@@ -154,6 +216,7 @@
         <a href="/privacy" class="legal-tab-link {% if tab == 'privacy' %}active{% endif %}">Privacy Policy</a>
         <a href="/terms" class="legal-tab-link {% if tab == 'terms' %}active{% endif %}">Terms of Service</a>
         <a href="/cookies" class="legal-tab-link {% if tab == 'cookies' %}active{% endif %}">Cookie Policy &amp; Telemetry</a>
+        <a href="/do-not-sell" class="legal-tab-link {% if tab == 'do-not-sell' %}active{% endif %}">Do Not Sell / Share My Information</a>
       </div>
 
       <div class="legal-content">
@@ -165,7 +228,7 @@
 
           <h3>1. Data Controller Identity &amp; Contact</h3>
           <p>
-            The Data Controller responsible for perimeter telemetry and identity verification processing is <strong>ADX Group Cyber Systems</strong>, under the direction of Lead Cyber Systems Architect Abdulrazaq Adeyemi. For data subject requests, right-to-be-forgotten petitions, or compliance inquiries, contact our dedicated security desk at <a href="mailto:contact@adxgroup.tech" style="color: #2563eb;">contact@adxgroup.tech</a>.
+            The Data Controller responsible for perimeter telemetry and identity verification processing is <strong>ADX Group Cyber Systems</strong>, under the direction of Lead Cyber Systems Architect <strong>Abdulrazaq Adeyemi</strong>. For data subject requests, right-to-be-forgotten petitions, or compliance inquiries, contact our dedicated security desk at <a href="mailto:contact@adxgroup.tech" style="color: #2563eb;">contact@adxgroup.tech</a>.
           </p>
 
           <h3>2. Zero-Retention Diagnostic Queries</h3>
@@ -184,30 +247,100 @@
           </p>
 
         {% elif tab == 'terms' %}
-          <h2>Enterprise Terms of Service</h2>
+          <h2>Enterprise Terms of Service &amp; Intellectual Property Agreement</h2>
           <p>
-            These Terms of Service govern your access to and utilization of ADX Group software, automated diagnostic telemetry, and autonomous cyber consulting services.
+            These Terms of Service (&ldquo;Terms&rdquo;) constitute a legally binding agreement between you (or the corporate entity you represent) and <strong>ADX Group</strong> (&ldquo;ADX&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;). Access to or use of <code>adxgroup.tech</code>, our perimeter telemetry consoles, autonomous AI systems, or diagnostic APIs constitutes unconditional acceptance of these Terms.
           </p>
 
-          <h3>1. Non-Intrusive Diagnostic Authorization</h3>
+          <h3>1. Trademark, Copyright &amp; Intellectual Property Ownership</h3>
           <p>
-            By initiating an audit query on <code>adxgroup.tech</code>, you affirm that you possess authorization to evaluate the public perimeter posture of the specified domain, or are conducting high-level defensive reconnaissance. ADX Group diagnostic tools operate strictly through passive, non-intrusive protocols without invasive penetration attempts or service degradation.
+            All content, source code, backend microservices, scoring rubrics, algorithmic telemetry pipelines, vector embeddings, documentation, design systems, visual interfaces, graphics, SVG crests, and branding on <code>adxgroup.tech</code> are the exclusive intellectual property of <strong>ADX Group</strong> and Founder <strong>Abdulrazaq Adeyemi</strong>, protected under Nigerian and international copyright, trademark, patent, and trade secret laws.
+          </p>
+          <p>
+            <strong>Registered &amp; Common Law Trademarks:</strong> &ldquo;ADX Group&rdquo;, the ADX geometric crest emblem, &ldquo;Silent Innovation. Absolute Defense.&rdquo;, &ldquo;AEGIS&rdquo;, the 6-Gate Perimeter Health Diagnostic Engine, and all related distinctive logos are proprietary trademarks of ADX Group.
           </p>
 
-          <h3>2. Zero-Trust Gateway &amp; Account Responsibility</h3>
+          <!-- PROHIBITION BOX (EXPRESS PROHIBITION OF UNAUTHORIZED USES) -->
+          <div class="prohibition-box">
+            <h4>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
+              EXPRESS PROHIBITION OF ANY UNAUTHORIZED USES
+            </h4>
+            <p>
+              <strong>Any unauthorized use of ADX Group systems, intellectual property, or telemetry data is strictly prohibited and constitutes a material breach of these Terms.</strong> You expressly agree that you shall NOT, directly or indirectly:
+            </p>
+            <ul style="margin-top: 10px; margin-bottom: 6px;">
+              <li><strong>Scraping &amp; Data Mining:</strong> Use any automated robot, spider, crawler, scraper, data-mining tool, script, or automated process to harvest, scrape, monitor, copy, or index ADX Group telemetry data, vulnerability scores, CVE intelligence matrices, or system records without our express prior written consent.</li>
+              <li><strong>Reverse Engineering &amp; Decompilation:</strong> Decompile, reverse engineer, disassemble, decrypt, probe, or attempt to derive source code, underlying algorithms, mathematical weightings of the 6-Gate Audit Engine, or private AI prompt architectures.</li>
+              <li><strong>Mirroring, Framing &amp; UI Replication:</strong> Frame, mirror, copy, republish, reproduce, duplicate, or create unauthorized proxies, clones, or derivative works of <code>adxgroup.tech</code>, the ADX Console, or any portion thereof.</li>
+              <li><strong>Unauthorized Commercial Exploitation:</strong> Resell, sublicense, distribute, lease, transfer, or commercially exploit ADX Group security diagnostic reports, CVE findings, or remediation code without an executed ADX Enterprise Agreement.</li>
+              <li><strong>Malicious Tampering &amp; Adversarial Injections:</strong> Attempt to inject malicious payloads, SQL injections, adversarial prompt-injection strings against AEGIS neural assistants, launch Denial-of-Service (DDoS) attacks, or circumvent API rate-limiting guardrails.</li>
+              <li><strong>Impersonation &amp; False Affiliation:</strong> Misrepresent your affiliation with ADX Group, use our trademarks in meta-tags or ad campaigns, or falsely imply ADX Group endorsement.</li>
+            </ul>
+            <p style="margin-top: 10px; font-weight: 700;">
+              Enforcement &amp; Legal Remedies: ADX Group actively monitors perimeter access logs. Any unauthorized use will result in immediate termination of console access, permanent IP/domain blacklisting, and aggressive civil and criminal prosecution under the Nigerian Cybercrimes (Prohibition, Prevention, etc.) Act 2015, the US Computer Fraud and Abuse Act (CFAA), the UK Computer Misuse Act, and the Berne Convention for the Protection of Literary and Artistic Works.
+            </p>
+          </div>
+
+          <h3>2. Scope of Authorized Defensive Diagnostic Use</h3>
           <p>
-            Authentication credentials and session tokens issued by ADX Group must be safeguarded. ADX Group employs PBKDF2-SHA256 password hashing and cryptographic session verification. Users agree not to attempt reverse engineering of ADX perimeter scoring algorithms or circumvent rate-limiting guardrails.
+            ADX Group grants you a limited, non-exclusive, non-transferable, revocable license to access our public perimeter scanner solely for evaluating the public Internet posture of domains owned or operated by your organization, or for legitimate defensive research. You represent and warrant that your queries do not violate any applicable domestic or international telecommunications laws.
           </p>
 
-          <h3>3. Service Availability SLA</h3>
+          <h3>3. Zero-Trust Gateway &amp; Account Responsibility</h3>
           <p>
-            ADX Group targets a 99.99% architecture availability SLA for sovereign cloud endpoints and real-time telemetry diagnostics. Scheduled maintenance windows and upstream cloud edge provider anomalies are mitigated via multi-cloud routing topologies.
+            Console users are strictly responsible for safeguarding their login credentials and session tokens. ADX Group utilizes PBKDF2-SHA256 cryptographic password hashing and tokenized sessions. You agree to notify us immediately at <a href="mailto:security@adxgroup.tech" style="color: #2563eb;">security@adxgroup.tech</a> if you detect any unauthorized access to your workspace.
           </p>
 
-          <h3>4. Limitation of Liability</h3>
+          <h3>4. Service Level Agreement &amp; Disclaimer</h3>
           <p>
-            Security audit scores and automated recommendations are provided on an engineering evaluation basis. Organizations remain responsible for reviewing remediation diffs before merging them into production environments.
+            ADX Group targets a 99.99% architecture uptime SLA. However, perimeter diagnostics are provided on an &ldquo;as-is&rdquo; and &ldquo;as-available&rdquo; basis for engineering reconnaissance. While our 6-Gate engine verifies active TLS handshakes, DMARC records, and 2026 CVE attack vectors, organizations remain responsible for verifying and applying remediation diffs within their respective change management windows.
           </p>
+
+          <h3>5. Governing Law &amp; Dispute Resolution</h3>
+          <p>
+            These Terms shall be governed by and construed in accordance with the laws of the Federal Republic of Nigeria and international intellectual property treaties, without regard to conflict of law principles. Any legal action arising hereunder shall be subject to the exclusive jurisdiction of the competent courts in Abuja, Nigeria, or international commercial arbitration tribunals.
+          </p>
+
+        {% elif tab == 'do-not-sell' %}
+          <h2>Do Not Sell or Share My Personal Information</h2>
+          <p>
+            In strict compliance with the California Consumer Privacy Act (CCPA as amended by CPRA), the Nigeria Data Protection Act (NDPA), the General Data Protection Regulation (GDPR), and Global Privacy Control (GPC) specifications:
+          </p>
+
+          <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-left: 4px solid #10b981; border-radius: 10px; padding: 20px 22px; margin: 20px 0;">
+            <h4 style="color: #065f46; font-size: 1rem; font-weight: 800; margin-bottom: 6px;">
+              ADX Group Zero-Monetization Commitment
+            </h4>
+            <p style="color: #047857; font-size: 0.92rem; margin: 0; line-height: 1.6;">
+              <strong>ADX Group DOES NOT sell, rent, monetize, trade, or transfer your personal information, work email, username, or infrastructure telemetry to third-party data brokers, advertising networks, or lead generators.</strong> We never have, and we never will.
+            </p>
+          </div>
+
+          <h3>1. Our Data Processing Philosophy</h3>
+          <p>
+            We process organizational data solely to perform requested defensive security diagnostics and authenticate your workspace session. We do not engage in behavioral cross-context advertising or profiling.
+          </p>
+
+          <h3>2. Global Privacy Control (GPC) Recognition</h3>
+          <p>
+            ADX Group web applications recognize and automatically honor browser-level Global Privacy Control (GPC) signals. If your browser broadcasts a GPC signal, all optional telemetry cookies are immediately blocked by default.
+          </p>
+
+          <h3>3. Opt-Out Preferences</h3>
+          <p>
+            To ensure complete peace of mind, you can explicitly disable all non-essential performance telemetry by clicking below:
+          </p>
+          <div style="margin: 20px 0; display: flex; gap: 12px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" onclick="denyCookies()">
+              Opt Out of All Non-Essential Telemetry
+            </button>
+            <button type="button" class="btn btn-outline" onclick="openCookieModal()">
+              Open Cookie Management Drawer
+            </button>
+          </div>
 
         {% else %}
           <h2>Cookie Policy &amp; Telemetry Governance</h2>
@@ -257,20 +390,30 @@
             </button>
           </div>
         {% endif %}
+
+        <!-- SANS-Style Explicit Copyright & Unauthorized Use Prohibition Notice -->
+        <div class="sans-footer-notice">
+          <div>&copy; 2026 ADX Group. All rights reserved. Silent Innovation. Absolute Defense.</div>
+          <div style="margin-top: 6px; font-weight: 600; color: #0f172a;">
+            Our <a href="/terms">Terms and Conditions</a> detail our trademark, proprietary algorithms, and copyright rights. Any unauthorized use is expressly prohibited.
+          </div>
+          <div class="sans-link-strip">
+            <a href="/privacy">Privacy Policy</a>
+            <span>&bull;</span>
+            <a href="/terms">Terms and Conditions</a>
+            <span>&bull;</span>
+            <a href="/cookies">Cookie Notice</a>
+            <span>&bull;</span>
+            <a href="/do-not-sell">Do Not Sell/Share My Personal Information</a>
+            <span>&bull;</span>
+            <a href="javascript:void(0)" onclick="openCookieModal()">Manage Cookie Preferences</a>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <!-- Corporate Footer -->
-  <footer class="site-footer">
-    <div class="container">
-      <div class="footer-bottom" style="border: none; padding-top: 0;">
-        <div>&copy; 2026 ADX Group. All rights reserved. Silent Innovation. Absolute Defense.</div>
-        <div>adxgroup.tech</div>
-      </div>
-    </div>
-  </footer>
-
-  <script src="/static/js/main.js?v=2026.39"></script>
+  <script src="/static/js/main.js?v=2026.40"></script>
 </body>
 </html>

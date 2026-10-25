@@ -913,6 +913,18 @@ async def page_cookies(request: Request):
     )
 
 
+@asgi_app.get("/do-not-sell", response_class=HTMLResponse)
+async def page_do_not_sell(request: Request):
+    """Render the Do Not Sell / Share My Personal Information Governance Statement (CCPA/CPRA/GPC)."""
+    user = _current_user(request)
+    return templates.TemplateResponse(
+        request=request,
+        name="legal.html",
+        context={"user": user, "tab": "do-not-sell", "title": "Do Not Sell / Share My Personal Information"},
+    )
+
+
+
 
 @asgi_app.post("/api/domains/add")
 async def api_add_monitored_domain(request: Request, payload: AddDomainRequest):
