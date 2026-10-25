@@ -243,15 +243,21 @@ async def logout(request: Request):
 @asgi_app.get("/dashboard", response_class=HTMLResponse)
 async def client_dashboard(request: Request):
     """Render the authenticated Client Console."""
+    import datetime
     user = _current_user(request)
     if not user:
         return RedirectResponse(url="/login", status_code=302)
+    sec_ctx = _extract_client_security_context(request)
     dash_data = get_client_dashboard_data(user["id"])
+    now_utc = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
         context={
             "user": user,
+            "client_ip": sec_ctx["ip"],
+            "is_proxy_or_vpn": sec_ctx["is_proxy_or_vpn"],
+            "login_time": now_utc,
             "monitored_domains": dash_data["monitored_domains"],
             "recent_scans": dash_data["recent_scans"],
         },
@@ -501,6 +507,24 @@ async def api_reset_password(payload: ResetPasswordRequest):
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
 
+
+
+
+class VerifyCodePayload(BaseModel):
+    code: str
+
+
+@asgi_app.post("/api/auth/verify-code")
+async def api_verify_code(payload: VerifyCodePayload):
+    """Verify 6-digit confirmation code from dashboard banner."""
+    from core.auth import verify_email_token
+    clean_code = (payload.code or "").strip()
+    if not clean_code or len(clean_code) < 6:
+        raise HTTPException(status_code=400, detail="Please enter a valid 6-digit confirmation code.")
+    user = verify_email_token(clean_code)
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or expired confirmation code. Please check your email or click Resend.")
+    return {"ok": True, "message": "Email identity cryptographically verified!", "user": user}
 
 
 @asgi_app.post("/api/auth/oauth")

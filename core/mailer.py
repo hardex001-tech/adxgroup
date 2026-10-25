@@ -109,6 +109,61 @@ def _send_smtp_email(to_email: str, subject: str, html_body: str, text_body: str
         return False
 
 
+
+def _dispatch_email(to_email: str, subject: str, html_body: str, text_body: str) -> bool:
+    """Dispatches email via available live gateway: Resend API -> Brevo API -> Zoho/Custom SMTP -> Local Outbox."""
+    resend_key = os.getenv("RESEND_API_KEY", "").strip()
+    if resend_key:
+        try:
+            import httpx
+            with httpx.Client(timeout=10.0) as client:
+                res = client.post(
+                    "https://api.resend.com/emails",
+                    headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json"},
+                    json={
+                        "from": os.getenv("SMTP_FROM", "ADX Group Security <security@adxgroup.tech>"),
+                        "to": [to_email],
+                        "subject": subject,
+                        "html": html_body,
+                        "text": text_body,
+                    },
+                )
+                if res.status_code in (200, 201):
+                    print(f"[ADX MAILER] Resend HTTP dispatch succeeded to {to_email}")
+                    return True
+                else:
+                    print(f"[ADX MAILER] Resend HTTP returned {res.status_code}: {res.text}")
+        except Exception as exc:
+            print(f"[ADX MAILER] Resend HTTP dispatch error: {exc}")
+
+    brevo_key = os.getenv("BREVO_API_KEY", "").strip()
+    if brevo_key:
+        try:
+            import httpx
+            with httpx.Client(timeout=10.0) as client:
+                res = client.post(
+                    "https://api.brevo.com/v3/smtp/email",
+                    headers={"api-key": brevo_key, "Content-Type": "application/json"},
+                    json={
+                        "sender": {"name": "ADX Group Security", "email": "security@adxgroup.tech"},
+                        "to": [{"email": to_email}],
+                        "subject": subject,
+                        "htmlContent": html_body,
+                        "textContent": text_body,
+                    },
+                )
+                if res.status_code in (200, 201):
+                    print(f"[ADX MAILER] Brevo HTTP dispatch succeeded to {to_email}")
+                    return True
+                else:
+                    print(f"[ADX MAILER] Brevo HTTP returned {res.status_code}: {res.text}")
+        except Exception as exc:
+            print(f"[ADX MAILER] Brevo HTTP dispatch error: {exc}")
+
+    # Fallback to standard SMTP (Zoho Mail or Custom)
+    return _send_smtp_email(to_email, subject, html_body, text_body)
+
+
 def send_verification_email(email: str, name: str, token: str, code: str) -> Dict[str, Any]:
     """Send security verification email with 6-digit OTP and instant verification link."""
     clean_email = email.strip().lower()
@@ -198,7 +253,7 @@ contact@adxgroup.tech | https://adxgroup.tech
 </body>
 </html>"""
 
-    sent = _send_smtp_email(clean_email, subject, html_body, text_body)
+    sent = _dispatch_email(clean_email, subject, html_body, text_body)
 
     record = {
         "id": f"ADX-VERIFY-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
@@ -301,7 +356,7 @@ security@adxgroup.tech • Abuja, Nigeria
 </body>
 </html>"""
 
-    sent = _send_smtp_email(clean_email, subject, html_body, text_body)
+    sent = _dispatch_email(clean_email, subject, html_body, text_body)
 
     record = {
         "id": f"ADX-ALERT-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
@@ -374,7 +429,7 @@ contact@adxgroup.tech | https://adxgroup.tech
 </body>
 </html>"""
 
-    sent = _send_smtp_email(clean_email, subject, html_body, text_body)
+    sent = _dispatch_email(clean_email, subject, html_body, text_body)
 
     record = {
         "id": f"ADX-RESET-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
@@ -451,7 +506,7 @@ security@adxgroup.tech
 </body>
 </html>"""
 
-    sent = _send_smtp_email(clean_email, subject, html_body, text_body)
+    sent = _dispatch_email(clean_email, subject, html_body, text_body)
 
     record = {
         "id": f"ADX-2FA-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
