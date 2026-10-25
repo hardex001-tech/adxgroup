@@ -5,6 +5,7 @@ and evaluates external & hidden attack surfaces mapped to 2026 CVE / CWE signatu
 """
 
 import asyncio
+import ipaddress
 import datetime
 import re
 import socket
@@ -426,6 +427,23 @@ async def check_http_and_cve_surface(
     }
 
 
+def is_ssrf_forbidden_ip(ip_str: str) -> bool:
+    """Detect private, loopback, link-local, reserved, or cloud metadata IPs to prevent SSRF attacks."""
+    try:
+        ip = ipaddress.ip_address(ip_str.strip())
+        return (
+            ip.is_private or
+            ip.is_loopback or
+            ip.is_link_local or
+            ip.is_multicast or
+            ip.is_reserved or
+            ip.is_unspecified or
+            str(ip).startswith("169.254.")
+        )
+    except ValueError:
+        return False
+
+
 async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
     """Execute 6-Gate External + Deep Hidden 2026 CVE Threat Assessment."""
     domain = normalize_domain(raw_domain)
@@ -447,6 +465,13 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
                 f"Target domain '{domain}' cannot be reached. No active A/AAAA DNS records or host IP found over the internet. "
                 "Please verify the domain spelling or ensure the website is online."
             )
+
+        for checked_ip in ip_list:
+            if is_ssrf_forbidden_ip(checked_ip):
+                raise ValueError(
+                    f"Target domain '{domain}' resolves to a restricted internal or private network address ({checked_ip}). "
+                    "Server-Side Request Forgery (SSRF) and internal IP audits are strictly prohibited under ADX Zero-Trust policy."
+                )
 
         ssl_task = asyncio.to_thread(_check_ssl_sync, domain, primary_ip)
         dns_task = check_dns_email_security(client, domain)

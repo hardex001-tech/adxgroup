@@ -192,40 +192,86 @@ contact@adxgroup.tech | https://adxgroup.tech
     return record
 
 
-def send_login_alert(email: str, name: str, ip: str, user_agent: str = "") -> Dict[str, Any]:
-    """Send security alert for new sign-in to account."""
+def send_login_alert(email: str, name: str, ip: str, user_agent: str = "", is_proxy_or_vpn: bool = False) -> Dict[str, Any]:
+    """Send zero-trust security alert for new sign-in to account, checking for proxy/VPN and anomalous origin."""
     clean_email = email.strip().lower()
     clean_name = name.strip() or clean_email.split("@")[0].title()
     now_str = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
-    subject = f"Security Notice: Successful Sign-in to ADX Console ({clean_email})"
+    route_status = "⚠️ Proxy / VPN / Multi-Hop Hop Detected" if is_proxy_or_vpn else "Direct Sovereign Edge Handshake"
+    subject = f"Security Notice: New Login Verified for {clean_email} [{ip or 'Edge'}]"
 
     text_body = f"""Hello {clean_name},
 
-A new sign-in was recorded for your ADX Group account:
+A new sign-in session was established for your ADX Group Client Console:
 
-Email: {clean_email}
-Time: {now_str}
-Client IP: {ip or 'Confidential'}
+Account Email:   {clean_email}
+Session Time:    {now_str}
+Client IP:       {ip or 'Edge Proxy'}
+Route Telemetry: {route_status}
+Device System:   {user_agent or 'Standard Web Browser'}
 
-If this was you, no action is required. If you did not authorize this login, please sign in to your dashboard and change your password immediately.
+If you initiated this sign-in, you may safely disregard this message.
 
-ADX Group Cyber Security Desk
-contact@adxgroup.tech
+EMERGENCY SECURITY PROTOCOL:
+If you did not initiate this sign-in, an unauthorized party may have obtained your credentials. Reset your password immediately and secure your workspace:
+https://adxgroup.tech/login?reset=immediate
+
+ADX Group Sovereign Cyber Security Desk
+security@adxgroup.tech • Abuja, Nigeria
 """
 
     html_body = f"""<!DOCTYPE html>
 <html>
-<body style="font-family: sans-serif; padding: 20px; background: #f8fafc; color: #0f172a;">
-  <div style="max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; padding: 24px;">
-    <h2 style="color: #0f172a; margin-top: 0;">ADX Group Security Alert</h2>
-    <p style="font-size: 14px; color: #334155;">Hello {clean_name}, a new sign-in to your ADX Console was verified.</p>
-    <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0;">
-      <tr><td style="padding: 6px 0; color: #64748b;">Account:</td><td style="font-weight: 700;">{clean_email}</td></tr>
-      <tr><td style="padding: 6px 0; color: #64748b;">Timestamp:</td><td style="font-weight: 700;">{now_str}</td></tr>
-      <tr><td style="padding: 6px 0; color: #64748b;">Client IP:</td><td style="font-family: monospace; font-weight: 700; color: #2563eb;">{ip or 'Edge Proxy'}</td></tr>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; background: #0b1120; color: #f8fafc;">
+  <div style="max-width: 560px; margin: 0 auto; background: #111827; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3); padding: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+      <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: {'#f59e0b' if is_proxy_or_vpn else '#10b981'}; box-shadow: 0 0 10px {'#f59e0b' if is_proxy_or_vpn else '#10b981'};"></span>
+      <h2 style="color: #ffffff; margin: 0; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em;">ADX Zero-Trust Security Alert</h2>
+    </div>
+    
+    <p style="font-size: 14px; color: #cbd5e1; line-height: 1.6; margin-bottom: 20px;">
+      Hello <strong style="color: #ffffff;">{clean_name}</strong>, a new authentication event was verified for your ADX Console.
+    </p>
+
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin: 20px 0; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+      <tr>
+        <td style="padding: 10px 14px; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.06);">Account:</td>
+        <td style="padding: 10px 14px; font-weight: 700; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.06);">{clean_email}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 14px; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.06);">Timestamp:</td>
+        <td style="padding: 10px 14px; font-weight: 700; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.06);">{now_str}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 14px; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.06);">Client IP:</td>
+        <td style="padding: 10px 14px; font-family: monospace; font-weight: 700; color: #38bdf8; border-bottom: 1px solid rgba(255,255,255,0.06);">{ip or 'Edge Proxy'}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 14px; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.06);">Route Integrity:</td>
+        <td style="padding: 10px 14px; font-weight: 700; color: {'#f59e0b' if is_proxy_or_vpn else '#34d399'}; border-bottom: 1px solid rgba(255,255,255,0.06);">{route_status}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 14px; color: #94a3b8;">Client System:</td>
+        <td style="padding: 10px 14px; color: #cbd5e1; font-size: 12px; font-family: monospace;">{user_agent[:60] if user_agent else 'Standard Web Browser'}</td>
+      </tr>
     </table>
-    <p style="font-size: 12px; color: #64748b;">If this was not you, please contact security@adxgroup.tech immediately.</p>
+
+    <div style="background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; border-radius: 6px; padding: 14px; margin: 24px 0;">
+      <div style="font-weight: 700; color: #fca5a5; font-size: 13px; margin-bottom: 4px;">Did not authorize this sign-in?</div>
+      <p style="font-size: 12px; color: #fecaca; margin: 0; line-height: 1.5;">
+        If this was not you, someone may have compromised your password. Secure your account immediately:
+      </p>
+      <div style="margin-top: 10px;">
+        <a href="https://adxgroup.tech/login?reset=immediate" style="display: inline-block; background: #dc2626; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; padding: 8px 16px; border-radius: 6px;">
+          Lock Down Account &amp; Reset Password &rarr;
+        </a>
+      </div>
+    </div>
+
+    <div style="font-size: 11px; color: #64748b; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
+      ADX Group Cyber Security Incident Desk &bull; Abuja, Nigeria &bull; Silent Innovation. Absolute Defense.
+    </div>
   </div>
 </body>
 </html>"""
@@ -238,6 +284,8 @@ contact@adxgroup.tech
         "type": "LOGIN_SECURITY_ALERT",
         "to": clean_email,
         "ip": ip,
+        "is_proxy_or_vpn": is_proxy_or_vpn,
+        "user_agent": user_agent,
         "smtp_dispatched": sent,
         "status": "SENT_VIA_SMTP" if sent else "LOGGED_LOCAL",
     }

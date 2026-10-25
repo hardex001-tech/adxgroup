@@ -271,6 +271,48 @@ async def owner_admin_console(request: Request):
     )
 
 
+def _extract_client_security_context(request: Request) -> Dict[str, Any]:
+    """Extract verifiable client IP, detect proxy/VPN hops, and capture user agent."""
+    x_forwarded_for = request.headers.get("x-forwarded-for", "").strip()
+    cf_connecting_ip = request.headers.get("cf-connecting-ip", "").strip()
+    x_real_ip = request.headers.get("x-real-ip", "").strip()
+
+    ip = "127.0.0.1"
+    is_proxy_or_vpn = False
+
+    if cf_connecting_ip:
+        ip = cf_connecting_ip
+    elif x_forwarded_for:
+        parts = [p.strip() for p in x_forwarded_for.split(",") if p.strip()]
+        if parts:
+            ip = parts[0]
+            if len(parts) > 1:
+                is_proxy_or_vpn = True
+    elif x_real_ip:
+        ip = x_real_ip
+    elif request.client and request.client.host:
+        ip = request.client.host
+
+    proxy_indicators = [
+        "via",
+        "forwarded",
+        "x-proxy-id",
+        "proxy-connection",
+        "x-requested-with",
+    ]
+    for h in proxy_indicators:
+        if request.headers.get(h):
+            is_proxy_or_vpn = True
+            break
+
+    ua = request.headers.get("user-agent", "Standard Web Browser")
+    return {
+        "ip": ip,
+        "is_proxy_or_vpn": is_proxy_or_vpn,
+        "user_agent": ua,
+    }
+
+
 def _set_auth_cookie(response: Response, token: str) -> None:
     import os
     response.set_cookie(
@@ -329,9 +371,15 @@ async def api_login(request: Request, payload: LoginRequest):
             raise HTTPException(status_code=400, detail="Please enter your username or email address.")
         sess = login_email_user(identifier=user_identifier, password=payload.password)
         redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
-        client_ip = request.client.host if request.client else "Remote Client"
+        sec_ctx = _extract_client_security_context(request)
         try:
-            send_login_alert(sess["user"]["email"], sess["user"]["name"], client_ip)
+            send_login_alert(
+                email=sess["user"]["email"],
+                name=sess["user"]["name"],
+                ip=sec_ctx["ip"],
+                user_agent=sec_ctx["user_agent"],
+                is_proxy_or_vpn=sec_ctx["is_proxy_or_vpn"]
+            )
         except Exception:
             pass
         resp = JSONResponse(
@@ -518,9 +566,15 @@ async def api_google_callback(
         company="",
     )
 
-    client_ip = request.client.host if request.client else "Google SSO"
+    sec_ctx = _extract_client_security_context(request)
     try:
-        send_login_alert(email, name, client_ip)
+        send_login_alert(
+            email=email,
+            name=name,
+            ip=sec_ctx["ip"],
+            user_agent=sec_ctx["user_agent"],
+            is_proxy_or_vpn=sec_ctx["is_proxy_or_vpn"]
+        )
     except Exception:
         pass
 
@@ -693,9 +747,15 @@ async def api_microsoft_callback(
 
     sess = create_or_login_oauth_user(email=email, name=name, provider="microsoft", company="")
 
-    client_ip = request.client.host if request.client else "Microsoft SSO"
+    sec_ctx = _extract_client_security_context(request)
     try:
-        send_login_alert(email, name, client_ip)
+        send_login_alert(
+            email=email,
+            name=name,
+            ip=sec_ctx["ip"],
+            user_agent=sec_ctx["user_agent"],
+            is_proxy_or_vpn=sec_ctx["is_proxy_or_vpn"]
+        )
     except Exception:
         pass
 
@@ -821,9 +881,15 @@ async def api_github_callback(
 
     sess = create_or_login_oauth_user(email=email, name=name, provider="github", company=company)
 
-    client_ip = request.client.host if request.client else "GitHub SSO"
+    sec_ctx = _extract_client_security_context(request)
     try:
-        send_login_alert(email, name, client_ip)
+        send_login_alert(
+            email=email,
+            name=name,
+            ip=sec_ctx["ip"],
+            user_agent=sec_ctx["user_agent"],
+            is_proxy_or_vpn=sec_ctx["is_proxy_or_vpn"]
+        )
     except Exception:
         pass
 
