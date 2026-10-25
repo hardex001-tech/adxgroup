@@ -1778,3 +1778,60 @@ footer,
   }
 }
 
+
+
+/* =========================================================================
+   Accessibility & Reduced Motion Enhancements (WCAG 2.1 AA Compliance)
+   ========================================================================= */
+.skip-link {
+  position: absolute;
+  top: -120px;
+  left: 16px;
+  background: var(--accent-primary, #38bdf8);
+  color: #040d21;
+  padding: 10px 18px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  z-index: 10000;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: top 0.15s ease-in-out;
+}
+.skip-link:focus {
+  top: 16px;
+  outline: 3px solid #ffffff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-primary, #38bdf8);
+  outline-offset: 3px;
+}
+
+.capability-tab-btn:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+
+.social-icon-btn {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

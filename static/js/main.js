@@ -1229,11 +1229,49 @@ document.addEventListener("DOMContentLoaded", () => {
   // =========================================================================
   window.switchCapabilityTab = function (tabId) {
     document.querySelectorAll(".capability-tab-btn").forEach((btn) => {
-      btn.classList.toggle("active", btn.getAttribute("data-tab") === tabId);
+      const isSelected = btn.getAttribute("data-tab") === tabId;
+      btn.classList.toggle("active", isSelected);
+      btn.setAttribute("aria-selected", isSelected ? "true" : "false");
+      btn.setAttribute("tabindex", isSelected ? "0" : "-1");
     });
     document.querySelectorAll(".capability-pane").forEach((pane) => {
       pane.classList.toggle("hidden", pane.id !== `pane-${tabId}`);
     });
+  };
+
+  // Keyboard navigation for capability tabs
+  const tabList = document.querySelector('.capability-nav-tabs[role="tablist"]');
+  if (tabList) {
+    tabList.addEventListener("keydown", (e) => {
+      const tabs = Array.from(tabList.querySelectorAll('[role="tab"]'));
+      const activeIndex = tabs.findIndex((t) => t.getAttribute("aria-selected") === "true");
+      let nextIndex = activeIndex;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        nextIndex = (activeIndex + 1) % tabs.length;
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        nextIndex = (activeIndex - 1 + tabs.length) % tabs.length;
+      } else if (e.key === "Home") {
+        nextIndex = 0;
+      } else if (e.key === "End") {
+        nextIndex = tabs.length - 1;
+      } else {
+        return;
+      }
+      e.preventDefault();
+      tabs[nextIndex].focus();
+      const targetTabId = tabs[nextIndex].getAttribute("data-tab");
+      window.switchCapabilityTab(targetTabId);
+    });
+  }
+
+  // Simulation pause control for prefers-reduced-motion & user control
+  let isSimPaused = false;
+  window.toggleSimPause = function () {
+    isSimPaused = !isSimPaused;
+    const btn = document.getElementById("term-pause-btn");
+    const term = document.getElementById("sim-terminal-output");
+    if (btn) btn.textContent = isSimPaused ? "Resume" : "Pause";
+    if (term) term.style.opacity = isSimPaused ? "0.75" : "1.0";
   };
 
   window.runSimulatedAudit = function () {

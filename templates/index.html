@@ -101,6 +101,7 @@
   <link rel="stylesheet" href="/static/css/style.css?v=2026.45" />
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <!-- Sleek Cyber Watermark Emblem -->
   <img src="/static/logo.svg?v=2026.45" alt="" class="watermark-logo" />
@@ -164,6 +165,7 @@
     </div>
   </header>
 
+  <main id="main-content">
   <!-- Hero Section -->
   <section class="hero">
     <div class="container hero-split">
@@ -267,25 +269,25 @@
         <p>Experience how our offensive security, sovereign AI, and resilient cloud architectures operate in production environments.</p>
       </div>
 
-      <!-- Capability Tab Buttons -->
-      <div class="capability-nav-tabs">
-        <button type="button" class="capability-tab-btn active" data-tab="scanner" onclick="switchCapabilityTab('scanner')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <!-- Capability Tab Buttons with ARIA Tablist -->
+      <div class="capability-nav-tabs" role="tablist" aria-label="Systems Operational Capabilities">
+        <button type="button" id="tab-btn-scanner" role="tab" aria-selected="true" aria-controls="pane-scanner" tabindex="0" class="capability-tab-btn active" data-tab="scanner" onclick="switchCapabilityTab('scanner')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
           <span>6-Gate Diagnostic Engine</span>
         </button>
 
-        <button type="button" class="capability-tab-btn" data-tab="ai" onclick="switchCapabilityTab('ai')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button type="button" id="tab-btn-ai" role="tab" aria-selected="false" aria-controls="pane-ai" tabindex="-1" class="capability-tab-btn" data-tab="ai" onclick="switchCapabilityTab('ai')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
           <span>Sovereign Zero-Leak AI</span>
         </button>
 
-        <button type="button" class="capability-tab-btn" data-tab="cloud" onclick="switchCapabilityTab('cloud')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button type="button" id="tab-btn-cloud" role="tab" aria-selected="false" aria-controls="pane-cloud" tabindex="-1" class="capability-tab-btn" data-tab="cloud" onclick="switchCapabilityTab('cloud')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
             <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
             <line x1="6" y1="6" x2="6.01" y2="6"></line>
@@ -296,18 +298,23 @@
       </div>
 
       <!-- Tab 1: Terminal Diagnostic Engine -->
-      <div id="pane-scanner" class="capability-pane">
+      <div id="pane-scanner" class="capability-pane" role="tabpanel" aria-labelledby="tab-btn-scanner" tabindex="0">
         <div class="terminal-frame">
           <div class="terminal-header">
             <span class="terminal-dot terminal-dot-red"></span>
             <span class="terminal-dot terminal-dot-yellow"></span>
             <span class="terminal-dot terminal-dot-green"></span>
             <span class="terminal-title">PERIMETER TELEMETRY TERMINAL &bull; DEMO SIMULATION</span>
-            <button type="button" onclick="runSimulatedAudit()" style="margin-left: auto; background: #2563eb; color: #fff; border: none; padding: 4px 10px; border-radius: 5px; font-size: 0.74rem; font-family: var(--font-mono); font-weight: 700; cursor: pointer;">
-              &gt; Replay Demo Simulation
-            </button>
+            <div style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
+              <button type="button" id="term-pause-btn" onclick="toggleSimPause()" style="background: transparent; color: #94a3b8; border: 1px solid rgba(255,255,255,0.15); padding: 4px 8px; border-radius: 5px; font-size: 0.72rem; font-family: var(--font-mono); cursor: pointer;" aria-label="Pause or resume demo simulation animation">
+                Pause
+              </button>
+              <button type="button" onclick="runSimulatedAudit()" style="background: #2563eb; color: #fff; border: none; padding: 4px 10px; border-radius: 5px; font-size: 0.74rem; font-family: var(--font-mono); font-weight: 700; cursor: pointer;">
+                &gt; Replay Demo Simulation
+              </button>
+            </div>
           </div>
-          <div class="terminal-body" id="sim-terminal-output">
+          <div class="terminal-body" id="sim-terminal-output" aria-live="polite" aria-atomic="true">
             <span style="color: #60a5fa;">$ adx audit --domain example-domain.com --mode passive-telemetry</span><br>
             <span style="color: #94a3b8;">[DEMO] Simulating surface diagnostic workflow (sample output)...</span><br>
             <span style="color: #10b981;">[DNS] Resolving A/AAAA records: Authoritative DNS resolution checked</span><br>
@@ -321,22 +328,22 @@
       </div>
 
       <!-- Tab 2: Sovereign AI -->
-      <div id="pane-ai" class="capability-pane hidden">
+      <div id="pane-ai" class="capability-pane hidden" role="tabpanel" aria-labelledby="tab-btn-ai" tabindex="0">
         <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 32px; backdrop-filter: blur(12px);">
           <div class="grid-3">
             <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
               <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; font-weight: 700; display: block; margin-bottom: 6px;">ZERO RETENTION</span>
-              <h4 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Isolated Neural Memory</h4>
+              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Isolated Neural Memory</h3>
               <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Enterprise queries are processed ephemerally within private execution boundaries. Proprietary company IP and codebase files are strictly isolated from public model training.</p>
             </div>
             <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
               <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #10b981; font-weight: 700; display: block; margin-bottom: 6px;">DETERMINISTIC RAG</span>
-              <h4 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Private Vector Indexing</h4>
+              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Private Vector Indexing</h3>
               <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Search PDF policies, compliance frameworks, and database logs with verifiable document citations and deterministic retrieval grounding.</p>
             </div>
             <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
               <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #a855f7; font-weight: 700; display: block; margin-bottom: 6px;">MCP INTEGRATION</span>
-              <h4 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Autonomous Tool Orchestration</h4>
+              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Autonomous Tool Orchestration</h3>
               <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Model Context Protocol pipelines allow agents to query APIs, verify TLS telemetry, and trigger remediation scripts.</p>
             </div>
           </div>
@@ -344,22 +351,22 @@
       </div>
 
       <!-- Tab 3: Resilient Cloud Architecture -->
-      <div id="pane-cloud" class="capability-pane hidden">
+      <div id="pane-cloud" class="capability-pane hidden" role="tabpanel" aria-labelledby="tab-btn-cloud" tabindex="0">
         <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 32px; backdrop-filter: blur(12px);">
           <div class="grid-3">
             <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
               <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; font-weight: 700; display: block; margin-bottom: 6px;">EDGE INFRASTRUCTURE</span>
-              <h4 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Zero-Downtime Backends</h4>
+              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Zero-Downtime Backends</h3>
               <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">FastAPI service architecture deployed on Vercel Global Edge serverless infrastructure with high-availability routing.</p>
             </div>
             <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
               <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #10b981; font-weight: 700; display: block; margin-bottom: 6px;">DATABASE NETWORK LOCK</span>
-              <h4 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Private Subnet Segregation</h4>
+              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Private Subnet Segregation</h3>
               <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Relational data stores are isolated in private network segments with restricted ingress and parameterized queries.</p>
             </div>
             <div style="background: rgba(15, 23, 42, 0.72); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle);">
               <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #f59e0b; font-weight: 700; display: block; margin-bottom: 6px;">ENCRYPTED OFF-SITE VAULT</span>
-              <h4 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Continuous Backup Sync</h4>
+              <h3 style="margin-bottom: 6px; font-size: 1rem; color: #ffffff;">Continuous Backup Sync</h3>
               <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">Daily automated AES-256 encrypted snapshots guarantee complete environment recovery within minutes.</p>
             </div>
           </div>
@@ -839,7 +846,7 @@
 
         <!-- Col 2: Operating Divisions -->
         <div class="footer-col">
-          <h4>Operating Divisions</h4>
+          <h3>Operating Divisions</h3>
           <ul>
             <li><a href="#divisions">Cyber Defense &amp; Threat Recon</a></li>
             <li><a href="#divisions">Cloud Architecture &amp; Systems</a></li>
@@ -851,7 +858,7 @@
 
         <!-- Col 3: Trust & Regulatory Standards -->
         <div class="footer-col">
-          <h4>Trust &amp; Compliance</h4>
+          <h3>Trust &amp; Compliance</h3>
           <ul>
             <li><a href="/privacy">ISO 27001 Control Alignment</a></li>
             <li><a href="/terms">SOC 2 Control Alignment</a></li>
@@ -868,7 +875,7 @@
 
         <!-- Col 4: Legal & Links of Interest -->
         <div class="footer-col">
-          <h4>Legal &amp; Governance</h4>
+          <h3>Legal &amp; Governance</h3>
           <ul>
             <li><a href="#founder-section">About ADX &amp; Leadership</a></li>
             <li><a href="#faq">Frequently Asked Questions</a></li>
