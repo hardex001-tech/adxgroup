@@ -83,11 +83,17 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (res.status === 401) {
-          window.location.href = `/login?domain=${encodeURIComponent(domain)}`;
+          window.location.href = `/login?scan=${encodeURIComponent(domain)}`;
           return;
         }
 
-        const payload = await res.json();
+        let payload = {};
+        try {
+          payload = await res.json();
+        } catch (jsonErr) {
+          payload = { detail: "Network request interrupted or connection reset. Please re-run the diagnostic." };
+        }
+
         if (!res.ok || !payload.ok) {
           window.showAdxNotice(payload.detail || "Could not complete scan. Verify the domain name.", "error", "Perimeter Verification Alert");
           return;
@@ -128,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <div class="telemetry-cell">
               <span>TLS Protocol &amp; Cipher</span>
-              <strong>${escapeHtml(tel.tls_protocol || "None")} (${escapeHtml(tel.cipher_suite || "N/A")})</strong>
+              <strong>${escapeHtml(tel.tls_protocol || "None")}${tel.cipher_suite && tel.cipher_suite !== "None" && tel.cipher_suite !== "AEAD" ? ` &bull; ${escapeHtml(tel.cipher_suite)}` : ""}</strong>
             </div>
             <div class="telemetry-cell">
               <span>Certificate Authority</span>
@@ -216,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
           gatesTableBody.appendChild(tr);
         });
       } catch (err) {
-        window.showAdxNotice("Network error while running diagnostic scan. Please verify domain reachability.", "error");
+        window.showAdxNotice("Network connectivity issue detected while querying perimeter telemetry. Please check your internet connection and re-run.", "error", "Network Alert");
       } finally {
         scanBtn.disabled = false;
         scanBtn.textContent = "Audit Infrastructure Parameters";

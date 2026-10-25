@@ -45,7 +45,7 @@ init_db()
 
 asgi_app = FastAPI(
     title="ADX Group — Enterprise AI, Cloud & Cyber Systems",
-    description="Official SaaS portal, client console, and 5-vector diagnostic engine for ADX Group (adxgroup.tech)",
+    description="Official SaaS portal, client console, and 6-gate diagnostic engine for ADX Group (adxgroup.tech)",
     version="3.6.0",
 )
 
@@ -389,12 +389,12 @@ async def health_check():
 
 @asgi_app.post("/api/scan")
 async def api_scan_domain(request: Request, payload: ScanRequest):
-    """Run the 5-vector security diagnostic inside the authenticated Console."""
+    """Run the 6-gate security diagnostic inside the authenticated Console."""
     user = _current_user(request)
     if not user:
         raise HTTPException(
             status_code=401,
-            detail="Please sign in with Google, GitHub, or Work Email to run the 5-Vector Security Diagnostic.",
+            detail="Please sign in with your Work Email to run the 6-Gate Security Diagnostic.",
         )
     try:
         scan_data = await run_full_diagnostic(payload.domain)
