@@ -355,15 +355,16 @@
           Our <a href="/terms" style="color: #38bdf8; text-decoration: underline;">Terms and Conditions</a> detail our trademark, proprietary algorithms, and copyright rights. Any unauthorized use is expressly prohibited.
         </div>
         <div style="font-family: var(--font-mono); font-size: 0.74rem; color: #94a3b8; margin-top: 4px;">
-          adxgroup.tech &bull; Abuja, Nigeria &bull; [PLACEHOLDER: Corporate Affairs Commission (CAC) Registered Entity Name &amp; RC Number]
+          adxgroup.tech &bull; Abuja, Nigeria{% if cac_info %} &bull; {{ cac_info }}{% endif %}
         </div>
       </div>
     </div>
   </footer>
 
+  {% if whatsapp_url %}
   <!-- WhatsApp Click-to-Chat Floating Button -->
   <a
-    href="https://wa.me/{{ whatsapp_number }}?text={{ whatsapp_text }}"
+    href="{{ whatsapp_url }}"
     class="whatsapp-float-btn"
     target="_blank"
     rel="noopener noreferrer"
@@ -374,6 +375,7 @@
     </svg>
     <span>Chat with us</span>
   </a>
+  {% endif %}
 
   <script src="/static/js/main.js?v=2026.46"></script>
 </body>

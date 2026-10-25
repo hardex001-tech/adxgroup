@@ -636,16 +636,16 @@
                   </td>
                 </tr>
                 <tr>
-                  <td style="font-family: var(--font-mono); font-weight: 700; color: #38bdf8;">CVE-2026-31044</td>
+                  <td style="font-family: var(--font-mono); font-weight: 700; color: #38bdf8;">OWASP-API1:2023</td>
                   <td><span class="badge-false">CVSS 8.8</span></td>
                   <td>
-                    <strong>API Cross-Origin Token Theft &amp; BOLA Bypass</strong>
+                    <strong>API Broken Object-Level Authorization (BOLA)</strong>
                     <div style="font-size: 0.83rem; color: var(--text-muted); margin-top: 3px;">
-                      Permissive CORS headers combined with unverified object IDs allow authenticated session tokens to be exfiltrated.
+                      Permissive object-level access controls and missing token scopes allow unauthorized access to sensitive endpoints.
                     </div>
                   </td>
                   <td>
-                    <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.78rem;" onclick="requestCveRemediation('CVE-2026-31044')">
+                    <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.78rem;" onclick="requestCveRemediation('OWASP-API1:2023')">
                       Request Patch →
                     </button>
                   </td>
@@ -711,6 +711,91 @@
               <span id="lead-status" style="margin-left: 14px; font-size: 0.88rem; font-weight: 600;"></span>
             </div>
           </form>
+        </div>
+      </div>
+
+      <!-- TAB: Reports (Task E / Task 4) -->
+      <div id="tab-view-reports" class="console-tab-view hidden">
+        <div class="view-tag">AUDIT DOCUMENTATION &amp; EXPORTS</div>
+        <h1 class="view-title">Executive &amp; Technical Reports</h1>
+        <p style="color: #94a3b8; font-size: 0.92rem; margin-bottom: 24px; max-width: 65ch;">
+          Export verified perimeter diagnostics, cryptographic cipher analysis, and remediation playbooks for executive stakeholders and technical audit compliance.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-bottom: 28px;">
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px;">
+            <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; text-transform: uppercase; margin-bottom: 6px;">Executive Security Dossier</div>
+            <h3 style="font-size: 1.15rem; color: #ffffff; margin-bottom: 8px;">Watermarked Specimen Report</h3>
+            <p style="font-size: 0.84rem; color: #94a3b8; line-height: 1.5; margin-bottom: 16px;">
+              Review sample report illustrating multi-vector perimeter telemetry, TLS 1.3 handshake verification, DMARC alignment, and ranked remediation roadmaps.
+            </p>
+            <a href="/static/reports/sample-audit-report.pdf" target="_blank" class="btn btn-outline" style="font-size: 0.82rem; padding: 8px 14px;">
+              Download Sample Dossier (PDF) &rarr;
+            </a>
+          </div>
+
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px;">
+            <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #10b981; text-transform: uppercase; margin-bottom: 6px;">Statutory Return Archive</div>
+            <h3 style="font-size: 1.15rem; color: #ffffff; margin-bottom: 8px;">NDPA Compliance Audit Dossier</h3>
+            <p style="font-size: 0.84rem; color: #94a3b8; line-height: 1.5; margin-bottom: 16px;">
+              Structured data mapping and technical safeguards export assembled in coordination with our licensed DPCO partner.
+            </p>
+            <a href="/solutions/comply" class="btn btn-outline" style="font-size: 0.82rem; padding: 8px 14px;">
+              View ADX Comply Scope &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Compliance Checklist (Task E) -->
+      <div id="tab-view-compliance" class="console-tab-view hidden">
+        <div class="view-tag">REGULATORY SAFEGUARDS TRACKER</div>
+        <h1 class="view-title">NDPA &amp; ISO 27001 Compliance Checklist</h1>
+        <p style="color: #94a3b8; font-size: 0.92rem; margin-bottom: 24px; max-width: 65ch;">
+          Track your technical and administrative compliance controls against the Nigeria Data Protection Act 2023 and ISO 27001 control principles.
+        </p>
+
+        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px;">
+          <div style="display: grid; gap: 14px;">
+            <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px 14px; background: rgba(11, 18, 32, 0.6); border-radius: 8px;">
+              <span style="color: #10b981; font-weight: 700; font-size: 1.1rem;">&#10003;</span>
+              <div>
+                <strong style="color: #ffffff; font-size: 0.92rem; display: block; margin-bottom: 2px;">NDPA Section 24: Documented Personal Data Inventory</strong>
+                <span style="font-size: 0.82rem; color: #94a3b8;">Maintain records of all personal customer and employee data categories, processing purposes, and storage locations.</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px 14px; background: rgba(11, 18, 32, 0.6); border-radius: 8px;">
+              <span style="color: #10b981; font-weight: 700; font-size: 1.1rem;">&#10003;</span>
+              <div>
+                <strong style="color: #ffffff; font-size: 0.92rem; display: block; margin-bottom: 2px;">NDPA Section 40: 72-Hour Data Breach Notification Plan</strong>
+                <span style="font-size: 0.82rem; color: #94a3b8;">Formally documented procedures to notify the NDPC and impacted data subjects within statutory windows.</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px 14px; background: rgba(11, 18, 32, 0.6); border-radius: 8px;">
+              <span style="color: #fbbf24; font-weight: 700; font-size: 1.1rem;">&#9679;</span>
+              <div>
+                <strong style="color: #ffffff; font-size: 0.92rem; display: block; margin-bottom: 2px;">NDPA Section 32: Designated Data Protection Officer (DPO)</strong>
+                <span style="font-size: 0.82rem; color: #94a3b8;">Appointment or retainer of a qualified internal or external DPO to supervise privacy policies.</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px 14px; background: rgba(11, 18, 32, 0.6); border-radius: 8px;">
+              <span style="color: #38bdf8; font-weight: 700; font-size: 1.1rem;">&#9679;</span>
+              <div>
+                <strong style="color: #ffffff; font-size: 0.92rem; display: block; margin-bottom: 2px;">Technical Safeguards: AES-256 Backups &amp; DMARC Policy Enforcement</strong>
+                <span style="font-size: 0.82rem; color: #94a3b8;">Off-site encrypted backups tested with restore drills, and staged SPF/DKIM/DMARC email security.</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <span style="font-size: 0.82rem; color: #94a3b8;">Need guided assistance? Take our 10-question self-check:</span>
+            <a href="/readiness-check" class="btn btn-primary" style="font-size: 0.8rem; padding: 8px 16px;">
+              Open Free Readiness Check &rarr;
+            </a>
+          </div>
         </div>
       </div>
 

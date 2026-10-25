@@ -56,15 +56,18 @@ from core.auth import (
 from core.mailer import get_outbox, send_login_alert
 from core.notifier import get_all_leads, record_client_lead
 from core.scanner import normalize_domain, run_full_diagnostic
-from core.offers_config import (
+from core.public_config import (
     SPLASH_ENABLED,
-    BOOKING_URL,
-    CASE_STUDIES,
     NDPC_OFFICIAL_URL,
-    PARTNER_DPCO_NAME,
-    PARTNERS_LIST,
-    WHATSAPP_NUMBER,
-    WHATSAPP_PREFILLED_MESSAGE,
+    CASE_STUDIES,
+    get_whatsapp_url,
+    get_booking_url,
+    get_linkedin_url,
+    get_twitter_url,
+    get_dpco_partner_name,
+    get_cac_info,
+    get_partners_list,
+    get_sample_report_url,
 )
 from core.offers_data import OFFERS_DICT, READINESS_QUESTIONS, SECTORS_LIST
 
@@ -280,8 +283,45 @@ async def sitemap_xml():
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
+  <url>
+    <loc>https://adxgroup.tech/security</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>"""
     return Response(content=xml_content, media_type="application/xml")
+
+
+def _public_template_context(request: Request, extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    user = _current_user(request)
+    ctx = {
+        "request": request,
+        "user": user,
+        "whatsapp_url": get_whatsapp_url(),
+        "booking_url": get_booking_url(),
+        "linkedin_url": get_linkedin_url(),
+        "twitter_url": get_twitter_url(),
+        "dpco_name": get_dpco_partner_name(),
+        "cac_info": get_cac_info(),
+        "ndpc_url": NDPC_OFFICIAL_URL,
+        "partners": get_partners_list(),
+        "case_studies": CASE_STUDIES,
+        "splash_enabled": SPLASH_ENABLED,
+        "sample_report_url": get_sample_report_url(),
+    }
+    if extra:
+        ctx.update(extra)
+    return ctx
+
+
+@asgi_app.get("/security", response_class=HTMLResponse)
+async def page_security(request: Request):
+    """Render the Security & Control Principles Statement."""
+    return templates.TemplateResponse(
+        request=request,
+        name="security.html",
+        context=_public_template_context(request),
+    )
 
 
 @asgi_app.get("/", response_class=HTMLResponse)
@@ -291,19 +331,10 @@ async def home(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={
-            "user": user,
+        context=_public_template_context(request, {
             "offers": OFFERS_DICT,
             "sectors": SECTORS_LIST,
-            "whatsapp_number": WHATSAPP_NUMBER,
-            "whatsapp_text": urllib.parse.quote(WHATSAPP_PREFILLED_MESSAGE),
-            "booking_url": BOOKING_URL,
-            "ndpc_url": NDPC_OFFICIAL_URL,
-            "dpco_name": PARTNER_DPCO_NAME,
-            "partners": PARTNERS_LIST,
-            "case_studies": CASE_STUDIES,
-            "splash_enabled": SPLASH_ENABLED,
-        },
+        }),
     )
 
 
@@ -1153,7 +1184,7 @@ async def page_privacy(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="legal.html",
-        context={"user": user, "tab": "privacy", "title": "Privacy Policy & Data Protection"},
+        context=_public_template_context(request, {"tab": "privacy", "title": "Privacy Policy & Data Protection"}),
     )
 
 
@@ -1164,7 +1195,7 @@ async def page_terms(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="legal.html",
-        context={"user": user, "tab": "terms", "title": "Terms of Service"},
+        context=_public_template_context(request, {"tab": "terms", "title": "Terms of Service"}),
     )
 
 
@@ -1175,7 +1206,7 @@ async def page_cookies(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="legal.html",
-        context={"user": user, "tab": "cookies", "title": "Cookie Policy & Telemetry Governance"},
+        context=_public_template_context(request, {"tab": "cookies", "title": "Cookie Policy & Telemetry Governance"}),
     )
 
 
@@ -1186,7 +1217,7 @@ async def page_do_not_sell(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="legal.html",
-        context={"user": user, "tab": "do-not-sell", "title": "Do Not Sell / Share My Personal Information"},
+        context=_public_template_context(request, {"tab": "do-not-sell", "title": "Do Not Sell / Share My Personal Information"}),
     )
 
 
@@ -1205,13 +1236,7 @@ async def page_solution_detail(request: Request, slug: str):
     return templates.TemplateResponse(
         request=request,
         name="solution_page.html",
-        context={
-            "user": user,
-            "offer": offer,
-            "whatsapp_number": WHATSAPP_NUMBER,
-            "whatsapp_text": urllib.parse.quote(WHATSAPP_PREFILLED_MESSAGE),
-            "booking_url": BOOKING_URL,
-        },
+        context=_public_template_context(request, {"offer": offer}),
     )
 
 
@@ -1222,14 +1247,10 @@ async def page_readiness_check(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="readiness_check.html",
-        context={
-            "user": user,
+        context=_public_template_context(request, {
             "questions": READINESS_QUESTIONS,
             "sectors": SECTORS_LIST,
-            "whatsapp_number": WHATSAPP_NUMBER,
-            "whatsapp_text": urllib.parse.quote(WHATSAPP_PREFILLED_MESSAGE),
-            "booking_url": BOOKING_URL,
-        },
+        }),
     )
 
 

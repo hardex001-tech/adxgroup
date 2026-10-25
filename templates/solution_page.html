@@ -156,22 +156,34 @@
             <div style="font-family: var(--font-mono); font-size: 0.74rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Target Audience</div>
             <div style="font-size: 0.92rem; color: #f8fafc; font-weight: 600; line-height: 1.4;">{{ offer.target_audience }}</div>
           </div>
+          {% if offer.timeline %}
           <div>
             <div style="font-family: var(--font-mono); font-size: 0.74rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Engagement Timeline</div>
             <div style="font-size: 0.92rem; color: #38bdf8; font-family: var(--font-mono); font-weight: 700;">{{ offer.timeline }}</div>
           </div>
+          {% endif %}
           <div>
             <div style="font-family: var(--font-mono); font-size: 0.74rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Starting Engagement Fee</div>
             <div style="font-size: 1.15rem; font-family: var(--font-mono); font-weight: 800; color: #34d399;">
+              {% if offer.pricing.NGN and offer.pricing.NGN != 'Contact us for pricing' %}
               <span class="price-val" data-ngn="{{ offer.pricing.NGN }}" data-usd="{{ offer.pricing.USD }}">{{ offer.pricing.NGN }}</span>
+              {% else %}
+              <span class="price-val">Contact us for pricing</span>
+              {% endif %}
             </div>
           </div>
         </div>
 
         <div style="display: flex; gap: 14px; flex-wrap: wrap;">
-          <a href="{{ offer.cta_url }}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-            {{ offer.cta_label }}
+          {% if booking_url %}
+          <a href="{{ booking_url }}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+            {{ offer.cta_label }} &rarr;
           </a>
+          {% else %}
+          <a href="/#contact" class="btn btn-primary">
+            {{ offer.cta_label }} &rarr;
+          </a>
+          {% endif %}
           <a href="/readiness-check" class="btn btn-outline">
             Take Free Readiness Check
           </a>
@@ -322,12 +334,14 @@
 
         <div class="footer-col">
           <h3>Trust &amp; Governance</h3>
+          <p style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.55; margin-bottom: 10px;">
+            Our practices follow ISO 27001 and SOC 2 control principles. We are not certified.
+          </p>
           <ul>
-            <li><a href="/privacy">ISO 27001 Control Alignment</a></li>
-            <li><a href="/terms">SOC 2 Control Alignment</a></li>
+            <li><a href="/security" style="color: var(--accent-primary); font-weight: 600;">Security &amp; Control Principles &rarr;</a></li>
             <li><a href="/privacy">Nigeria Data Protection Act (NDPA)</a></li>
             <li><a href="/privacy">GDPR Data Privacy Baseline</a></li>
-            <li><a href="/#cve-intelligence">2026 CVE Threat Matrix</a></li>
+            <li><a href="/#cve-intelligence">Threat Intelligence Matrix</a></li>
           </ul>
         </div>
 
@@ -350,15 +364,16 @@
           Our <a href="/terms" style="color: #38bdf8; text-decoration: underline;">Terms and Conditions</a> detail our trademark, proprietary algorithms, and copyright rights. Any unauthorized use is expressly prohibited.
         </div>
         <div style="font-family: var(--font-mono); font-size: 0.74rem; color: #94a3b8; margin-top: 4px;">
-          adxgroup.tech &bull; Abuja, Nigeria &bull; [PLACEHOLDER: Corporate Affairs Commission (CAC) Registered Entity Name &amp; RC Number]
+          adxgroup.tech &bull; Abuja, Nigeria{% if cac_info %} &bull; {{ cac_info }}{% endif %}
         </div>
       </div>
     </div>
   </footer>
 
+  {% if whatsapp_url %}
   <!-- WhatsApp Click-to-Chat Floating Button -->
   <a
-    href="https://wa.me/{{ whatsapp_number }}?text={{ whatsapp_text }}"
+    href="{{ whatsapp_url }}"
     class="whatsapp-float-btn"
     target="_blank"
     rel="noopener noreferrer"
@@ -369,6 +384,7 @@
     </svg>
     <span>Chat with us</span>
   </a>
+  {% endif %}
 
   <script src="/static/js/main.js?v=2026.46"></script>
 </body>

@@ -704,8 +704,8 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "gate_id": "2",
         },
         {
-            "cve_id": "CVE-2026-30891",
-            "title": "DOM Frame Injection & Missing CSP Isolation",
+            "cve_id": "CWE-1021",
+            "title": "Missing Frame Isolation & Clickjacking Exposure",
             "cvss": "7.8 HIGH",
             "surface": f"HTTP Edge ({telemetry['server_banner']})",
             "status": "MITIGATED" if http_res["headers_passed"] else "EXPOSED",
@@ -713,8 +713,8 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "gate_id": "3",
         },
         {
-            "cve_id": "CVE-2026-31044",
-            "title": "API Cross-Origin Token Theft & Session Hijack",
+            "cve_id": "OWASP-API1:2023",
+            "title": "API Broken Object-Level Authorization (BOLA)",
             "cvss": "8.8 HIGH",
             "surface": "CORS & Session Cookie Boundary",
             "status": "MITIGATED" if http_res["cors_passed"] else "EXPOSED",
