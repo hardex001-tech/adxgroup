@@ -8,9 +8,14 @@ Includes:
 Wraps FastAPI with a2wsgi for seamless compatibility on Azure App Service (Gunicorn WSGI).
 """
 
+import json
+import os
+import secrets
+import urllib.parse
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+import httpx
 from a2wsgi import ASGIMiddleware
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
@@ -360,6 +365,189 @@ async def api_oauth_signin(payload: OAuthQuickRequest):
     resp = JSONResponse(
         content={"ok": True, "user": sess["user"], "token": sess["token"], "redirect": redirect_to}
     )
+    _set_auth_cookie(resp, sess["token"])
+    return resp
+
+
+@asgi_app.get("/api/auth/google/login")
+async def api_google_login(request: Request, scan: Optional[str] = ""):
+    """Redirect user directly to Google's official OAuth 2.0 account chooser."""
+    client_id = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
+    if not client_id:
+        return RedirectResponse(
+            url=f"/login?google_setup=needed&scan={urllib.parse.quote_plus(scan or '')}",
+            status_code=302,
+        )
+
+    host = request.headers.get("host", "adxgroup.tech")
+    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
+    redirect_uri = f"{proto}://{host}/api/auth/google/callback"
+
+    state_payload = {
+        "csrf": secrets.token_urlsafe(16),
+        "scan": scan or "",
+    }
+    state_str = urllib.parse.quote_plus(json.dumps(state_payload))
+
+    params = {
+        "client_id": client_id,
+        "redirect_uri": redirect_uri,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "online",
+        "prompt": "select_account",
+        "state": state_str,
+    }
+    google_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urllib.parse.urlencode(params)}"
+    return RedirectResponse(url=google_url, status_code=302)
+
+
+@asgi_app.get("/api/auth/google/callback")
+async def api_google_callback(
+    request: Request,
+    code: Optional[str] = None,
+    error: Optional[str] = None,
+    state: Optional[str] = None,
+):
+    """Receive Google authorization code, exchange for verified user profile, and sign in."""
+    scan_domain = ""
+    if state:
+        try:
+            state_data = json.loads(urllib.parse.unquote_plus(state))
+            scan_domain = state_data.get("scan", "")
+        except Exception:
+            pass
+
+    if error or not code:
+        err_msg = error or "Google sign-in was cancelled."
+        return RedirectResponse(url=f"/login?error={urllib.parse.quote_plus(err_msg)}", status_code=302)
+
+    client_id = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
+    client_secret = os.environ.get("GOOGLE_CLIENT_SECRET", "").strip()
+
+    host = request.headers.get("host", "adxgroup.tech")
+    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
+    redirect_uri = f"{proto}://{host}/api/auth/google/callback"
+
+    token_url = "https://oauth2.googleapis.com/token"
+    token_payload = {
+        "code": code,
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "redirect_uri": redirect_uri,
+        "grant_type": "authorization_code",
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as http_client:
+            token_res = await http_client.post(token_url, data=token_payload)
+            if token_res.status_code != 200:
+                print(f"[GOOGLE OAUTH] Token exchange failed: {token_res.text}")
+                return RedirectResponse(
+                    url="/login?error=Failed+to+exchange+Google+authorization+code.+Please+verify+Client+Secret.",
+                    status_code=302,
+                )
+
+            token_data = token_res.json()
+            access_token = token_data.get("access_token")
+
+            userinfo_res = await http_client.get(
+                "https://www.googleapis.com/oauth2/v2/userinfo",
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+            if userinfo_res.status_code != 200:
+                return RedirectResponse(
+                    url="/login?error=Failed+to+fetch+verified+profile+from+Google.",
+                    status_code=302,
+                )
+
+            profile = userinfo_res.json()
+    except Exception as exc:
+        print(f"[GOOGLE OAUTH] Network error: {exc}")
+        return RedirectResponse(url="/login?error=Network+timeout+during+Google+authentication.", status_code=302)
+
+    email = (profile.get("email") or "").strip().lower()
+    name = (profile.get("name") or "").strip() or email.split("@")[0].title()
+
+    if not email:
+        return RedirectResponse(url="/login?error=No+email+returned+from+Google+account.", status_code=302)
+
+    sess = create_or_login_oauth_user(
+        email=email,
+        name=name,
+        provider="google",
+        company="",
+    )
+
+    client_ip = request.client.host if request.client else "Google SSO"
+    try:
+        send_login_alert(email, name, client_ip)
+    except Exception:
+        pass
+
+    target_url = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
+    if scan_domain and sess["user"]["role"] != "admin":
+        target_url = f"/dashboard?scan={urllib.parse.quote_plus(scan_domain)}"
+
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Authenticating with Google...</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #0f172a; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+  <div style="text-align: center; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 32px; box-shadow: 0 4px 12px rgba(15,23,42,0.06); max-width: 380px;">
+    <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Authenticating with Google...</div>
+    <div style="font-size: 13px; color: #64748b;">Syncing session token. Redirecting to your ADX Workspace...</div>
+  </div>
+  <script>
+    try {{
+      localStorage.setItem("adx_session_token", {json.dumps(sess["token"])});
+      localStorage.setItem("adx_user", {json.dumps(json.dumps(sess["user"]))});
+    }} catch (e) {{}}
+    window.location.href = {json.dumps(target_url)};
+  </script>
+</body>
+</html>"""
+
+    response = HTMLResponse(content=html_content)
+    _set_auth_cookie(response, sess["token"])
+    return response
+
+
+class GoogleTokenPayload(BaseModel):
+    credential: str
+    scan: Optional[str] = ""
+
+
+@asgi_app.post("/api/auth/google/token")
+async def api_google_token_auth(payload: GoogleTokenPayload):
+    """Authenticate Google ID Token (credential) from Google Identity Services (GIS)."""
+    async with httpx.AsyncClient(timeout=8.0) as client:
+        res = await client.get(
+            f"https://oauth2.googleapis.com/tokeninfo?id_token={payload.credential}"
+        )
+        if res.status_code != 200:
+            raise HTTPException(status_code=400, detail="Invalid Google ID Token.")
+        info = res.json()
+
+    email = (info.get("email") or "").strip().lower()
+    name = (info.get("name") or "").strip() or email.split("@")[0].title()
+    if not email:
+        raise HTTPException(status_code=400, detail="Google token did not contain an email address.")
+
+    sess = create_or_login_oauth_user(
+        email=email,
+        name=name,
+        provider="google",
+        company="",
+    )
+
+    target_url = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
+    if payload.scan and sess["user"]["role"] != "admin":
+        target_url = f"/dashboard?scan={urllib.parse.quote_plus(payload.scan)}"
+
+    resp = JSONResponse(content={"ok": True, "user": sess["user"], "token": sess["token"], "redirect": target_url})
     _set_auth_cookie(resp, sess["token"])
     return resp
 

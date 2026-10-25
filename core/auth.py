@@ -179,8 +179,8 @@ def _now_str() -> str:
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
 
-def create_or_login_oauth_user(email: str, name: str, provider: str, company: str = "") -> Dict[str, Any]:
-    """Sign in or register a user via Google / GitHub identity provider."""
+def create_or_login_oauth_user(email: str, name: str, provider: str = "google", company: str = "") -> Dict[str, Any]:
+    """Sign in or register a user via Google OAuth identity provider."""
     init_db()
     clean_email = email.strip().lower()
     clean_name = name.strip() or clean_email.split("@")[0].title()
@@ -194,14 +194,18 @@ def create_or_login_oauth_user(email: str, name: str, provider: str, company: st
         row = conn.execute("SELECT * FROM users WHERE email = ?", (clean_email,)).fetchone()
         if row:
             user_id = row["id"]
+            conn.execute(
+                "UPDATE users SET email_verified = 1 WHERE id = ?",
+                (user_id,),
+            )
             if role == "admin" and row["role"] != "admin":
                 conn.execute("UPDATE users SET role = 'admin' WHERE id = ?", (user_id,))
         else:
             random_pw = _hash_password(secrets.token_urlsafe(24))
             cur = conn.execute(
                 """
-                INSERT INTO users (name, email, company, password_hash, provider, role, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO users (name, email, company, password_hash, provider, role, email_verified, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, 1, ?)
                 """,
                 (clean_name, clean_email, company.strip(), random_pw, provider, role, _now_str()),
             )

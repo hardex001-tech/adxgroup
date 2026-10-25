@@ -308,6 +308,9 @@ async def check_http_and_cve_surface(
             ]
             parked_signatures = [
                 "sgcaptcha",
+                "site unavailable",
+                "site is currently unavailable",
+                "this site is currently unavailable",
                 "domain is for sale",
                 "buy this domain",
                 "this domain is parked",
@@ -456,9 +459,9 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             f"Target domain '{domain}' (Host IP: {primary_ip}) is offline. Web ports 80 and 443 refused connection with zero active listeners."
         )
 
-    # Reject non-operational or error status codes on root (401, 403, 404, 500, 502, 503, 504)
+    # Reject non-operational or error status codes on root (4xx / 5xx)
     http_status = http_res.get("http_status", 0)
-    if http_status in (401, 403, 404, 500, 502, 503, 504) or (http_status >= 400 and not ssl_res.get("passed")):
+    if http_status >= 400:
         raise ValueError(
             f"Target domain '{domain}' is not a live or operational website (Server returned HTTP {http_status} with no active application). "
             "ADX Group audits operational web applications, software platforms, and active business services."
