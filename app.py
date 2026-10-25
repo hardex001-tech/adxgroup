@@ -1107,6 +1107,14 @@ async def page_do_not_sell(request: Request):
 
 
 
+
+@asgi_app.exception_handler(404)
+async def custom_404_handler(request: Request, exc: Exception):
+    if request.url.path.startswith("/api/"):
+        return JSONResponse(status_code=404, content={"ok": False, "detail": "Resource not found."})
+    return templates.TemplateResponse(request=request, name="404.html", context={"request": request}, status_code=404)
+
+
 @asgi_app.post("/api/domains/add")
 async def api_add_monitored_domain(request: Request, payload: AddDomainRequest):
     user = _current_user(request)
