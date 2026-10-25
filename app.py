@@ -42,7 +42,7 @@ init_db()
 asgi_app = FastAPI(
     title="ADX Group — Enterprise AI, Cloud & Cyber Systems",
     description="Official SaaS portal, client console, and 5-vector diagnostic engine for ADX Group (adxgroup.tech)",
-    version="3.0.0",
+    version="3.5.0",
 )
 
 STATIC_DIR = BASE_DIR / "static"
@@ -345,6 +345,7 @@ async def health_check():
     return {
         "status": "ONLINE",
         "entity": "ADX Group (adxgroup.tech)",
+        "version": "3.5.0",
         "divisions": ["ADX Cyber", "ADX Cloud & Systems", "ADX Intelligence"],
         "contact": "contact@adxgroup.tech",
     }

@@ -1140,3 +1140,106 @@ footer,
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ADX Enterprise Notification System */
+.adx-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 440px;
+  pointer-events: none;
+}
+
+.adx-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
+  border: 1px solid #e2e8f0;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #0f172a;
+  animation: adxToastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.adx-toast.adx-toast-error {
+  border-left: 4px solid #ef4444;
+  background: #fffcfc;
+}
+
+.adx-toast.adx-toast-success {
+  border-left: 4px solid #10b981;
+  background: #fcfdfd;
+}
+
+.adx-toast.adx-toast-info {
+  border-left: 4px solid #2563eb;
+  background: #fbfdff;
+}
+
+.adx-toast-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+}
+
+.adx-toast-content {
+  flex: 1;
+}
+
+.adx-toast-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  margin-bottom: 2px;
+  color: #0f172a;
+}
+
+.adx-toast-desc {
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.adx-toast-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0 0 0 6px;
+  font-size: 18px;
+  line-height: 1;
+}
+.adx-toast-close:hover {
+  color: #0f172a;
+}
+
+@keyframes adxToastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+@keyframes adxToastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+}

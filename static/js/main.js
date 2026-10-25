@@ -1,4 +1,56 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Enterprise Notification System
+  window.showAdxNotice = function (msg, type = "error", title = null) {
+    let container = document.getElementById("adx-toast-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "adx-toast-container";
+      container.className = "adx-toast-container";
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement("div");
+    toast.className = `adx-toast adx-toast-${type}`;
+
+    const defaultTitle =
+      type === "error"
+        ? "Perimeter Verification Alert"
+        : type === "success"
+        ? "Verification Successful"
+        : "Security Notice";
+
+    let iconSvg = "";
+    if (type === "error") {
+      iconSvg = `<svg class="adx-toast-icon" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+    } else if (type === "success") {
+      iconSvg = `<svg class="adx-toast-icon" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+    } else {
+      iconSvg = `<svg class="adx-toast-icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+    }
+
+    toast.innerHTML = `
+      ${iconSvg}
+      <div class="adx-toast-content">
+        <div class="adx-toast-title">${escapeHtml(title || defaultTitle)}</div>
+        <div class="adx-toast-desc">${escapeHtml(msg)}</div>
+      </div>
+      <button class="adx-toast-close" aria-label="Close">&times;</button>
+    `;
+
+    const closeBtn = toast.querySelector(".adx-toast-close");
+    const dismiss = () => {
+      toast.style.animation = "adxToastSlideOut 0.25s forwards";
+      setTimeout(() => {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 260);
+    };
+
+    closeBtn.addEventListener("click", dismiss);
+    setTimeout(dismiss, 7000);
+
+    container.appendChild(toast);
+  };
+
   // 1. Live 6-Gate Infrastructure & 2026 CVE Diagnostic Scanner
   const scanForm = document.getElementById("scan-form");
   const domainInput = document.getElementById("scan-domain-input");
@@ -37,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const payload = await res.json();
         if (!res.ok || !payload.ok) {
-          alert(payload.detail || "Could not complete scan. Verify the domain name.");
+          window.showAdxNotice(payload.detail || "Could not complete scan. Verify the domain name.", "error", "Perimeter Verification Alert");
           return;
         }
 
@@ -164,12 +216,22 @@ document.addEventListener("DOMContentLoaded", () => {
           gatesTableBody.appendChild(tr);
         });
       } catch (err) {
-        alert("Network error while running diagnostic scan.");
+        window.showAdxNotice("Network error while running diagnostic scan. Please verify domain reachability.", "error");
       } finally {
         scanBtn.disabled = false;
         scanBtn.textContent = "Audit Infrastructure Parameters";
       }
     });
+
+    // Auto-run ?scan= parameter if present in query string on dashboard load
+    const urlParams = new URLSearchParams(window.location.search);
+    const autoScanDomain = urlParams.get("scan");
+    if (autoScanDomain && domainInput) {
+      domainInput.value = autoScanDomain;
+      setTimeout(() => {
+        scanForm.dispatchEvent(new Event("submit"));
+      }, 350);
+    }
   }
 
   // 2. Conversational ADX AI Security Architect (Zero Markdown Stars)
@@ -370,7 +432,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.exportSecurityReportPdf = function () {
     if (!window.lastScanResult) {
-      alert("Please run an infrastructure audit first to generate a report.");
+      window.showAdxNotice("Please run an infrastructure audit first to generate an executive brief.", "info", "Deliverable Notice");
       return;
     }
     const d = window.lastScanResult;
@@ -584,7 +646,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const printWin = window.open("", "_blank");
     if (!printWin) {
-      alert("Please allow popups for adxgroup.tech to view and export the Executive Security Report.");
+      window.showAdxNotice("Please allow popups for adxgroup.tech to view and export the Executive Security Report.", "info", "Popup Blocked");
       return;
     }
     printWin.document.open();
