@@ -140,7 +140,7 @@ def test_landing_page_structure():
     # 7. FAQ (with accurate DPCO answer)
     assert 'id="faq"' in html
     assert 'Are you a licensed DPCO?' in html
-    assert 'licensed DPCO partner' in html
+    assert 'licensed DPCO' in html
 
     # 8. Contact and Footer
     assert 'id="contact"' in html

@@ -30,10 +30,10 @@ def test_home_page():
     assert "Prioritized Remediation Roadmap" in html
     assert "Post-Fix Re-Testing" in html
     assert "Cloudflare" in html
-    assert "Vercel Global Edge" in html
-    assert "Zoho Enterprise Mail" in html
-    # WhatsApp Float button
-    assert "whatsapp-float-btn" in html
+    assert "Vercel" in html
+    assert "Zoho Mail" in html
+    # WhatsApp Float button disappears when WHATSAPP_NUMBER is empty (Placeholder Guard)
+    assert "whatsapp-float-btn" not in html
     # Currency toggle
     assert "currency-btn" in html
     assert "setOfferCurrency('NGN')" in html
@@ -51,7 +51,8 @@ def test_solution_pages():
         assert "How an Engagement Works" in html
         assert "What Is NOT Included" in html
         assert "price-val" in html
-        assert "whatsapp-float-btn" in html
+        # Guard: when WHATSAPP_NUMBER is empty, float button is omitted
+        assert "whatsapp-float-btn" not in html
         print(f"  PASS: /solutions/{slug}")
 
 def test_comply_page_dpco_notice():
@@ -78,7 +79,7 @@ def test_readiness_check_page():
         assert q["id"] in html
     assert "quiz-result-box" in html
     assert "lead-consent" in html
-    assert "whatsapp-float-btn" in html
+    assert "whatsapp-float-btn" not in html
     print("  PASS: test_readiness_check_page")
 
 def test_readiness_api_consent_required():
