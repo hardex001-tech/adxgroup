@@ -1156,16 +1156,12 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const consent = {
         essential: true,
-        telemetry: true,
         decidedAt: new Date().toISOString(),
-        status: "ACCEPTED_ALL",
+        status: "ACKNOWLEDGED",
       };
       localStorage.setItem("adx_cookie_consent", JSON.stringify(consent));
     } catch (e) {}
     window.closeCookieModal();
-    if (window.showAdxNotice) {
-      window.showAdxNotice("Privacy preferences saved. All features and telemetry active.", "success", "Cookie Consent Active");
-    }
   };
 
   window.denyCookies = function () {
