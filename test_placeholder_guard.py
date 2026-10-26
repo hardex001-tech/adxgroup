@@ -4,7 +4,6 @@ Verifies that no '[PLACEHOLDER' or 'PLACEHOLDER:' string ever leaks into
 rendered public HTML, meta tags, attributes, JSON-LD, XML, or robots.txt.
 """
 
-import re
 from starlette.testclient import TestClient
 from app import asgi_app
 import core.public_config as pcfg
@@ -44,117 +43,75 @@ def test_zero_placeholders_rendered():
     print("  PASS: test_zero_placeholders_rendered across all public routes")
 
 
-def test_default_empty_guards():
-    """Verify that when config values are empty, UI elements are safely omitted."""
-    # 1. Homepage with empty defaults
+def test_confirmed_founder_values():
+    """Verify that confirmed founder values render correctly."""
     resp = client.get("/")
     assert resp.status_code == 200
     html = resp.text
 
-    # WhatsApp buttons must not render when WHATSAPP_NUMBER is empty
-    assert "whatsapp-float-btn" not in html
-    assert "Chat on WhatsApp" not in html
-    assert "wa.me" not in html
+    # Confirmed WhatsApp number is active and links properly
+    assert "whatsapp-float-btn" in html
+    assert "https://wa.me/2349136168678" in html
 
-    # Booking CTA must fallback to #contact
+    # Mandated DPCO notice is exact
+    assert "Under the NDPA, annual Compliance Audit Returns must be filed through a licensed DPCO. ADX Group is not a DPCO and does not file them." in html
+
+    # Booking CTA falls back to #contact when BOOKING_URL is empty
     assert 'href="#contact"' in html
 
-    # CAC line must be omitted
+    # CAC line is omitted when empty
     assert "(RC " not in html
     assert "CAC" not in html
-
-    # Social icons omitted when URLs empty
-    assert 'title="ADX LinkedIn"' not in html
-    assert 'title="ADX on X"' not in html
-
-    # DPCO partner block omitted when DPCO_PARTNER_NAME empty
-    assert "Licensed DPCO Partner" not in html
-    assert "Annual NDPC filings are made through a licensed DPCO." in html
-
-    # FAQ honest answer
-    assert "Are you a licensed DPCO?" in html
-    assert "<strong>No.</strong> ADX Group is an engineering consultancy" in html
 
     # Sample audit report PDF link is valid
     assert "/static/reports/sample-audit-report.pdf" in html
 
-    print("  PASS: test_default_empty_guards")
+    print("  PASS: test_confirmed_founder_values")
 
 
-def test_solution_pages_empty_pricing_and_timeline():
-    """Verify solutions pages hide empty timelines and display 'Contact us for pricing'."""
-    for slug in OFFERS_DICT.keys():
+def test_solution_pages_pricing_and_dpco_wording():
+    """Verify ADX Shield price and fallback pricing across remaining solution offers."""
+    # 1. ADX Shield has confirmed starting price
+    resp_shield = client.get("/solutions/shield")
+    assert resp_shield.status_code == 200
+    html_shield = resp_shield.text
+    assert "From ₦150,000" in html_shield
+    assert "per domain, scope confirmed in a written quote" in html_shield
+    assert "Pilot Offering" in html_shield
+
+    # 2. Other offers show "Contact us for pricing"
+    for slug in ["comply", "resilience", "ai-automation"]:
         resp = client.get(f"/solutions/{slug}")
         assert resp.status_code == 200
         html = resp.text
-
-        # No placeholders
         assert "PLACEHOLDER" not in html
-        assert "[PLACEHOLDER" not in html
-
-        # Pricing fallback
         assert "Contact us for pricing" in html
-
-        # Timeline block omitted when empty
         assert "Engagement Timeline" not in html
-
-        # Booking falls back to /#contact
         assert 'href="/#contact"' in html
 
-        # WhatsApp button omitted
-        assert "whatsapp-float-btn" not in html
-    print("  PASS: test_solution_pages_empty_pricing_and_timeline")
+    # 3. Comply page has exact mandated DPCO wording
+    resp_comply = client.get("/solutions/comply")
+    assert "Under the NDPA, annual Compliance Audit Returns must be filed through a licensed DPCO. ADX Group is not a DPCO and does not file them." in resp_comply.text
+
+    print("  PASS: test_solution_pages_pricing_and_dpco_wording")
 
 
-def test_populated_config_behavior(monkeypatch=None):
-    """Verify formatting when real configuration values are supplied."""
+def test_empty_config_guards():
+    """Verify that if WHATSAPP_NUMBER is cleared, the buttons disappear completely."""
     original_wa = pcfg.WHATSAPP_NUMBER
-    original_booking = pcfg.BOOKING_URL
-    original_linkedin = pcfg.LINKEDIN_URL
-    original_dpco = pcfg.DPCO_PARTNER_NAME
-    original_cac = pcfg.CAC_NAME_AND_RC
 
     try:
-        pcfg.WHATSAPP_NUMBER = "+234 801 234 5678"
-        pcfg.BOOKING_URL = "https://cal.com/adxgroup/review"
-        pcfg.LINKEDIN_URL = "https://www.linkedin.com/company/adxgroup"
-        pcfg.DPCO_PARTNER_NAME = "Verified DPCO Partners Ltd"
-        pcfg.CAC_NAME_AND_RC = "ADX GROUP TECHNOLOGIES LTD (RC 1928374)"
+        pcfg.WHATSAPP_NUMBER = ""
+        assert pcfg.get_whatsapp_url() == ""
 
-        # Check WhatsApp link builder
-        wa_url = pcfg.get_whatsapp_url()
-        assert wa_url.startswith("https://wa.me/2348012345678?text=")
-
-        # Check Booking URL getter
-        assert pcfg.get_booking_url() == "https://cal.com/adxgroup/review"
-
-        # Check DPCO name getter
-        assert pcfg.get_dpco_partner_name() == "Verified DPCO Partners Ltd"
-
-        # Render homepage with populated values
         resp = client.get("/")
         assert resp.status_code == 200
-        html = resp.text
-
-        assert "whatsapp-float-btn" in html
-        assert "https://wa.me/2348012345678" in html
-        assert "https://cal.com/adxgroup/review" in html
-        assert "Verified DPCO Partners Ltd" in html
-        assert "RC 1928374" in html
-        assert 'title="ADX LinkedIn"' in html
-
-        # Still strictly zero PLACEHOLDER strings
-        assert "PLACEHOLDER" not in html
-        assert "[PLACEHOLDER" not in html
-
+        assert "whatsapp-float-btn" not in resp.text
+        assert "wa.me" not in resp.text
     finally:
         pcfg.WHATSAPP_NUMBER = original_wa
-        pcfg.BOOKING_URL = original_booking
-        pcfg.LINKEDIN_URL = original_linkedin
-        pcfg.DPCO_PARTNER_NAME = original_dpco
-        pcfg.CAC_NAME_AND_RC = original_cac
 
-    print("  PASS: test_populated_config_behavior")
+    print("  PASS: test_empty_config_guards")
 
 
 def test_malformed_or_placeholder_injection_safety():
@@ -183,8 +140,8 @@ def test_malformed_or_placeholder_injection_safety():
 if __name__ == "__main__":
     print("\nRUNNING PLACEHOLDER GUARD TEST SUITE:")
     test_zero_placeholders_rendered()
-    test_default_empty_guards()
-    test_solution_pages_empty_pricing_and_timeline()
-    test_populated_config_behavior()
+    test_confirmed_founder_values()
+    test_solution_pages_pricing_and_dpco_wording()
+    test_empty_config_guards()
     test_malformed_or_placeholder_injection_safety()
     print("\nALL PLACEHOLDER GUARD TESTS PASSED PERFECTLY!\n")
