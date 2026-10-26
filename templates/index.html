@@ -97,6 +97,7 @@
   <link rel="icon" type="image/svg+xml" href="/assets/brand/favicon.svg" />
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon.png" />
+  <link rel="preload" href="/static/fonts/inter-variable.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="/static/css/style.css?v=2026.46" />
 </head>
 <body>
@@ -354,7 +355,12 @@
             <div style="background: rgba(11, 17, 32, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 14px; margin-bottom: 18px;">
               <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Starting Fee</div>
               <div style="font-family: var(--font-mono); font-size: 1.05rem; font-weight: 700; color: #34d399;">
-                {% if offers['shield'].pricing.NGN and offers['shield'].pricing.NGN != 'Contact us for pricing' %}<span class="price-val" data-ngn="{{ offers['shield'].pricing.NGN }}" data-usd="{{ offers['shield'].pricing.USD }}">{{ offers['shield'].pricing.NGN }}</span>{% else %}<span style="font-size: 0.9rem; font-weight: 600;">Contact us for pricing</span>{% endif %}
+                {% if offers['shield'].pricing.NGN and offers['shield'].pricing.NGN != 'Contact us for pricing' %}
+                <span class="price-val" data-ngn="{{ offers['shield'].pricing.NGN }}" data-usd="{{ offers['shield'].pricing.USD }}">{{ offers['shield'].pricing.NGN }}</span>
+                {% if offers['shield'].price_note %}
+                <div style="font-size: 0.72rem; font-family: var(--font-mono); color: #94a3b8; font-weight: 400; margin-top: 3px;">{{ offers['shield'].price_note }}</div>
+                {% endif %}
+                {% else %}<span style="font-size: 0.9rem; font-weight: 600;">Contact us for pricing</span>{% endif %}
               </div>
             </div>
 
@@ -395,7 +401,7 @@
             </div>
 
             <div style="font-size: 0.78rem; color: #38bdf8; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 8px 10px; margin-bottom: 16px;">
-              <strong>Statutory Filing Notice:</strong> {% if dpco_name %}Annual CAR filed with NDPC via licensed DPCO partner ({{ dpco_name }}).{% else %}Annual NDPC filings are made through a licensed DPCO.{% endif %}
+              <strong>Statutory Filing Notice:</strong> Under the NDPA, annual Compliance Audit Returns must be filed through a licensed DPCO. ADX Group is not a DPCO and does not file them.
             </div>
 
             <ul class="clean-list" style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 22px;">
@@ -533,7 +539,7 @@
             </svg>
           </div>
           <h3>Cloud Architecture &amp; Systems</h3>
-          <p>High-availability Python and FastAPI backend services architected for zero-downtime reliability and low cloud burn.</p>
+          <p>High-availability Python and FastAPI backend services designed for high availability, reliability, and low cloud burn.</p>
           <ul class="clean-list">
             <li>Production FastAPI &amp; Container Microservices</li>
             <li>Azure &amp; AWS Infrastructure Right-Sizing</li>
@@ -937,7 +943,7 @@
             <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-answer">
-            <strong>No.</strong> ADX Group is an engineering consultancy providing technical cybersecurity audits, personal-data mapping, and infrastructure safeguards readiness. Under the Nigeria Data Protection Act (NDPA) 2023, statutory annual Compliance Audit Returns (CAR) must be filed with the Nigeria Data Protection Commission (NDPC) through a licensed Data Protection Compliance Organisation (DPCO). {% if dpco_name %}We work in direct partnership with our licensed DPCO partner ({{ dpco_name }}) to coordinate and execute statutory regulatory filings.{% else %}Annual NDPC filings are made through a licensed DPCO.{% endif %} We do not independently issue statutory audit certificates.
+            <strong>No.</strong> ADX Group is an engineering consultancy providing technical cybersecurity audits, personal-data mapping, and infrastructure safeguards readiness. Under the NDPA, annual Compliance Audit Returns must be filed through a licensed DPCO. ADX Group is not a DPCO and does not file them.{% if dpco_name %} ADX Group works with licensed partner {{ dpco_name }} for client regulatory submissions.{% endif %}
           </div>
         </div>
 
@@ -988,11 +994,11 @@
         <!-- FAQ 5 -->
         <div class="faq-item" id="faq-5">
           <button type="button" class="faq-question" onclick="toggleFaq('faq-5')">
-            <span>Which identity providers are supported for console authentication?</span>
+            <span>Which authentication methods are supported for console access?</span>
             <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-answer">
-            The ADX Console supports direct Work Email / Username authentication with PBKDF2-HMAC-SHA256 password hashing (120,000 iterations), Google OAuth 2.0 single sign-on, adaptive 6-digit anomalous IP 2FA challenges, and automated login security alert emails. Enterprise SSO integration (Microsoft Azure AD / Entra ID, GitHub, Apple) is supported for custom enterprise client deployments.
+            The ADX Console supports direct Work Email / Username authentication with PBKDF2-HMAC-SHA256 password hashing (120,000 iterations) and Google OAuth single sign-on. Pilot client workspaces are provisioned under formal engagement agreements. Enterprise SSO integration (Microsoft Entra ID, GitHub, Apple) is supported for custom corporate deployments.
           </div>
         </div>
 
@@ -1181,7 +1187,7 @@
             <li><a href="/privacy">Privacy Policy</a></li>
             <li><a href="/cookies">Cookie Notice</a></li>
             <li><a href="/do-not-sell">Do Not Sell/Share My Info</a></li>
-            <li><a href="javascript:void(0)" onclick="openCookieModal()" style="color: #2563eb; font-weight: 600;">Manage Cookie Preferences</a></li>
+            <li><a href="/cookies" onclick="openCookieModal(); return false;" style="color: var(--accent-primary); font-weight: 600;">Manage Cookie Preferences</a></li>
           </ul>
         </div>
       </div>
@@ -1200,7 +1206,7 @@
 
   <!-- AEGIS Voice Brief: Removed to ensure zero unexpected media playback and streamline accessible navigation -->
 
-  <script src="/static/js/main.js?v=2026.45"></script>
+  <script src="/static/js/main.js?v=2026.46" defer></script>
   <script>
     const gateForm = document.getElementById("landing-gate-form");
     if (gateForm) {
