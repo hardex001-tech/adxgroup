@@ -16,7 +16,8 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-AUTH_SECRET_KEY = os.getenv("SESSION_SECRET", "adx_zerotrust_session_secret_key_2026_xploit")
+_RUNTIME_FALLBACK_KEY = secrets.token_hex(32)
+AUTH_SECRET_KEY = os.getenv("SESSION_SECRET", "").strip() or _RUNTIME_FALLBACK_KEY
 
 
 def make_signed_token(user_data: Dict[str, Any]) -> str:

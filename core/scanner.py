@@ -29,8 +29,25 @@ RESERVED_SUFFIXES = (
     ".local", ".internal", ".localhost", ".test", ".corp", ".lan", ".home.arpa", ".arpa", ".invalid", ".example"
 )
 
+def _is_disallowed_ip(ip_str: str) -> bool:
+    """Return True if the IP address is private, loopback, link-local, multicast, or cloud metadata."""
+    try:
+        ip = ipaddress.ip_address(ip_str.strip())
+        return (
+            ip.is_private
+            or ip.is_loopback
+            or ip.is_link_local
+            or ip.is_multicast
+            or ip.is_reserved
+            or ip.is_unspecified
+            or str(ip).startswith("169.254.")
+        )
+    except ValueError:
+        return True
+
+
 def normalize_domain(raw_input: str) -> str:
-    """Clean user input into a bare domain hostname."""
+    """Clean user input into a bare domain hostname and reject reserved/non-public domains."""
     cleaned = raw_input.strip().lower()
     if not cleaned:
         return ""
@@ -39,6 +56,8 @@ def normalize_domain(raw_input: str) -> str:
     parsed = urlparse(cleaned)
     host = parsed.netloc or parsed.path
     host = host.split("@")[-1].split(":")[0].strip("/").strip(".")
+    if not host or not FQDN_REGEX.match(host) or host in RESERVED_DOMAINS or any(host.endswith(s) for s in RESERVED_SUFFIXES):
+        return ""
     return host
 
 
@@ -77,13 +96,13 @@ async def _query_doh(client: httpx.AsyncClient, name: str, record_type: str = "T
 
 
 def _resolve_os_ips(domain: str) -> List[str]:
-    """Resolve IPv4 addresses using native OS DNS with 1.1.1.1 DoH fallback."""
+    """Resolve IPv4 addresses using native OS DNS with 1.1.1.1 DoH fallback, rejecting non-public IPs."""
     ips: List[str] = []
     try:
         infos = socket.getaddrinfo(domain, 443, socket.AF_INET, socket.SOCK_STREAM)
         for info in infos:
             ip = info[4][0]
-            if ip and ip not in ips:
+            if ip and ip not in ips and not _is_disallowed_ip(ip):
                 ips.append(ip)
     except Exception:
         pass
@@ -99,7 +118,9 @@ def _resolve_os_ips(domain: str) -> List[str]:
             if resp.status_code == 200:
                 for ans in resp.json().get("Answer", []):
                     if ans.get("type") == 1 and ans.get("data"):
-                        ips.append(str(ans["data"]).strip())
+                        candidate = str(ans["data"]).strip()
+                        if not _is_disallowed_ip(candidate):
+                            ips.append(candidate)
         except Exception:
             pass
     return ips

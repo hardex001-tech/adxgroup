@@ -119,7 +119,7 @@ async def add_security_and_cache_headers(request: Request, call_next):
         "object-src 'none'; "
         "base-uri 'self';"
     )
-    response.headers["Server"] = "ADX-Edge-Cluster"
+    response.headers["Server"] = "ADX"
     return response
 
 
