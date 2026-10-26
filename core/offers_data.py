@@ -4,84 +4,85 @@ Detailed content models and specifications for ADX Group's 4 core solution offer
 
 from core.public_config import (
     get_dpco_partner_name,
+    get_dpco_notice,
+    get_shield_price_note,
     get_booking_url,
     get_offer_price,
     get_offer_timeline,
 )
 
 def _build_dpco_notice() -> str:
-    dpco = get_dpco_partner_name()
-    if dpco:
-        partner_ref = f"working in collaboration with our licensed DPCO partner ({dpco})."
-    else:
-        partner_ref = "Annual NDPC filings are made through a licensed DPCO."
-    return (
-        f"Under the Nigeria Data Protection Act 2023, annual Compliance Audit Returns (CAR) "
-        f"must be formally filed with the NDPC by a licensed Data Protection Compliance Organisation (DPCO). "
-        f"ADX Group provides personal-data mapping, technical safeguards readiness, and breach notification planning. "
-        f"{partner_ref} "
-        f"ADX Group does not independently issue statutory regulatory audit certificates."
-    )
+    return get_dpco_notice()
 
 
 def _build_dpco_step_desc() -> str:
     dpco = get_dpco_partner_name()
     if dpco:
-        return f"We assemble the technical audit documentation and coordinate directly with {dpco} for formal filing with the NDPC."
-    return "We assemble the technical audit documentation and coordinate with a licensed DPCO for formal filing with the NDPC."
+        return f"We assemble technical safeguards documentation and coordinate directly with {dpco} for statutory filing."
+    return "We assemble technical safeguards documentation for your organization to submit through a licensed DPCO."
 
 OFFERS_DICT = {
     "shield": {
         "slug": "shield",
-        "name": "ADX Shield",
-        "tagline": "Email Fraud, Identity Security & Perimeter Defense",
-        "short_desc": "Protect executive communications against business email compromise (BEC), enforce identity controls across your team, and audit third-party vendor risks.",
-        "badge": "Email & Identity Defense",
+        "name": "ADX Shield: Email Security Baseline Assessment",
+        "tagline": "Email Spoofing Defense, DMARC Enforcement & Identity Baseline",
+        "short_desc": "A focused pilot assessment to uncover email impersonation risks, verify SPF, DKIM, and DMARC enforcement, review essential account controls, and guide prioritized remediation for your domain.",
+        "badge": "Pilot Offering &bull; Email Security Baseline",
         "icon": "shield",
-        "target_audience": "Fintech teams, high-growth startups, legal practices, and corporate finance departments handling sensitive fund transfers, executive approvals, or customer accounts.",
+        "target_audience": "Nigerian businesses, growing fintechs, legal practices, and corporate teams using Google Workspace, Microsoft 365, or Zoho Mail that want to defend executive communications against spoofing and Business Email Compromise (BEC).",
         "problem_statement": (
-            "Over 90% of targeted corporate fraud starts with email impersonation and compromised credentials. "
-            "When domain authentication is not strictly enforced, malicious actors can send forged payment instructions "
-            "that appear to originate directly from your company's domain. Combined with missing multi-factor authentication "
-            "and unmanaged vendor access, your perimeter remains exposed to account takeovers and financial redirection."
+            "Email spoofing and executive impersonation remain the primary vector for Business Email Compromise (BEC) and wire-transfer fraud in Nigeria. "
+            "When domain authentication is missing or left in passive monitoring mode (p=none), threat actors can forge messages that appear to come directly from your company. "
+            "Publishing DNS records alone does not prove all outbound mail is authenticated or that all accounts are protected. "
+            "Records must align with actual sending services, and essential administrative controls must be verified."
         ),
+        "customer_prerequisites": [
+            "List of corporate domains and authorized sending services (e.g. Google Workspace, Microsoft 365, Zoho Mail, marketing or transactional mail hosts).",
+            "DNS administrative access or an assigned technical contact capable of publishing DNS records.",
+            "Signed assessment scope and written authorization prior to technical review.",
+        ],
         "deliverables": [
-            "Complete SPF, DKIM, and DMARC record generation, alignment, and staged enforcement rollout (monitoring to quarantine/reject).",
-            "Business email compromise (BEC) protection audit across your email provider (Google Workspace, Microsoft 365, or Zoho).",
-            "Identity security and mandatory Multi-Factor Authentication (MFA) rollout guide for all team accounts.",
-            "User access review and role-based permissions audit across cloud portals and administrative dashboards.",
-            "Standardized employee offboarding security checklist to immediately revoke access tokens, API keys, and device sessions.",
-            "Basic third-party and vendor risk assessment checklist to evaluate external SaaS tools handling corporate data.",
+            "Assessment scope and written authorization agreement.",
+            "SPF, DKIM, and DMARC record generation, alignment, and staged enforcement guidance (moving safely to quarantine/reject).",
+            "Business email compromise (BEC) posture review across your primary mail provider (Google Workspace, Microsoft 365, or Zoho Mail).",
+            "Selected account-security observations: Multi-Factor Authentication (MFA) enforcement review and cloud console access audit (where evidence is provided).",
+            "Standardized employee offboarding checklist to revoke access tokens, device sessions, and API credentials.",
+            "Prioritized Findings Register with clear risk rationale and tailored remediation guidance.",
+            "Verification of agreed fixes with post-remediation testing and final assessment summary report with documented limitations.",
         ],
         "engagement_steps": [
             {
                 "step": "01",
-                "title": "Discovery & Perimeter Audit",
-                "desc": "We inspect your domain DNS records, current email deliverability headers, active user directories, and external vendor exposure.",
+                "title": "Scope & Authorization",
+                "desc": "We confirm in-scope domains and authorized sending services under a written authorization agreement.",
             },
             {
                 "step": "02",
-                "title": "Staged Technical Hardening",
-                "desc": "We implement DKIM signing, align SPF sources, roll out enforced MFA policies, and advance DMARC policy rules without disrupting legitimate mail.",
+                "title": "Baseline Assessment & Findings",
+                "desc": "We inspect DNS authentication records, analyze mail headers, review provided account-security evidence, and compile the prioritized findings register.",
             },
             {
                 "step": "03",
-                "title": "Verification & Operating Playbook",
-                "desc": "We test authentication headers across receiving providers, hand over user access procedures and offboarding checklists, and conduct an executive walkthrough.",
+                "title": "Remediation & Fix Verification",
+                "desc": "We provide step-by-step configuration playbooks, verify agreed DNS and policy fixes upon publication, and deliver the final report.",
             },
         ],
         "not_included": [
-            "24/7 continuous SOC monitoring or managed detection and response (available under ADX Resilience retainer).",
-            "Active penetration testing or adversary simulation beyond authentication and identity configuration.",
-            "Provisioning or direct licensing costs of third-party identity providers (e.g., Okta, Google Workspace licenses).",
+            "Penetration testing, exploit execution, or adversary simulation.",
+            "Guarantees of total immunity from phishing or cyberattacks.",
+            "Statutory compliance certifications or legal regulatory opinions.",
+            "Direct licensing or provisioning costs of third-party identity or email providers.",
+            "Unapproved or unauthorized modifications to production systems.",
         ],
+        "limitations_note": "DNS records alone do not prove all outbound mail is authenticated or that all accounts are protected. This is a pilot offering providing technical baseline evaluation; it is not a compliance certification or guarantee of immunity.",
         "timeline": get_offer_timeline("shield"),
         "pricing": {"NGN": get_offer_price("shield", "NGN"), "USD": get_offer_price("shield", "USD")},
-        "cta_label": "Book an Email & Identity Review",
+        "price_note": get_shield_price_note(),
+        "cta_label": "Request Assessment Scope",
         "cta_url": get_booking_url(),
-        "meta_title": "ADX Shield | Email Fraud, DMARC & Identity Defense Nigeria",
-        "meta_description": "Protect your domain against executive spoofing, BEC fraud, and credential compromise with ADX Shield. Staged DMARC, MFA rollout, and vendor risk checks.",
-        "seo_keywords": "DMARC setup Nigeria, business email fraud protection Nigeria, BEC defense Lagos, SPF DKIM enforcement",
+        "meta_title": "ADX Shield | Email Security Baseline Assessment Nigeria",
+        "meta_description": "Protect your domain against executive spoofing, BEC fraud, and credential compromise with the ADX Shield Email Security Baseline Assessment pilot.",
+        "seo_keywords": "DMARC setup Nigeria, business email fraud protection Nigeria, BEC defense Lagos, SPF DKIM enforcement Abuja",
     },
     "comply": {
         "slug": "comply",
@@ -119,13 +120,13 @@ OFFERS_DICT = {
             },
             {
                 "step": "03",
-                "title": "DPCO Audit Filing Handoff",
+                "title": "Technical Safeguards Handoff",
                 "desc": _build_dpco_step_desc(),
             },
         ],
         "not_included": [
             "Direct statutory filing fees assessed by the Nigeria Data Protection Commission (NDPC).",
-            "Independent issuance of DPCO audit seals (all statutory returns are filed by our licensed DPCO partner).",
+            "Independent filing or issuance of statutory DPCO audit returns (under the NDPA, annual Compliance Audit Returns must be filed through a licensed DPCO; ADX Group is not a DPCO and does not file them).",
             "Legal representation in court or formal regulatory litigation.",
         ],
         "timeline": get_offer_timeline("comply"),
@@ -147,12 +148,11 @@ OFFERS_DICT = {
         "problem_statement": (
             "Most organizations discover their backups are corrupted, unencrypted, or incomplete only after a ransomware "
             "infection or database server crash occurs. Having an unverified backup script is not a recovery plan. "
-            "Without documented restore drills, automated latency and health alerting, and an on-call response team, "
-            "an unexpected outage can halt business operations for days or weeks."
+            "Encrypted backups do not guarantee restores; recovery must be actively validated through scheduled restore tests with objectives defined per engagement."
         ),
         "deliverables": [
             "Automated, AES-256 encrypted off-site backup architecture isolated in immutable cloud storage.",
-            "Semi-annual simulated recovery drills: full restore from cold storage to verify recovery time (RTO) and data point (RPO) objectives.",
+            "Scheduled simulated recovery drills: full restore from cold storage to validate recovery time (RTO) and recovery point (RPO) objectives defined for each engagement.",
             "Perimeter health, SSL certificate expiration, and uptime monitoring with instant alerting to your engineering team.",
             "Documented Disaster Recovery and Incident Response runbooks tailored to your server environment.",
             "Emergency recovery assistance: priority engineering support during unexpected server failures or data corruption events.",
@@ -171,11 +171,12 @@ OFFERS_DICT = {
             },
             {
                 "step": "03",
-                "title": "Live Recovery Verification Drill",
-                "desc": "We execute a sandbox restore drill to verify database integrity, measure actual recovery time, and sign off on operational runbooks.",
+                "title": "Recovery Verification Drill",
+                "desc": "We execute a sandbox restore drill to validate database integrity, measure actual recovery time against objectives, and sign off on operational runbooks.",
             },
         ],
         "not_included": [
+            "Guarantees of zero-loss recovery without agreed client-side storage architecture.",
             "Third-party cloud storage fees (e.g., AWS S3 or Azure Blob storage accounts maintained by client).",
             "Re-writing application codebase logic unrelated to database connection pooling or persistence.",
             "Hardware repairs for physical on-premise servers (cloud and virtualized environments only).",
@@ -193,7 +194,7 @@ OFFERS_DICT = {
         "name": "ADX AI and Automation",
         "tagline": "Private Document Search, Workflow Automation & Agent Security Rules",
         "short_desc": "Deploy private AI assistants that search internal company knowledge without leaking IP to public LLMs, backed by strict approval boundaries and audit logging.",
-        "badge": "Secure Enterprise AI",
+        "badge": "Planned / On Request &bull; Secure Enterprise AI",
         "icon": "cpu",
         "target_audience": "Professional services firms, compliance teams, customer support centers, and technical operators seeking to automate repetitive tasks safely.",
         "problem_statement": (

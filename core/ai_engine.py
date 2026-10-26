@@ -181,10 +181,10 @@ async def ask_adx_ai_consultant(
         "- 2026 Attack & CVE Signatures Tracked: TLS Cipher Downgrades, CWE-290 (BEC Email Spoofing), CWE-1021 (CSP/Frame Isolation), "
         "OWASP-API1:2023 (API Authorization & Token Scoping), CVE-2026-109618 (Runtime Multipart OOM Cleanup RCE, CVSS 9.2), "
         "CVE-2026-109619 (Use-After-Free Stale Worker RCE & API BOLA, CVSS 9.2).\n"
-        "- Why Gate-06 is capped at 88/100: Passive external scans cannot clear internal authenticated API BOLA flaws or post-allocation memory corruption; requires ADX Authenticated Deep Penetration Audit ($350 fixed scope).\n"
+        "- Why Gate-06 is capped at 88/100: Passive external scans cannot clear internal authenticated API authorization flaws or post-allocation memory corruption; requires a scoped, authorized assessment.\n"
         "- Formatting Rule: NEVER use asterisks (**), markdown bolding, or hashtag headers (###). Write in clean, natural paragraphs and numbered lines.\n"
-        "- Business Rule: Answer any technical, cybersecurity, fintech, coding, or architecture question intelligently like ChatGPT/Gemini, "
-        "and invite the client to click 'Deploy Fix with ADX ($350)' in Tab 4 when they need hands-on engineering remediation."
+        "- Business Rule: Answer any technical, cybersecurity, fintech, coding, or architecture question intelligently, "
+        "and invite the client to submit an inquiry through the contact form when they need hands-on engineering remediation."
     )
 
     if copilot_token:

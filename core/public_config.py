@@ -14,10 +14,11 @@ from typing import Dict, List, Optional
 # UI & Brand flags
 SPLASH_ENABLED: bool = False
 
-# External Endpoints & Social Links (Empty defaults)
-WHATSAPP_NUMBER: str = os.getenv("WHATSAPP_NUMBER", "").strip()
+# External Endpoints & Social Links
+# Confirmed founder WhatsApp endpoint (digits only, international format)
+WHATSAPP_NUMBER: str = os.getenv("WHATSAPP_NUMBER", "2349136168678").strip()
 WHATSAPP_PREFILLED_MESSAGE: str = (
-    "Hello ADX Group, I would like to inquire about your cybersecurity and NDPA compliance services for my organization."
+    "Hello ADX Group, I would like to inquire about the ADX Shield Email Security Baseline Assessment for my organization."
 )
 BOOKING_URL: str = os.getenv("BOOKING_URL", "").strip()
 LINKEDIN_URL: str = os.getenv("LINKEDIN_URL", "").strip()
@@ -28,12 +29,21 @@ NDPC_OFFICIAL_URL: str = "https://ndpc.gov.ng"
 DPCO_PARTNER_NAME: str = os.getenv("DPCO_PARTNER_NAME", "").strip()
 CAC_NAME_AND_RC: str = os.getenv("CAC_NAME_AND_RC", "").strip()
 
-# Solution Pricing (Empty defaults -> UI displays 'Contact us for pricing')
+# Mandatory DPCO Statement
+DPCO_MANDATORY_NOTICE: str = (
+    "Under the NDPA, annual Compliance Audit Returns must be filed through a licensed DPCO. "
+    "ADX Group is not a DPCO and does not file them."
+)
+
+# Solution Pricing
+# Confirmed starting price for ADX Shield single-domain assessment only
+SHIELD_STARTING_PRICE_NGN: str = os.getenv("PRICE_SHIELD_NGN", "From ₦150,000").strip()
+SHIELD_PRICE_NOTE: str = "per domain, scope confirmed in a written quote"
 DEFAULT_CURRENCY: str = "NGN"
 
 PRICING_CONFIG: Dict[str, Dict[str, str]] = {
     "shield": {
-        "NGN": os.getenv("PRICE_SHIELD_NGN", "").strip(),
+        "NGN": SHIELD_STARTING_PRICE_NGN,
         "USD": os.getenv("PRICE_SHIELD_USD", "").strip(),
     },
     "comply": {
@@ -102,6 +112,21 @@ def get_dpco_partner_name() -> str:
     if not raw or "PLACEHOLDER" in raw.upper():
         return ""
     return raw
+
+
+def get_dpco_notice() -> str:
+    """Return mandated DPCO disclosure wording."""
+    dpco = get_dpco_partner_name()
+    if dpco:
+        return (
+            f"Under the NDPA, annual Compliance Audit Returns must be filed through a licensed DPCO. "
+            f"ADX Group is not a DPCO and coordinates technical documentation in collaboration with {dpco}."
+        )
+    return DPCO_MANDATORY_NOTICE
+
+
+def get_shield_price_note() -> str:
+    return SHIELD_PRICE_NOTE
 
 
 def get_cac_info() -> str:
