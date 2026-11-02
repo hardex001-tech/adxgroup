@@ -233,6 +233,91 @@ document.addEventListener("DOMContentLoaded", () => {
           `;
           gatesTableBody.appendChild(tr);
         });
+
+        // Also live-update the Overview tab cards, Open Fixes list, and 12-Vector Overview Matrix immediately!
+        const emptyOverview = document.getElementById("empty-state-audits");
+        const popOverview = document.getElementById("overview-populated-wrap");
+        if (emptyOverview) emptyOverview.style.display = "none";
+        if (popOverview) popOverview.classList.remove("hidden");
+
+        const ovScore = document.getElementById("overview-score-val");
+        if (ovScore) ovScore.innerHTML = `${escapeHtml(String(data.score))}<span style="font-size: 1.1rem; color: #64748b;">/100</span>`;
+        const ovGrade = document.getElementById("overview-grade-val");
+        if (ovGrade) {
+          ovGrade.textContent = `Grade ${data.grade}`;
+          ovGrade.style.color = data.score >= 75 ? "#10b981" : "#fbbf24";
+        }
+        const ovRisk = document.getElementById("overview-risk-val");
+        if (ovRisk) ovRisk.textContent = data.risk_level || "";
+        const ovDomain = document.getElementById("overview-domain-val");
+        if (ovDomain) ovDomain.textContent = data.domain;
+        const ovPassed = document.getElementById("overview-passed-val");
+        if (ovPassed) ovPassed.textContent = `${data.passed_count} of ${data.total_gates} Vectors Passed`;
+
+        const failedGates = (data.gates || []).filter((g) => !g.state);
+        const ovIssuesBadge = document.getElementById("overview-issues-badge");
+        if (ovIssuesBadge) {
+          ovIssuesBadge.textContent = `${failedGates.length} Actionable`;
+          ovIssuesBadge.style.color = failedGates.length === 0 ? "#10b981" : "#f87171";
+        }
+        const ovIssuesVal = document.getElementById("overview-issues-val");
+        if (ovIssuesVal) {
+          ovIssuesVal.textContent = `${failedGates.length} Issue${failedGates.length === 1 ? "" : "s"}`;
+          ovIssuesVal.style.color = failedGates.length === 0 ? "#10b981" : "#f87171";
+        }
+        const ovIssuesDesc = document.getElementById("overview-issues-desc");
+        if (ovIssuesDesc) {
+          ovIssuesDesc.textContent = failedGates.length > 0
+            ? `Failed: ${failedGates.map((g) => g.vector).join(", ")}`
+            : "Zero open vulnerabilities detected across all 12 vectors.";
+        }
+        const ovFixesTitle = document.getElementById("overview-fixes-title");
+        if (ovFixesTitle) ovFixesTitle.textContent = `Open Perimeter Fixes on ${data.domain}`;
+        const ovFixesList = document.getElementById("overview-fixes-list");
+        if (ovFixesList) {
+          if (failedGates.length === 0) {
+            ovFixesList.innerHTML = `<div style="color: #10b981; font-size: 0.9rem;">All ${escapeHtml(String(data.total_gates))} security vectors passed on ${escapeHtml(data.domain)}!</div>`;
+          } else {
+            ovFixesList.innerHTML = failedGates.map((fg) => {
+              const sDom = escapeJsArg(data.domain);
+              const sId = escapeJsArg(fg.gate_id);
+              const sVec = escapeJsArg(fg.vector);
+              const sCve = escapeJsArg(fg.cve_ref || "CWE");
+              const remHtml = fg.remediation
+                ? `<div style="font-family: var(--font-mono); font-size: 0.76rem; color: #38bdf8; margin-top: 6px; background: rgba(15, 23, 42, 0.9); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.25); white-space: pre-wrap;">${escapeHtml(fg.remediation)}</div>`
+                : "";
+              return `
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: rgba(11, 18, 32, 0.6); border: 1px solid var(--border-subtle); border-left: 3px solid #ef4444; border-radius: 8px; padding: 14px 16px;">
+                  <div style="flex: 1; min-width: 240px;">
+                    <div style="font-size: 0.9rem; font-weight: 600; color: #ffffff; margin-bottom: 2px;">Vector ${escapeHtml(fg.gate_id)}: ${escapeHtml(fg.vector)} ${fg.cve_ref ? `<span class="cve-tag" style="margin-left: 6px;">${escapeHtml(fg.cve_ref)}</span>` : ""}</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8;">${escapeHtml(fg.finding)}</div>
+                    ${remHtml}
+                  </div>
+                  <button type="button" class="btn btn-primary" style="font-size: 0.76rem; padding: 6px 12px;" onclick="requestPatchForGate('${sDom}', '${sId}', '${sVec}', '${sCve}')">Deploy Fix &rarr;</button>
+                </div>
+              `;
+            }).join("");
+          }
+        }
+        const ovMatrixTitle = document.getElementById("overview-matrix-title");
+        if (ovMatrixTitle) ovMatrixTitle.textContent = `Complete 12-Vector Security Matrix (${data.domain})`;
+        const ovGatesTbody = document.getElementById("overview-gates-tbody");
+        if (ovGatesTbody) {
+          ovGatesTbody.innerHTML = (data.gates || []).map((g) => `
+            <tr>
+              <td style="font-family: var(--font-mono); font-weight: 700; color: #38bdf8;">${escapeHtml(g.gate_id)}</td>
+              <td>
+                <strong>${escapeHtml(g.vector)}</strong>
+                ${g.cve_ref ? `<div style="margin-top: 4px;"><span class="cve-tag">${escapeHtml(g.cve_ref)}</span></div>` : ""}
+              </td>
+              <td><span class="${g.state ? "badge-true" : "badge-false"}">${escapeHtml(g.status_label)}</span></td>
+              <td>
+                <div style="font-size: 0.84rem;">${escapeHtml(g.finding)}</div>
+                ${!g.state && g.remediation ? `<pre style="margin: 6px 0 0; padding: 8px 10px; background: rgba(11, 17, 32, 0.92); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 6px; color: #38bdf8; font-family: var(--font-mono); font-size: 0.75rem; white-space: pre-wrap;">${escapeHtml(g.remediation)}</pre>` : ""}
+              </td>
+            </tr>
+          `).join("");
+        }
       } catch (err) {
         window.showAdxNotice("Network connectivity issue detected while querying perimeter telemetry. Please check your internet connection and re-run.", "error", "Network Alert");
       } finally {

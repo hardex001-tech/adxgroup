@@ -369,7 +369,7 @@ async def client_dashboard(request: Request):
     if not user:
         return RedirectResponse(url="/login", status_code=302)
     sec_ctx = _extract_client_security_context(request)
-    dash_data = get_client_dashboard_data(user["id"])
+    dash_data = get_client_dashboard_data(user["id"], user.get("email", ""))
     now_utc = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
     return templates.TemplateResponse(
         request=request,
@@ -1427,7 +1427,7 @@ async def api_ai_consultant(request: Request, payload: ChatRequest):
     user = _current_user(request)
     recent_scans = []
     if user:
-        dash_data = get_client_dashboard_data(user["id"])
+        dash_data = get_client_dashboard_data(user["id"], user.get("email", ""))
         recent_scans = dash_data.get("recent_scans", [])
     else:
         user = {"name": "Guest", "company": "ADX Visitor"}

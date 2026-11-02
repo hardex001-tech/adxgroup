@@ -888,9 +888,10 @@ def add_monitored_domain(user_id: int, domain: str) -> None:
         conn.commit()
 
 
-def get_client_dashboard_data(user_id: int) -> Dict[str, Any]:
+def get_client_dashboard_data(user_id: int, user_email: str = "") -> Dict[str, Any]:
     """Fetch a logged-in client's monitored domains and scan history."""
     init_db()
+    clean_email = (user_email or "").strip().lower()
     with _get_conn() as conn:
         domains = [
             dict(r)
@@ -899,16 +900,28 @@ def get_client_dashboard_data(user_id: int) -> Dict[str, Any]:
                 (user_id,),
             ).fetchall()
         ]
-        scans = [
-            dict(r)
-            for r in conn.execute(
-                """
-                SELECT id, domain, score, grade, risk_level, passed_count, summary, full_json, created_at
-                FROM scans WHERE user_id = ? ORDER BY id DESC LIMIT 20
-                """,
-                (user_id,),
-            ).fetchall()
-        ]
+        if clean_email:
+            scans = [
+                dict(r)
+                for r in conn.execute(
+                    """
+                    SELECT id, domain, score, grade, risk_level, passed_count, summary, full_json, created_at
+                    FROM scans WHERE user_id = ? OR lower(user_email) = ? ORDER BY id DESC LIMIT 20
+                    """,
+                    (user_id, clean_email),
+                ).fetchall()
+            ]
+        else:
+            scans = [
+                dict(r)
+                for r in conn.execute(
+                    """
+                    SELECT id, domain, score, grade, risk_level, passed_count, summary, full_json, created_at
+                    FROM scans WHERE user_id = ? ORDER BY id DESC LIMIT 20
+                    """,
+                    (user_id,),
+                ).fetchall()
+            ]
     latest_scan_detail = None
     if scans and scans[0].get("full_json"):
         try:
