@@ -8,8 +8,15 @@
   <link rel="icon" type="image/svg+xml" href="/assets/brand/favicon.svg" />
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon.png" />
-    <link rel="stylesheet" href="/static/css/style.css?v=2026.50" />
+  <link rel="stylesheet" href="/static/css/tokens.css?v=2026.65" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.65" />
   <style>
+    *, *::before, *::after {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif !important;
+    }
+    code, pre, .font-mono, [data-mono], .mono-num {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    }
     .console-layout {
       display: grid;
       grid-template-columns: 275px 1fr;
@@ -169,8 +176,18 @@
   <!-- Top Console Header -->
   <header class="navbar">
     <div class="container nav-inner">
-      <a href="/dashboard" class="brand" aria-label="ADX Group Console">
-        <img src="/assets/brand/logo-lockup.svg" alt="ADX Group" width="168" height="32" style="height: 32px; width: auto;" />
+      <a href="/dashboard" class="brand" aria-label="ADX Group Console" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+        <svg width="28" height="28" viewBox="0 0 256 256" fill="none" style="display: block; flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.45));">
+          <polygon points="128,14 230,70 230,186 128,242 26,186 26,70" stroke="#38bdf8" stroke-width="14" stroke-linejoin="round" fill="rgba(15, 23, 42, 0.9)"/>
+          <polygon points="128,46 68,194 104,194 128,132" fill="#38bdf8"/>
+          <polygon points="128,46 128,132 152,194 188,194" fill="#0284c7"/>
+          <polygon points="74,76 102,76 188,194 160,194" fill="#38bdf8"/>
+          <polygon points="56,194 84,194 198,62 170,62" fill="#0ea5e9"/>
+        </svg>
+        <div style="display: flex; align-items: baseline; gap: 6px;">
+          <span style="font-weight: 800; font-size: 1.15rem; letter-spacing: 0.04em; color: #ffffff;">ADX GROUP</span>
+          <span style="font-size: 0.65rem; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.08em;">CONSOLE</span>
+        </div>
       </a>
 
       <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
@@ -241,22 +258,19 @@
     <!-- Right Workspace Content -->
     <main>
 
-      <!-- Real-Time Zero-Trust Security Notification (Zoho / Vercel / GitHub Standard) -->
-      <div id="login-security-notice" style="background: rgba(15, 23, 42, 0.92); border: 1px solid rgba(56, 189, 248, 0.35); border-left: 4px solid #38bdf8; border-radius: 12px; padding: 14px 18px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px);">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <polyline points="9 12 11 14 15 10"/>
-            </svg>
+      <!-- Real-Time Zero-Trust Security Notification (Clean, modern session status) -->
+      <div id="login-security-notice" style="background: rgba(15, 23, 42, 0.92); border: 1px solid rgba(56, 189, 248, 0.22); border-left: 4px solid #38bdf8; border-radius: 12px; padding: 12px 18px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35); backdrop-filter: blur(12px);">
+        <div style="display: flex; align-items: center; gap: 12px; min-width: 260px;">
+          <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></div>
           </div>
           <div>
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <strong style="color: #ffffff; font-size: 0.92rem;">Security Notice &bull; Active Authentication Verified</strong>
-              <span class="badge-true" style="font-size: 0.68rem; padding: 2px 7px;">AUTHORIZED</span>
+              <strong style="color: #ffffff; font-size: 0.88rem; font-weight: 600;">Active Authenticated Session</strong>
+              <span class="badge-true" style="font-size: 0.66rem; font-weight: 700; padding: 1px 6px;">SECURE</span>
             </div>
-            <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 3px;">
-              Session established for <strong style="color: #38bdf8;">{{ user.email }}</strong> via <strong style="color: #ffffff;">{{ user.provider | upper }} OAuth</strong> &bull; Client IP: <strong style="color: #38bdf8;">{{ client_ip or 'Verified Sovereign Edge' }}</strong> &bull; Route: <span style="color: {{ '#fbbf24' if is_proxy_or_vpn else '#34d399' }};">{{ 'Proxy / Multi-Hop Hop Detected' if is_proxy_or_vpn else 'Direct Sovereign Edge Handshake' }}</span> &bull; <span style="color: #cbd5e1;">{{ login_time }}</span>
+            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 2px;">
+              Signed in as <strong style="color: #38bdf8;">{{ user.email }}</strong> via <strong style="color: #ffffff;">{{ user.provider | upper }} OAuth</strong> &bull; Edge IP: <strong style="color: #cbd5e1;">{{ client_ip or 'Verified Sovereign Edge' }}</strong> &bull; {{ login_time }}
             </div>
           </div>
         </div>
@@ -264,7 +278,7 @@
           <button type="button" class="btn btn-outline" style="padding: 5px 12px; font-size: 0.76rem; border-color: rgba(56, 189, 248, 0.35); color: #38bdf8;" onclick="openSecurityLedger()">
             Security Ledger
           </button>
-          <button type="button" class="btn btn-outline" style="padding: 5px 9px; font-size: 0.76rem; border-color: rgba(255, 255, 255, 0.15);" onclick="document.getElementById('login-security-notice').style.display = 'none';">
+          <button type="button" class="btn btn-outline" style="padding: 5px 9px; font-size: 0.76rem; border-color: rgba(255, 255, 255, 0.15); color: #94a3b8;" onclick="document.getElementById('login-security-notice').style.display = 'none';" title="Dismiss">
             &times;
           </button>
         </div>
@@ -297,13 +311,19 @@
 
       <!-- TAB: Overview (Task E) -->
       <div id="tab-view-overview" class="console-tab-view">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 22px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
           <div>
-            <span class="view-tag">SYSTEM TELEMETRY OVERVIEW</span>
-            <h1 class="view-title">Enterprise Security Posture</h1>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <span class="view-tag" style="margin-bottom: 0;">INFRASTRUCTURE TELEMETRY</span>
+              <span style="font-size: 0.75rem; color: #64748b;">&bull;</span>
+              <span style="font-size: 0.75rem; color: #94a3b8;">Continuous Perimeter Inspection</span>
+            </div>
+            <h1 class="view-title" style="font-size: 1.85rem; font-weight: 800; color: #ffffff; letter-spacing: -0.025em; margin: 0; line-height: 1.2;">Enterprise Security Posture</h1>
+            <p style="font-size: 0.88rem; color: #94a3b8; margin: 6px 0 0 0;">Comprehensive 12-vector cryptographic, DNS, and HTTP security diagnostics.</p>
           </div>
-          <button type="button" class="btn btn-primary" onclick="switchConsoleTab('scanner')">
-            Run New Audit &rarr;
+          <button type="button" class="btn btn-primary" onclick="switchConsoleTab('scanner')" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; font-size: 0.86rem; font-weight: 600; border-radius: 8px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Run New Audit</span>
           </button>
         </div>
 
@@ -311,67 +331,91 @@
         {% set latest_failed = latest_scan_detail.gates | selectattr('state', 'equalto', false) | list %}
         <!-- 4 Overview Metric Cards (Driven by Real Latest Audit) -->
         <div id="overview-populated-wrap">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 24px;">
           
           <!-- Card 1: Risk Score Card -->
-          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Perimeter Risk Score</span>
-              <span id="overview-live-badge" style="font-family: var(--font-mono); font-size: 0.68rem; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 2px 6px; border-radius: 4px;">Live Telemetry</span>
+          <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.22); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #38bdf8, #2563eb);"></div>
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em;">Perimeter Security Score</span>
+                <span id="overview-live-badge" style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.68rem; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 7px; border-radius: 999px;">
+                  <span style="width: 5px; height: 5px; border-radius: 50%; background: #10b981;"></span> Live Telemetry
+                </span>
+              </div>
+              <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px;">
+                <div id="overview-score-val" style="font-size: 2.3rem; font-weight: 800; color: #ffffff; line-height: 1; letter-spacing: -0.03em;">{{ latest_scan_detail.score }}<span style="font-size: 1.15rem; color: #64748b; font-weight: 500;">/100</span></div>
+                <span id="overview-grade-val" style="font-size: 0.76rem; font-weight: 700; color: {{ '#10b981' if latest_scan_detail.score >= 75 else '#fbbf24' }}; background: {{ 'rgba(16, 185, 129, 0.12)' if latest_scan_detail.score >= 75 else 'rgba(245, 158, 11, 0.12)' }}; border: 1px solid {{ 'rgba(16, 185, 129, 0.3)' if latest_scan_detail.score >= 75 else 'rgba(245, 158, 11, 0.3)' }}; padding: 2px 7px; border-radius: 5px;">Grade {{ latest_scan_detail.grade }}</span>
+              </div>
+              <div style="width: 100%; height: 5px; background: rgba(255, 255, 255, 0.08); border-radius: 999px; overflow: hidden; margin-bottom: 10px;">
+                <div style="width: {{ latest_scan_detail.score }}%; height: 100%; background: {{ '#10b981' if latest_scan_detail.score >= 75 else '#fbbf24' }}; border-radius: 999px;"></div>
+              </div>
             </div>
-            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px;">
-              <div id="overview-score-val" style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: 800; color: #38bdf8;">{{ latest_scan_detail.score }}<span style="font-size: 1.1rem; color: #64748b;">/100</span></div>
-              <span id="overview-grade-val" style="font-size: 0.8rem; color: {{ '#10b981' if latest_scan_detail.score >= 75 else '#fbbf24' }}; font-weight: 600;">Grade {{ latest_scan_detail.grade }}</span>
-            </div>
-            <p id="overview-risk-val" style="font-size: 0.82rem; color: #94a3b8; margin: 0; line-height: 1.4;">{{ latest_scan_detail.risk_level }}</p>
+            <p id="overview-risk-val" style="font-size: 0.8rem; color: #94a3b8; margin: 0; line-height: 1.4;">{{ latest_scan_detail.risk_level }}</p>
           </div>
 
           <!-- Card 2: Latest Scan -->
-          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Latest Audited Target</span>
-              <span style="font-family: var(--font-mono); font-size: 0.68rem; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 2px 6px; border-radius: 4px;">Verified</span>
+          <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.22); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2563eb, #38bdf8);"></div>
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em;">Target Host</span>
+                <span style="font-size: 0.68rem; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 7px; border-radius: 999px;">Verified Host</span>
+              </div>
+              <div id="overview-domain-val" style="font-weight: 700; color: #ffffff; font-size: 1.15rem; margin-bottom: 6px; letter-spacing: -0.01em; word-break: break-all;">{{ latest_scan_detail.domain }}</div>
+              <div id="overview-passed-val" style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #10b981; font-weight: 600; margin-bottom: 12px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>{{ latest_scan_detail.passed_count }} of {{ latest_scan_detail.total_gates }} Vectors Passed</span>
+              </div>
             </div>
-            <div id="overview-domain-val" style="font-weight: 700; color: #ffffff; font-size: 1.1rem; margin-bottom: 4px;">{{ latest_scan_detail.domain }}</div>
-            <div id="overview-passed-val" style="font-size: 0.82rem; color: #10b981; margin-bottom: 10px;">{{ latest_scan_detail.passed_count }} of {{ latest_scan_detail.total_gates }} Vectors Passed</div>
-            <a id="overview-rescan-link" href="javascript:void(0)" onclick="triggerQuickScan('{{ latest_scan_detail.domain }}')" style="color: #38bdf8; font-size: 0.82rem; text-decoration: underline; font-weight: 600;">
-              Re-Run Full 12-Vector Audit &rarr;
+            <a id="overview-rescan-link" href="javascript:void(0)" onclick="triggerQuickScan('{{ latest_scan_detail.domain }}')" style="display: inline-flex; align-items: center; gap: 6px; color: #38bdf8; font-size: 0.82rem; font-weight: 600; text-decoration: none;">
+              <span>Re-run 12-Vector Audit</span> &rarr;
             </a>
           </div>
 
           <!-- Card 3: Open Fixes -->
-          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Open Vulnerabilities</span>
-              <span id="overview-issues-badge" style="font-family: var(--font-mono); font-size: 0.68rem; color: {{ '#10b981' if (latest_failed | length) == 0 else '#f87171' }}; background: rgba(239, 68, 68, 0.12); padding: 2px 6px; border-radius: 4px;">{{ latest_failed | length }} Actionable</span>
+          <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid {{ 'rgba(16, 185, 129, 0.25)' if (latest_failed | length) == 0 else 'rgba(239, 68, 68, 0.3)' }}; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: {{ '#10b981' if (latest_failed | length) == 0 else '#ef4444' }};"></div>
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em;">Active Findings</span>
+                <span id="overview-issues-badge" style="font-size: 0.68rem; font-weight: 700; color: {{ '#10b981' if (latest_failed | length) == 0 else '#f87171' }}; background: {{ 'rgba(16, 185, 129, 0.12)' if (latest_failed | length) == 0 else 'rgba(239, 68, 68, 0.12)' }}; border: 1px solid {{ 'rgba(16, 185, 129, 0.3)' if (latest_failed | length) == 0 else 'rgba(239, 68, 68, 0.3)' }}; padding: 2px 7px; border-radius: 999px;">{{ latest_failed | length }} Actionable</span>
+              </div>
+              <div id="overview-issues-val" style="font-size: 2rem; font-weight: 800; color: {{ '#10b981' if (latest_failed | length) == 0 else '#f87171' }}; margin-bottom: 6px; line-height: 1; letter-spacing: -0.02em;">{{ latest_failed | length }} Issue{{ '' if (latest_failed | length) == 1 else 's' }}</div>
+              <p id="overview-issues-desc" style="font-size: 0.8rem; color: #cbd5e1; margin: 0 0 10px 0; line-height: 1.45;">
+                {% if latest_failed %}
+                  Attention: {{ latest_failed | map(attribute='vector') | join(', ') }}
+                {% else %}
+                  Zero open vulnerabilities detected across all 12 vectors.
+                {% endif %}
+              </p>
             </div>
-            <div id="overview-issues-val" style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: {{ '#10b981' if (latest_failed | length) == 0 else '#f87171' }}; margin-bottom: 4px;">{{ latest_failed | length }} Issue{{ '' if (latest_failed | length) == 1 else 's' }}</div>
-            <p id="overview-issues-desc" style="font-size: 0.82rem; color: #94a3b8; margin: 0; line-height: 1.4;">
-              {% if latest_failed %}
-                Failed: {{ latest_failed | map(attribute='vector') | join(', ') }}
-              {% else %}
-                Zero open vulnerabilities detected across all 12 vectors.
-              {% endif %}
-            </p>
+            <a href="#overview-fixes-section" style="display: inline-flex; align-items: center; gap: 6px; color: {{ '#10b981' if (latest_failed | length) == 0 else '#f87171' }}; font-size: 0.82rem; font-weight: 600; text-decoration: none;">
+              <span>{{ 'Clean Sheet Confirmed' if (latest_failed | length) == 0 else 'Review Remediations Below' }}</span> &darr;
+            </a>
           </div>
 
           <!-- Card 4: Next-Step Button Card -->
-          <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(15, 23, 42, 0.85) 100%); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.18) 0%, rgba(15, 23, 42, 0.85) 100%); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #38bdf8, #818cf8);"></div>
             <div>
-              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; text-transform: uppercase; display: block; margin-bottom: 4px;">Full 12-Vector Breakdown</span>
-              <div style="font-weight: 700; color: #ffffff; font-size: 0.98rem; margin-bottom: 6px;">Inspect All 12 Security Vectors</div>
-              <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4; margin: 0;">View live TLS, DNS, HTTP headers, CORS, DoS, SSRF, cookies, and secret checks.</p>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 0.72rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.06em;">Hardening Engine</span>
+                <span style="font-size: 0.68rem; font-weight: 700; color: #a5b4fc; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.35); padding: 2px 7px; border-radius: 999px;">Continuous</span>
+              </div>
+              <div style="font-weight: 800; color: #ffffff; font-size: 1.05rem; margin-bottom: 6px; letter-spacing: -0.01em;">Remediation Dispatch</div>
+              <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.45; margin: 0;">Automated copy-paste patches for TLS ciphers, DNS records, and security headers.</p>
             </div>
             <div style="margin-top: 14px;">
-              <button type="button" onclick="switchConsoleTab('scanner')" class="btn btn-outline" style="width: 100%; justify-content: center; font-size: 0.8rem; padding: 7px 12px;">
-                Open Full 12-Vector Table &rarr;
+              <button type="button" onclick="switchConsoleTab('scanner')" class="btn btn-outline" style="width: 100%; justify-content: center; font-size: 0.82rem; font-weight: 600; padding: 8px 14px; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; background: rgba(56, 189, 248, 0.06);">
+                Open 12-Vector Matrix &rarr;
               </button>
             </div>
           </div>
         </div>
 
         <!-- Open Fixes Prioritized List from Real Latest Scan -->
-        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px; margin-bottom: 24px;">
+        <div id="overview-fixes-section" style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px; margin-bottom: 24px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h3 id="overview-fixes-title" style="font-size: 1.05rem; color: #ffffff; margin: 0;">Open Perimeter Fixes on {{ latest_scan_detail.domain }}</h3>
             <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8;">Live Audit Findings</span>
@@ -451,46 +495,61 @@
           <span style="display: none;">Sample data</span>
         </div>
         <div id="overview-populated-wrap" class="hidden">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px;">
-            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Perimeter Risk Score</span>
-                <span id="overview-live-badge" style="font-family: var(--font-mono); font-size: 0.68rem; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 2px 6px; border-radius: 4px;">Live Telemetry</span>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 24px;">
+            <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.22); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+              <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #38bdf8, #2563eb);"></div>
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <span style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em;">Perimeter Security Score</span>
+                  <span id="overview-live-badge" style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.68rem; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 7px; border-radius: 999px;">
+                    <span style="width: 5px; height: 5px; border-radius: 50%; background: #10b981;"></span> Live Telemetry
+                  </span>
+                </div>
+                <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px;">
+                  <div id="overview-score-val" style="font-size: 2.3rem; font-weight: 800; color: #ffffff; line-height: 1; letter-spacing: -0.03em;">--<span style="font-size: 1.15rem; color: #64748b; font-weight: 500;">/100</span></div>
+                  <span id="overview-grade-val" style="font-size: 0.76rem; font-weight: 700; color: #10b981; padding: 2px 7px; border-radius: 5px;"></span>
+                </div>
               </div>
-              <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px;">
-                <div id="overview-score-val" style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: 800; color: #38bdf8;">--/100</div>
-                <span id="overview-grade-val" style="font-size: 0.8rem; color: #10b981; font-weight: 600;"></span>
-              </div>
-              <p id="overview-risk-val" style="font-size: 0.82rem; color: #94a3b8; margin: 0; line-height: 1.4;"></p>
+              <p id="overview-risk-val" style="font-size: 0.8rem; color: #94a3b8; margin: 0; line-height: 1.4;"></p>
             </div>
-            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Latest Audited Target</span>
-                <span style="font-family: var(--font-mono); font-size: 0.68rem; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 2px 6px; border-radius: 4px;">Verified</span>
+            <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.22); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+              <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2563eb, #38bdf8);"></div>
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <span style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em;">Target Host</span>
+                  <span style="font-size: 0.68rem; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 7px; border-radius: 999px;">Verified Host</span>
+                </div>
+                <div id="overview-domain-val" style="font-weight: 700; color: #ffffff; font-size: 1.15rem; margin-bottom: 6px; letter-spacing: -0.01em; word-break: break-all;"></div>
+                <div id="overview-passed-val" style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #10b981; font-weight: 600; margin-bottom: 12px;"></div>
               </div>
-              <div id="overview-domain-val" style="font-weight: 700; color: #ffffff; font-size: 1.1rem; margin-bottom: 4px;"></div>
-              <div id="overview-passed-val" style="font-size: 0.82rem; color: #10b981; margin-bottom: 10px;"></div>
-              <a id="overview-rescan-link" href="javascript:void(0)" onclick="switchConsoleTab('scanner')" style="color: #38bdf8; font-size: 0.82rem; text-decoration: underline; font-weight: 600;">
-                View Full 12-Vector Audit &rarr;
+              <a id="overview-rescan-link" href="javascript:void(0)" onclick="switchConsoleTab('scanner')" style="display: inline-flex; align-items: center; gap: 6px; color: #38bdf8; font-size: 0.82rem; font-weight: 600; text-decoration: none;">
+                <span>View Full 12-Vector Audit</span> &rarr;
               </a>
             </div>
-            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Open Vulnerabilities</span>
-                <span id="overview-issues-badge" style="font-family: var(--font-mono); font-size: 0.68rem; color: #f87171; background: rgba(239, 68, 68, 0.12); padding: 2px 6px; border-radius: 4px;"></span>
-              </div>
-              <div id="overview-issues-val" style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: #f87171; margin-bottom: 4px;"></div>
-              <p id="overview-issues-desc" style="font-size: 0.82rem; color: #94a3b8; margin: 0; line-height: 1.4;"></p>
-            </div>
-            <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(15, 23, 42, 0.85) 100%); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+              <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #ef4444;"></div>
               <div>
-                <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8; text-transform: uppercase; display: block; margin-bottom: 4px;">Full 12-Vector Breakdown</span>
-                <div style="font-weight: 700; color: #ffffff; font-size: 0.98rem; margin-bottom: 6px;">Inspect All 12 Security Vectors</div>
-                <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4; margin: 0;">View live TLS, DNS, HTTP headers, CORS, DoS, SSRF, cookies, and secret checks.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <span style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em;">Active Findings</span>
+                  <span id="overview-issues-badge" style="font-size: 0.68rem; font-weight: 700; color: #f87171; background: rgba(239, 68, 68, 0.12); padding: 2px 7px; border-radius: 999px;"></span>
+                </div>
+                <div id="overview-issues-val" style="font-size: 2rem; font-weight: 800; color: #f87171; margin-bottom: 6px; line-height: 1; letter-spacing: -0.02em;"></div>
+                <p id="overview-issues-desc" style="font-size: 0.8rem; color: #cbd5e1; margin: 0 0 10px 0; line-height: 1.45;"></p>
+              </div>
+            </div>
+            <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.18) 0%, rgba(15, 23, 42, 0.85) 100%); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+              <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #38bdf8, #818cf8);"></div>
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <span style="font-size: 0.72rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.06em;">Hardening Engine</span>
+                  <span style="font-size: 0.68rem; font-weight: 700; color: #a5b4fc; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.35); padding: 2px 7px; border-radius: 999px;">Continuous</span>
+                </div>
+                <div style="font-weight: 800; color: #ffffff; font-size: 1.05rem; margin-bottom: 6px; letter-spacing: -0.01em;">Remediation Dispatch</div>
+                <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.45; margin: 0;">Automated copy-paste patches for TLS ciphers, DNS records, and security headers.</p>
               </div>
               <div style="margin-top: 14px;">
-                <button type="button" onclick="switchConsoleTab('scanner')" class="btn btn-outline" style="width: 100%; justify-content: center; font-size: 0.8rem; padding: 7px 12px;">
-                  Open Full 12-Vector Table &rarr;
+                <button type="button" onclick="switchConsoleTab('scanner')" class="btn btn-outline" style="width: 100%; justify-content: center; font-size: 0.82rem; font-weight: 600; padding: 8px 14px; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; background: rgba(56, 189, 248, 0.06);">
+                  Open 12-Vector Matrix &rarr;
                 </button>
               </div>
             </div>
@@ -1177,7 +1236,7 @@
     </div>
   </div>
 
-  <script src="/static/js/main.js?v=2026.50"></script>
+  <script src="/static/js/main.js?v=2026.65"></script>
   <script>
     function copyText(val, btnId, successText = "Copied!") {
       if (!navigator.clipboard) {
