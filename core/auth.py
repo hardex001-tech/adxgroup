@@ -903,13 +903,19 @@ def get_client_dashboard_data(user_id: int) -> Dict[str, Any]:
             dict(r)
             for r in conn.execute(
                 """
-                SELECT id, domain, score, grade, risk_level, passed_count, summary, created_at
+                SELECT id, domain, score, grade, risk_level, passed_count, summary, full_json, created_at
                 FROM scans WHERE user_id = ? ORDER BY id DESC LIMIT 20
                 """,
                 (user_id,),
             ).fetchall()
         ]
-    return {"monitored_domains": domains, "recent_scans": scans}
+    latest_scan_detail = None
+    if scans and scans[0].get("full_json"):
+        try:
+            latest_scan_detail = json.loads(scans[0]["full_json"])
+        except Exception:
+            latest_scan_detail = None
+    return {"monitored_domains": domains, "recent_scans": scans, "latest_scan_detail": latest_scan_detail}
 
 
 def get_admin_command_center_data() -> Dict[str, Any]:

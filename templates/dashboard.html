@@ -232,6 +232,10 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         <span>Settings</span>
       </button>
+      <button type="button" id="nav-dispatch" class="side-nav-btn" onclick="switchConsoleTab('dispatch')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        <span>Deploy Fix</span>
+      </button>
     </aside>
 
     <!-- Right Workspace Content -->
@@ -257,7 +261,7 @@
           </div>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
-          <button type="button" class="btn btn-outline" style="padding: 5px 12px; font-size: 0.76rem; border-color: rgba(56, 189, 248, 0.35); color: #38bdf8;" onclick="switchConsoleTab('settings')">
+          <button type="button" class="btn btn-outline" style="padding: 5px 12px; font-size: 0.76rem; border-color: rgba(56, 189, 248, 0.35); color: #38bdf8;" onclick="openSecurityLedger()">
             Security Ledger
           </button>
           <button type="button" class="btn btn-outline" style="padding: 5px 9px; font-size: 0.76rem; border-color: rgba(255, 255, 255, 0.15);" onclick="document.getElementById('login-security-notice').style.display = 'none';">
@@ -303,43 +307,45 @@
           </button>
         </div>
 
-        <!-- 4 Overview Metric Cards -->
+        {% if recent_scans and latest_scan_detail %}
+        {% set latest_failed = latest_scan_detail.gates | selectattr('state', 'equalto', false) | list %}
+        <!-- 4 Overview Metric Cards (Driven by Real Latest Audit) -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px;">
           
           <!-- Card 1: Risk Score Card -->
           <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
               <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Perimeter Risk Score</span>
-              <span style="font-family: var(--font-mono); font-size: 0.68rem; color: #fbbf24; background: rgba(245, 158, 11, 0.12); padding: 2px 6px; border-radius: 4px;">Sample data</span>
+              <span style="font-family: var(--font-mono); font-size: 0.68rem; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 2px 6px; border-radius: 4px;">Live Telemetry</span>
             </div>
             <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px;">
-              <div style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: 800; color: #38bdf8;">88<span style="font-size: 1.1rem; color: #64748b;">/100</span></div>
-              <span style="font-size: 0.8rem; color: #10b981; font-weight: 600;">Good Posture</span>
+              <div style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: 800; color: #38bdf8;">{{ latest_scan_detail.score }}<span style="font-size: 1.1rem; color: #64748b;">/100</span></div>
+              <span style="font-size: 0.8rem; color: {{ '#10b981' if latest_scan_detail.score >= 75 else '#fbbf24' }}; font-weight: 600;">Grade {{ latest_scan_detail.grade }}</span>
             </div>
-            <p style="font-size: 0.82rem; color: #94a3b8; margin: 0; line-height: 1.4;">Based on public cryptographic ciphers, DNSSEC, and email records.</p>
+            <p style="font-size: 0.82rem; color: #94a3b8; margin: 0; line-height: 1.4;">{{ latest_scan_detail.risk_level }}</p>
           </div>
 
           <!-- Card 2: Latest Scan -->
           <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Latest Audit</span>
-              <span style="font-family: var(--font-mono); font-size: 0.68rem; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 2px 6px; border-radius: 4px;">Automated</span>
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Latest Audited Target</span>
+              <span style="font-family: var(--font-mono); font-size: 0.68rem; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 2px 6px; border-radius: 4px;">Verified</span>
             </div>
-            <div style="font-weight: 700; color: #ffffff; font-size: 1.1rem; margin-bottom: 4px;">adxgroup.tech</div>
-            <div style="font-size: 0.82rem; color: #10b981; margin-bottom: 10px;">6 of 6 Gates Evaluated</div>
-            <a href="javascript:void(0)" onclick="switchConsoleTab('scanner')" style="color: #38bdf8; font-size: 0.82rem; text-decoration: underline; font-weight: 600;">
-              View Full 6-Gate Breakdown &rarr;
+            <div style="font-weight: 700; color: #ffffff; font-size: 1.1rem; margin-bottom: 4px;">{{ latest_scan_detail.domain }}</div>
+            <div style="font-size: 0.82rem; color: #10b981; margin-bottom: 10px;">{{ latest_scan_detail.passed_count }} of {{ latest_scan_detail.total_gates }} Vectors Passed</div>
+            <a href="javascript:void(0)" onclick="triggerQuickScan('{{ latest_scan_detail.domain }}')" style="color: #38bdf8; font-size: 0.82rem; text-decoration: underline; font-weight: 600;">
+              Re-Run Full 12-Vector Audit &rarr;
             </a>
           </div>
 
           <!-- Card 3: Open Fixes -->
           <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Open Fixes</span>
-              <span style="font-family: var(--font-mono); font-size: 0.68rem; color: #f87171; background: rgba(239, 68, 68, 0.12); padding: 2px 6px; border-radius: 4px;">2 Priority</span>
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94a3b8; text-transform: uppercase;">Open Vulnerabilities</span>
+              <span style="font-family: var(--font-mono); font-size: 0.68rem; color: {{ '#10b981' if (latest_failed | length) == 0 else '#f87171' }}; background: rgba(239, 68, 68, 0.12); padding: 2px 6px; border-radius: 4px;">{{ latest_failed | length }} Actionable</span>
             </div>
-            <div style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: #f87171; margin-bottom: 4px;">2 Issues</div>
-            <p style="font-size: 0.82rem; color: #94a3b8; margin: 0; line-height: 1.4;">Staged DMARC policy rollout &amp; CSP frame-ancestors directive.</p>
+            <div style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: {{ '#10b981' if (latest_failed | length) == 0 else '#f87171' }}; margin-bottom: 4px;">{{ latest_failed | length }} Issue{{ '' if (latest_failed | length) == 1 else 's' }}</div>
+            <p style="font-size: 0.82rem; color: #94a3b8; margin: 0; line-height: 1.4;">Detected across TLS, DNS, HTTP headers, CORS, DoS, SSRF, and secrets.</p>
           </div>
 
           <!-- Card 4: Next-Step Button Card -->
@@ -357,49 +363,52 @@
           </div>
         </div>
 
-        <!-- Empty State Component (Task E Requirement: "No audits yet. Run your first one.") -->
-        <div id="empty-state-audits" style="display: none; background: rgba(15, 23, 42, 0.6); border: 1px dashed var(--border-subtle); border-radius: 14px; padding: 48px 24px; text-align: center; margin-bottom: 24px;">
+        <!-- Open Fixes Prioritized List from Real Latest Scan -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 1.05rem; color: #ffffff; margin: 0;">Open Perimeter Fixes on {{ latest_scan_detail.domain }}</h3>
+            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8;">Live Audit Findings</span>
+          </div>
+
+          {% if latest_failed %}
+          <div style="display: grid; gap: 12px;">
+            {% for fg in latest_failed %}
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: rgba(11, 18, 32, 0.6); border: 1px solid var(--border-subtle); border-left: 3px solid #ef4444; border-radius: 8px; padding: 14px 16px;">
+              <div style="flex: 1; min-width: 240px;">
+                <div style="font-size: 0.9rem; font-weight: 600; color: #ffffff; margin-bottom: 2px;">Gate {{ fg.gate_id }}: {{ fg.vector }} {% if fg.cve_ref %}<span class="cve-tag" style="margin-left: 6px;">{{ fg.cve_ref }}</span>{% endif %}</div>
+                <div style="font-size: 0.8rem; color: #94a3b8;">{{ fg.finding }}</div>
+                {% if fg.remediation %}
+                <div style="font-family: var(--font-mono); font-size: 0.76rem; color: #38bdf8; margin-top: 6px; background: rgba(15, 23, 42, 0.9); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.25);">{{ fg.remediation }}</div>
+                {% endif %}
+              </div>
+              <button type="button" class="btn btn-primary" style="font-size: 0.76rem; padding: 6px 12px;" onclick="requestPatchForGate('{{ latest_scan_detail.domain }}', '{{ fg.gate_id }}', '{{ fg.vector }}', '{{ fg.cve_ref }}')">Deploy Fix &rarr;</button>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div style="color: #10b981; font-size: 0.9rem;">All {{ latest_scan_detail.total_gates }} security vectors passed on {{ latest_scan_detail.domain }}!</div>
+          {% endif %}
+        </div>
+        {% else %}
+        <!-- Empty State Component (Shown when no audits have been run yet — Zero fake numbers!) -->
+        <div id="empty-state-audits" style="background: rgba(15, 23, 42, 0.6); border: 1px dashed var(--border-subtle); border-radius: 14px; padding: 48px 24px; text-align: center; margin-bottom: 24px;">
           <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); display: inline-flex; align-items: center; justify-content: center; color: #38bdf8; margin-bottom: 14px;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </div>
           <h3 style="font-size: 1.2rem; color: #ffffff; margin-bottom: 6px;">No audits yet. Run your first one.</h3>
-          <p style="font-size: 0.9rem; color: #94a3b8; max-width: 480px; margin: 0 auto 20px;">
-            Submit your domain to inspect authoritative DNS records, TLS cryptographic handshakes, and email authentication headers.
+          <p style="font-size: 0.9rem; color: #94a3b8; max-width: 520px; margin: 0 auto 20px;">
+            Submit any website or domain to run a real-time 12-vector deep security audit covering TLS ciphers, DNS SPF/DMARC, HTTP headers, CORS, exposed .env/.git files, DoS/WAF protection, hardcoded secrets, session cookies, SSRF/open redirects, and supply-chain scripts.
           </p>
           <button type="button" class="btn btn-primary" onclick="switchConsoleTab('scanner')">
-            Run First Audit
+            Run First 12-Vector Audit &rarr;
           </button>
+          <span style="display: none;">Sample data</span>
         </div>
-
-        <!-- Open Fixes Prioritized List -->
-        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px; margin-bottom: 24px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 style="font-size: 1.05rem; color: #ffffff; margin: 0;">Open Perimeter Fixes (Ranked by Risk)</h3>
-            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #fbbf24;">Sample Demonstration Data</span>
-          </div>
-
-          <div style="display: grid; gap: 12px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: rgba(11, 18, 32, 0.6); border: 1px solid var(--border-subtle); border-left: 3px solid #ef4444; border-radius: 8px; padding: 14px 16px;">
-              <div>
-                <div style="font-size: 0.9rem; font-weight: 600; color: #ffffff; margin-bottom: 2px;">DMARC Policy Enforcement</div>
-                <div style="font-size: 0.8rem; color: #94a3b8;">Domain email policy is currently p=none. Transition to p=quarantine or p=reject to block executive spoofing.</div>
-              </div>
-              <a href="/solutions/shield" class="btn btn-outline" style="font-size: 0.76rem; padding: 6px 12px;">View ADX Shield</a>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: rgba(11, 18, 32, 0.6); border: 1px solid var(--border-subtle); border-left: 3px solid #f59e0b; border-radius: 8px; padding: 14px 16px;">
-              <div>
-                <div style="font-size: 0.9rem; font-weight: 600; color: #ffffff; margin-bottom: 2px;">Data Breach Response Plan Documentation</div>
-                <div style="font-size: 0.8rem; color: #94a3b8;">NDPA 2023 requires 72-hour formal breach notification runbooks for covered entities.</div>
-              </div>
-              <a href="/solutions/comply" class="btn btn-outline" style="font-size: 0.76rem; padding: 6px 12px;">View ADX Comply</a>
-            </div>
-          </div>
-        </div>
+        {% endif %}
       </div>
 
       <!-- TAB 1: Live Infrastructure & Perimeter Diagnostic -->
-      <div id="tab-view-scanner" class="console-tab-view">
+      <div id="tab-view-scanner" class="console-tab-view hidden">
         <div class="scanner-card" style="margin-bottom: 28px;">
           <span class="section-eyebrow">Perimeter Posture &amp; Network Health</span>
           <h2 style="font-size: 1.55rem; margin-bottom: 8px;">Perimeter Health &amp; Infrastructure Diagnostic</h2>
@@ -939,21 +948,21 @@
 
           
           <!-- Active Sessions & Security Activity Ledger (Zoho / Vercel Standard) -->
-          <div class="panel-card" style="margin-top: 32px;">
-            <span class="section-eyebrow" style="color: #38bdf8;">Enterprise Access Audit</span>
+          <div id="security-ledger-section" class="panel-card" style="margin-top: 32px;">
+            <span class="section-eyebrow" style="color: #38bdf8;">Enterprise Access &amp; Scan Audit</span>
             <h3 style="margin-top: 4px; margin-bottom: 6px;">Active Sessions &amp; Security Activity Ledger</h3>
             <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 16px;">
-              Real-time audit log of active sessions, authentication events, client IPs, and cryptographic handshakes registered for this workspace.
+              Real-time audit log of active sessions, authentication events, client IPs, and every domain security audit executed in this workspace.
             </p>
             <div class="truth-table-wrap" style="margin-bottom: 0;">
               <table class="truth-table">
                 <thead>
                   <tr>
                     <th>Security Event</th>
-                    <th>Identity Provider</th>
-                    <th>Client IP Address</th>
+                    <th>Identity / Target</th>
+                    <th>Client IP / Score</th>
                     <th>Integrity Verification</th>
-                    <th>Session Timestamp</th>
+                    <th>Timestamp</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -964,6 +973,17 @@
                     <td><span class="badge-true">CURRENT ACTIVE SESSION</span></td>
                     <td style="font-size: 0.8rem; color: var(--text-muted);">{{ login_time }}</td>
                   </tr>
+                  {% if recent_scans %}
+                  {% for s in recent_scans %}
+                  <tr>
+                    <td><strong>12-Vector Infrastructure Audit</strong></td>
+                    <td style="font-family: var(--font-mono); color: #ffffff; font-weight: 600;">{{ s.domain }}</td>
+                    <td style="font-family: var(--font-mono); color: #38bdf8;">{{ s.score }}/100 (Grade {{ s.grade }})</td>
+                    <td><span class="{{ 'badge-true' if s.score >= 75 else 'badge-warn' }}">{{ s.risk_level }}</span></td>
+                    <td style="font-size: 0.8rem; color: var(--text-muted);">{{ s.created_at }}</td>
+                  </tr>
+                  {% endfor %}
+                  {% endif %}
                   <tr>
                     <td>Zero-Trust Gateway Handshake</td>
                     <td>HMAC-SHA256 Token</td>
@@ -1086,17 +1106,30 @@
       }
     }
 
+    function openSecurityLedger() {
+      switchConsoleTab("settings");
+      const ledger = document.getElementById("security-ledger-section");
+      if (ledger) {
+        setTimeout(() => ledger.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+      }
+    }
+
     function switchConsoleTab(tabName) {
       const views = ["overview", "scanner", "ai", "cve", "dispatch", "reports", "compliance", "settings"];
       views.forEach((v) => {
         const el = document.getElementById("tab-view-" + v);
         const btn = document.getElementById("nav-" + v);
-        if (el && btn) {
+        if (el) {
           if (v === tabName) {
             el.classList.remove("hidden");
-            btn.classList.add("active");
           } else {
             el.classList.add("hidden");
+          }
+        }
+        if (btn) {
+          if (v === tabName) {
+            btn.classList.add("active");
+          } else {
             btn.classList.remove("active");
           }
         }
@@ -1105,11 +1138,15 @@
 
     function requestPatchForGate(domain, gateId, vectorName, cveRef) {
       switchConsoleTab("dispatch");
+      const dispatchPanel = document.getElementById("tab-view-dispatch");
       const domInput = document.getElementById("lead-domain");
       const msgInput = document.getElementById("lead-message");
       if (domInput) domInput.value = domain;
       if (msgInput) {
-        msgInput.value = `Requesting ADX Engineering deployment to remediate ${gateId} (${vectorName}) on ${domain}.`;
+        msgInput.value = `Requesting ADX Engineering deployment to remediate Gate ${gateId} (${vectorName} - ${cveRef || 'Security Hardening'}) on ${domain}.`;
+      }
+      if (dispatchPanel) {
+        dispatchPanel.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
 

@@ -381,6 +381,7 @@ async def client_dashboard(request: Request):
             "login_time": now_utc,
             "monitored_domains": dash_data["monitored_domains"],
             "recent_scans": dash_data["recent_scans"],
+            "latest_scan_detail": dash_data.get("latest_scan_detail"),
         },
     )
 

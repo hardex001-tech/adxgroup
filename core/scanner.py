@@ -268,9 +268,9 @@ async def check_dns_email_security(client: httpx.AsyncClient, domain: str) -> Di
 
 
 async def check_http_and_cve_surface(
-    client: httpx.AsyncClient, domain: str, has_web_ip: bool
+    client: httpx.AsyncClient, domain: str, has_web_ip: bool, primary_ip: str = "", ip_count: int = 1
 ) -> Dict[str, Any]:
-    """Inspect HTTP headers, CORS, banner disclosure, and 2026 CVE exposure vectors."""
+    """Inspect HTTP headers, CORS, banner disclosure, hardcoded secrets, cookies, redirects, and DoS/WAF surface."""
     if not has_web_ip:
         return {
             "Reachable": False,
@@ -279,6 +279,12 @@ async def check_http_and_cve_surface(
             "headers_passed": False,
             "cors_passed": False,
             "exposure_passed": False,
+            "secrets_passed": False,
+            "cookie_passed": False,
+            "redirect_passed": False,
+            "methods_passed": False,
+            "dos_passed": False,
+            "sri_passed": False,
             "is_parked": False,
             "headers_summary": f"No active host IP found for {domain} to serve security headers.",
             "headers_fix": "Verify domain DNS records and configure web server listener.",
@@ -286,6 +292,18 @@ async def check_http_and_cve_surface(
             "cors_fix": None,
             "exposure_summary": "Target host unresolvable over the internet.",
             "exposure_fix": None,
+            "secrets_summary": "Host unresolvable; client-side code inspection skipped.",
+            "secrets_fix": None,
+            "cookie_summary": "Host unresolvable; session cookie flags unverified.",
+            "cookie_fix": None,
+            "redirect_summary": "Host unresolvable; SSRF and open-redirect vectors unverified.",
+            "redirect_fix": None,
+            "methods_summary": "Host unresolvable; HTTP verb tampering unverified.",
+            "methods_fix": None,
+            "dos_summary": "Host unresolvable; DoS/WAF protection unverified.",
+            "dos_fix": None,
+            "sri_summary": "Host unresolvable; third-party script integrity unverified.",
+            "sri_fix": None,
         }
 
     headers_report: Dict[str, bool] = {
@@ -302,6 +320,8 @@ async def check_http_and_cve_surface(
     server_header = "Hidden / Protected"
     is_parked = False
     resp = None
+    raw_html = ""
+    resp_headers: Dict[str, str] = {}
 
     # Probe HTTPS first; fall back to HTTP if HTTPS connection fails
     for scheme in ("https://", "http://"):
@@ -315,6 +335,8 @@ async def check_http_and_cve_surface(
             resp = r
             status_code = resp.status_code
             h = resp.headers
+            resp_headers = dict(h)
+            raw_html = resp.text or ""
             server_header = h.get("server", "Hidden / Protected")
 
             for hdr in headers_report:
@@ -335,7 +357,7 @@ async def check_http_and_cve_surface(
                 cors_issue = True
 
             # Parked domain, parking broker, lander redirect, or bot captcha gate detection
-            body_sample = resp.text.lower()[:3000]
+            body_sample = raw_html.lower()[:3000]
             final_url = str(resp.url).lower()
             parked_url_keywords = [
                 "forsale", "parked", "parking", "sedo", "dan.com", "hugedomains", "afternic", "bodis", "sgcaptcha"
@@ -364,7 +386,6 @@ async def check_http_and_cve_surface(
             if any(k in final_url for k in parked_url_keywords) or any(sig in body_sample for sig in parked_signatures) or (status_code == 202 and "captcha" in body_sample):
                 is_parked = True
             else:
-                # Detect JS redirect to /lander (e.g. GoDaddy parked domains like 2222.io)
                 js_lander_match = re.search(r'window\.location(?:\.href)?\s*=\s*["\'](/lander[^"\']*)["\']', body_sample)
                 if js_lander_match:
                     lander_path = js_lander_match.group(1)
@@ -376,7 +397,7 @@ async def check_http_and_cve_surface(
                             is_parked = True
                     except Exception:
                         is_parked = True
-                elif len(resp.text) < 250 and len(re.sub(r'<[^>]+>', ' ', resp.text).strip()) < 20 and not ("<body" in body_sample and len(body_sample) > 150):
+                elif len(raw_html) < 250 and len(re.sub(r'<[^>]+>', ' ', raw_html).strip()) < 20 and not ("<body" in body_sample and len(body_sample) > 150):
                     is_parked = True
             break
         except Exception:
@@ -390,6 +411,12 @@ async def check_http_and_cve_surface(
             "headers_passed": False,
             "cors_passed": False,
             "exposure_passed": False,
+            "secrets_passed": False,
+            "cookie_passed": False,
+            "redirect_passed": False,
+            "methods_passed": False,
+            "dos_passed": False,
+            "sri_passed": False,
             "is_parked": False,
             "headers_summary": f"HTTP/HTTPS ports on {domain} refused connection or timed out.",
             "headers_fix": "Verify web server listener on port 80/443 and configure reverse proxy.",
@@ -397,51 +424,234 @@ async def check_http_and_cve_surface(
             "cors_fix": None,
             "exposure_summary": "Web ports unreachable on host.",
             "exposure_fix": None,
+            "secrets_summary": "Web ports unreachable on host.",
+            "secrets_fix": None,
+            "cookie_summary": "Web ports unreachable on host.",
+            "cookie_fix": None,
+            "redirect_summary": "Web ports unreachable on host.",
+            "redirect_fix": None,
+            "methods_summary": "Web ports unreachable on host.",
+            "methods_fix": None,
+            "dos_summary": "Web ports unreachable on host.",
+            "dos_fix": None,
+            "sri_summary": "Web ports unreachable on host.",
+            "sri_fix": None,
         }
 
-    exposed_paths: List[str] = []
-    for path, signature in (("/.env", "APP_"), ("/.git/HEAD", "ref: refs/")):
+    # Probe sensitive dotfiles, backups, source maps, and debug endpoints concurrently
+    probe_targets = [
+        ("/.env", ("APP_", "DB_", "SECRET", "KEY=")),
+        ("/.git/HEAD", ("ref: refs/",)),
+        ("/.env.backup", ("APP_", "DB_", "SECRET", "KEY=")),
+        ("/wp-config.php.bak", ("DB_PASSWORD", "wp_")),
+        ("/server-status", ("Apache Server Status", "Server Version:")),
+        ("/actuator/env", ("propertySources", "systemProperties")),
+    ]
+
+    async def _probe_path(path: str, sigs: tuple) -> str:
         try:
-            probe = await client.get(f"https://{domain}{path}", follow_redirects=False, timeout=3.5)
-            if probe.status_code == 200 and signature in probe.text[:200]:
-                exposed_paths.append(path)
+            pr = await client.get(f"https://{domain}{path}", follow_redirects=False, timeout=3.0)
+            if pr.status_code == 200 and any(s in pr.text[:400] for s in sigs):
+                return path
         except Exception:
             pass
+        return ""
 
+    async def _probe_open_redirect() -> bool:
+        try:
+            pr = await client.get(
+                f"https://{domain}/?redirect=https://evil.example.com&next=https://evil.example.com&url=https://evil.example.com",
+                follow_redirects=False,
+                timeout=3.0,
+            )
+            loc = pr.headers.get("location", "").lower()
+            if pr.status_code in (301, 302, 303, 307, 308) and "evil.example.com" in loc:
+                return False
+        except Exception:
+            pass
+        return True
+
+    async def _probe_http_methods() -> List[str]:
+        dangerous_allowed = []
+        try:
+            opt = await client.request("OPTIONS", f"https://{domain}/", timeout=3.0)
+            allow_hdr = (opt.headers.get("allow", "") + "," + opt.headers.get("access-control-allow-methods", "")).upper()
+            for verb in ("TRACE", "PUT", "DELETE"):
+                if verb in allow_hdr:
+                    dangerous_allowed.append(verb)
+        except Exception:
+            pass
+        return dangerous_allowed
+
+    probe_results = await asyncio.gather(
+        *[_probe_path(p, s) for p, s in probe_targets],
+        _probe_open_redirect(),
+        _probe_http_methods(),
+    )
+    exposed_paths = [p for p in probe_results[:-2] if p]
+    redirect_passed_probe = bool(probe_results[-2])
+    dangerous_verbs = probe_results[-1]
+
+    # Gate 3: Browser Security Headers
     headers_passed = len(missing_headers) == 0
     if headers_passed:
-        headers_summary = "All 5 defensive HTTP headers (HSTS, CSP, X-Frame, Nosniff, Permissions-Policy) verified."
+        headers_summary = "All 5 defensive HTTP headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Permissions-Policy) verified."
         headers_fix = None
     else:
         headers_summary = (
             f"Missing {len(missing_headers)} browser defense header(s): {', '.join(missing_headers)}. "
-            "Exposes user sessions to DOM injection, clickjacking, or protocol downgrade."
+            "Exposes user sessions to DOM XSS injection, clickjacking, or MIME-sniffing attacks."
         )
         headers_fix = (
-            "Enforce Strict-Transport-Security, Content-Security-Policy, X-Frame-Options, "
-            "X-Content-Type-Options, and Permissions-Policy at edge proxy."
+            "Add Strict-Transport-Security: max-age=63072000; includeSubDomains; preload\n"
+            "Add Content-Security-Policy: default-src 'self'; frame-ancestors 'none'\n"
+            "Add X-Frame-Options: DENY\n"
+            "Add X-Content-Type-Options: nosniff\n"
+            "Add Permissions-Policy: camera=(), microphone=(), geolocation=()"
         )
 
+    # Gate 4: API Cross-Origin Policy & CORS
     cors_passed = not cors_issue
     cors_summary = (
         "Cross-Origin Resource Sharing (CORS) boundaries properly restrict credentialed requests."
         if cors_passed
-        else "Wildcard Access-Control-Allow-Origin (*) with credentials permits cross-origin API token theft."
+        else "Wildcard Access-Control-Allow-Origin (*) paired with Access-Control-Allow-Credentials: true permits cross-origin token theft."
     )
-    cors_fix = None if cors_passed else "Lock Access-Control-Allow-Origin to explicit trusted origins."
+    cors_fix = (
+        None
+        if cors_passed
+        else f"Set Access-Control-Allow-Origin: https://{domain} (remove '*' wildcard on authenticated endpoints)."
+    )
 
+    # Gate 5: Exposed Dotfiles, Backups & Server Version Banners
     exposure_passed = (len(leaked_banners) == 0) and (len(exposed_paths) == 0)
     if exposure_passed:
-        exposure_summary = "Zero exposed environment files (/.env, /.git) and runtime version strings are masked."
+        exposure_summary = "Zero exposed configuration/backup files (/.env, /.git, .bak, /actuator) and server version strings are masked."
         exposure_fix = None
     else:
         parts = []
         if exposed_paths:
-            parts.append(f"CRITICAL: Publicly readable configuration files: {', '.join(exposed_paths)}.")
+            parts.append(f"CRITICAL: Publicly readable sensitive paths found: {', '.join(exposed_paths)}.")
         if leaked_banners:
-            parts.append(f"Runtime version disclosed ({', '.join(leaked_banners)}), aiding targeted CVE exploit selection.")
+            parts.append(f"Server runtime version disclosed ({', '.join(leaked_banners)}), aiding targeted exploit selection.")
         exposure_summary = " ".join(parts)
-        exposure_fix = "Strip Server/X-Powered-By response headers and deny dotfile paths at firewall."
+        exposure_fix = "Block dotfile/backup routes (/.env*, /.git*, *.bak, /actuator*) at firewall and strip Server / X-Powered-By headers."
+
+    # Gate 6: DoS / Rate-Limiting & Edge WAF Protection (CWE-400 / CWE-770)
+    waf_markers = (
+        "cf-ray", "x-vercel-id", "x-amz-cf-id", "x-fastly-request-id", "x-akamai-transformed",
+        "x-ratelimit-limit", "ratelimit-limit", "retry-after", "x-cdn", "cf-cache-status"
+    )
+    has_waf_or_ratelimit = any(k in resp_headers for k in waf_markers) or any(
+        w in server_header.lower() for w in ("cloudflare", "vercel", "akamai", "cloudfront", "fastly", "adx")
+    ) or ip_count >= 2
+    dos_passed = bool(has_waf_or_ratelimit)
+    if dos_passed:
+        dos_summary = f"Active Edge CDN/WAF or rate-limiting telemetry detected ({server_header}, {ip_count} routed IP node(s))."
+        dos_fix = None
+    else:
+        dos_summary = (
+            f"Single origin IP ({primary_ip}) exposed directly without detectable edge WAF, CDN caching, or HTTP rate-limit headers (X-RateLimit-Limit). "
+            "Vulnerable to Layer-7 HTTP flood and Denial-of-Service (DoS) exhaustion."
+        )
+        dos_fix = "Place origin behind Cloudflare WAF / AWS Shield and enforce sliding-window rate limiting (HTTP 429) on API & auth routes."
+
+    # Gate 7: Hardcoded API Keys, Tokens & Client-Side Backdoor Inspection (CWE-798)
+    secret_patterns = [
+        ("OpenAI API Secret Key", r"sk-(?:proj-)?[A-Za-z0-9]{20,}"),
+        ("AWS Access Key ID", r"AKIA[0-9A-Z]{16}"),
+        ("Stripe Live Secret Key", r"sk_live_[0-9a-zA-Z]{24}"),
+        ("GitHub Personal Access Token", r"ghp_[0-9a-zA-Z]{36}"),
+        ("Slack Webhook / Bot Token", r"xox[baprs]-[0-9a-zA-Z-]{10,48}"),
+        ("Private RSA/SSH Key Block", r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
+        ("Exposed Database Connection URI", r"(?:postgres|mongodb(?:\+srv)?|mysql|redis)://[^/\s\"']+:[^@\s\"']+@[^\s\"']+"),
+        ("Source Map Production Leak", r"//# sourceMappingURL=.*\.js\.map"),
+    ]
+    detected_secrets: List[str] = []
+    html_scan_slice = raw_html[:150000]
+    for label, pat in secret_patterns:
+        if re.search(pat, html_scan_slice):
+            detected_secrets.append(label)
+
+    secrets_passed = len(detected_secrets) == 0
+    if secrets_passed:
+        secrets_summary = "Zero hardcoded API keys, private keys, database URIs, or exposed .js.map source maps found in page source."
+        secrets_fix = None
+    else:
+        secrets_summary = f"CRITICAL: Detected {', '.join(detected_secrets)} embedded directly in client-facing source code!"
+        secrets_fix = "Immediately rotate leaked credentials, move secrets to server-side environment variables (.env), and disable production .js.map source maps."
+
+    # Gate 8: Session Cookie & Auth Token Hardening (CWE-614 / CWE-1004)
+    set_cookies = resp.headers.get_list("set-cookie") if hasattr(resp.headers, "get_list") else (
+        [resp.headers["set-cookie"]] if "set-cookie" in resp.headers else []
+    )
+    weak_cookies: List[str] = []
+    for ck in set_cookies:
+        ck_lower = ck.lower()
+        ck_name = ck.split("=", 1)[0].strip()
+        missing_flags = []
+        if "secure" not in ck_lower:
+            missing_flags.append("Secure")
+        if "httponly" not in ck_lower:
+            missing_flags.append("HttpOnly")
+        if "samesite" not in ck_lower:
+            missing_flags.append("SameSite")
+        if missing_flags:
+            weak_cookies.append(f"{ck_name} (missing {'/'.join(missing_flags)})")
+
+    cookie_passed = len(weak_cookies) == 0
+    if cookie_passed:
+        cookie_summary = (
+            "All issued cookies enforce Secure, HttpOnly, and SameSite protections (or stateless zero-cookie response)."
+        )
+        cookie_fix = None
+    else:
+        cookie_summary = f"Session/tracking cookies issued without anti-hijacking flags: {', '.join(weak_cookies[:3])}."
+        cookie_fix = "Append '; Secure; HttpOnly; SameSite=Lax' (or Strict) to all Set-Cookie response headers to block XSS cookie theft and CSRF."
+
+    # Gate 9: SSRF & Unvalidated Open-Redirect Surface (CWE-918 / CWE-601)
+    unsafe_url_params = re.findall(r'[?&](url|redirect|next|dest|Callback|returnUrl|webhook|proxy)=http', html_scan_slice, re.IGNORECASE)
+    redirect_passed = redirect_passed_probe and (len(unsafe_url_params) == 0)
+    if redirect_passed:
+        redirect_summary = "Redirect parameters (?redirect=, ?next=, ?url=) properly reject arbitrary external host redirection."
+        redirect_fix = None
+    else:
+        redirect_summary = (
+            "Detected unvalidated redirect / URL-fetching parameter exposure. Attackers can chain open redirects or SSRF to probe internal metadata."
+        )
+        redirect_fix = "Validate all redirect/callback URLs against a strict domain allowlist and block RFC1918 / 169.254.169.254 SSRF targets."
+
+    # Gate 10: HTTP Verb Tampering & Unsafe Methods (CWE-749 / CWE-650)
+    methods_passed = len(dangerous_verbs) == 0
+    if methods_passed:
+        methods_summary = "Dangerous HTTP verbs (TRACE, PUT, DELETE) are disabled or restricted on the public root listener."
+        methods_fix = None
+    else:
+        methods_summary = f"Server explicitly advertises unsafe HTTP methods ({', '.join(dangerous_verbs)}) via OPTIONS, enabling Cross-Site Tracing (XST) or verb tampering."
+        methods_fix = "Disable TRACE, PUT, and DELETE methods on public web routes at the web server / reverse proxy layer."
+
+    # Gate 11: Third-Party Script Supply-Chain & Subresource Integrity (CWE-829 / CWE-353)
+    script_tags = re.findall(r"<script[^>]+src=[\"'](https?://[^\"']+)[\"'][^>]*>", html_scan_slice, re.IGNORECASE)
+    external_unverified_scripts = []
+    for full_tag in re.findall(r"<script[^>]+src=[\"']https?://[^\"']+[\"'][^>]*>", html_scan_slice, re.IGNORECASE):
+        src_m = re.search(r"src=[\"'](https?://[^\"']+)[\"']", full_tag, re.IGNORECASE)
+        if src_m:
+            src_url = src_m.group(1)
+            src_host = urlparse(src_url).netloc.lower()
+            if src_host and domain not in src_host and "integrity=" not in full_tag.lower():
+                external_unverified_scripts.append(src_host)
+
+    unique_unverified_hosts = sorted(list(set(external_unverified_hosts := external_unverified_scripts)))
+    sri_passed = len(unique_unverified_hosts) == 0
+    if sri_passed:
+        sri_summary = "Zero unverified external third-party JavaScript CDNs lacking Subresource Integrity (SRI) hashes."
+        sri_fix = None
+    else:
+        sri_summary = (
+            f"Loaded {len(unique_unverified_hosts)} external script source(s) ({', '.join(unique_unverified_hosts[:3])}) without Subresource Integrity (integrity='sha384-...'). "
+            "Exposes site to Magecart / CDN supply-chain backdoor injection."
+        )
+        sri_fix = "Add integrity='sha384-...' and crossorigin='anonymous' to all third-party <script> tags or self-host scripts locally."
 
     return {
         "Reachable": True,
@@ -450,6 +660,12 @@ async def check_http_and_cve_surface(
         "headers_passed": headers_passed,
         "cors_passed": cors_passed,
         "exposure_passed": exposure_passed,
+        "secrets_passed": secrets_passed,
+        "cookie_passed": cookie_passed,
+        "redirect_passed": redirect_passed,
+        "methods_passed": methods_passed,
+        "dos_passed": dos_passed,
+        "sri_passed": sri_passed,
         "is_parked": is_parked,
         "headers_summary": headers_summary,
         "headers_fix": headers_fix,
@@ -457,6 +673,18 @@ async def check_http_and_cve_surface(
         "cors_fix": cors_fix,
         "exposure_summary": exposure_summary,
         "exposure_fix": exposure_fix,
+        "secrets_summary": secrets_summary,
+        "secrets_fix": secrets_fix,
+        "cookie_summary": cookie_summary,
+        "cookie_fix": cookie_fix,
+        "redirect_summary": redirect_summary,
+        "redirect_fix": redirect_fix,
+        "methods_summary": methods_summary,
+        "methods_fix": methods_fix,
+        "dos_summary": dos_summary,
+        "dos_fix": dos_fix,
+        "sri_summary": sri_summary,
+        "sri_fix": sri_fix,
     }
 
 
@@ -546,7 +774,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
 
         ssl_task = asyncio.to_thread(_check_ssl_sync, domain, primary_ip)
         dns_task = check_dns_email_security(doh_client, domain)
-        http_task = check_http_and_cve_surface(probe_client, domain, bool(primary_ip))
+        http_task = check_http_and_cve_surface(probe_client, domain, bool(primary_ip), primary_ip=primary_ip, ip_count=len(ip_list))
 
         ssl_res, dns_res, http_res = await asyncio.gather(ssl_task, dns_task, http_task)
 
@@ -573,7 +801,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
         {
             "gate_id": "1",
             "vector": "TLS / SSL Handshake & Cipher Suite",
-            "cve_ref": "",
+            "cve_ref": "CWE-326",
             "condition": "Valid CA certificate chain, TLS 1.2/1.3 cryptographic transport",
             "state": bool(ssl_res["passed"]),
             "status_label": "VERIFIED (TRUE)" if ssl_res["passed"] else "ATTENTION REQUIRED (FALSE)",
@@ -589,7 +817,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
         {
             "gate_id": "2",
             "vector": "DNS Domain Authentication (SPF & DMARC)",
-            "cve_ref": "",
+            "cve_ref": "CWE-290",
             "condition": "Strict SPF (-all) & enforced DMARC (p=reject / quarantine)",
             "state": bool(dns_res["passed"]),
             "status_label": "VERIFIED (TRUE)" if dns_res["passed"] else "ATTENTION REQUIRED (FALSE)",
@@ -605,7 +833,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
         {
             "gate_id": "3",
             "vector": "Browser Security Headers & Frame Sandboxing",
-            "cve_ref": "",
+            "cve_ref": "CWE-1021",
             "condition": "HSTS, CSP, X-Frame-Options, Nosniff & Permissions-Policy",
             "state": bool(http_res["headers_passed"]),
             "status_label": "VERIFIED (TRUE)" if http_res["headers_passed"] else "ATTENTION REQUIRED (FALSE)",
@@ -621,7 +849,7 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
         {
             "gate_id": "4",
             "vector": "API Cross-Origin Policy & CORS Boundary",
-            "cve_ref": "",
+            "cve_ref": "CWE-942",
             "condition": "Strict origin whitelist on credentialed API responses",
             "state": bool(http_res["cors_passed"]),
             "status_label": "VERIFIED (TRUE)" if http_res["cors_passed"] else "ATTENTION REQUIRED (FALSE)",
@@ -636,9 +864,9 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
         },
         {
             "gate_id": "5",
-            "vector": "Server Banner & Information Masking",
-            "cve_ref": "",
-            "condition": "Zero exposed /.env, /.git files & masked server version banners",
+            "vector": "Exposed Dotfiles, Backups & Server Banners",
+            "cve_ref": "CWE-538",
+            "condition": "Zero exposed /.env, /.git, .bak, /actuator & masked server banners",
             "state": bool(http_res["exposure_passed"]),
             "status_label": "VERIFIED (TRUE)" if http_res["exposure_passed"] else "ATTENTION REQUIRED (FALSE)",
             "severity": "LOW" if http_res["exposure_passed"] else "CRITICAL",
@@ -646,15 +874,111 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "client_action": (
                 "No public configuration files or version banners exposed."
                 if http_res["exposure_passed"]
-                else "Mask Server and X-Powered-By response headers and deny dotfile access at reverse proxy."
+                else "Mask Server and X-Powered-By response headers and deny dotfile/backup access at reverse proxy."
             ),
             "remediation": http_res["exposure_fix"],
         },
         {
             "gate_id": "6",
+            "vector": "DoS / Rate-Limiting & Edge WAF Protection",
+            "cve_ref": "CWE-400",
+            "condition": "Multi-node CDN/WAF edge shield or active HTTP rate-limit telemetry",
+            "state": bool(http_res["dos_passed"]),
+            "status_label": "VERIFIED (TRUE)" if http_res["dos_passed"] else "ATTENTION REQUIRED (FALSE)",
+            "severity": "LOW" if http_res["dos_passed"] else "MEDIUM",
+            "finding": http_res["dos_summary"],
+            "client_action": (
+                "Edge WAF / DoS mitigation active."
+                if http_res["dos_passed"]
+                else "Route traffic through an Edge WAF/CDN (Cloudflare, Vercel, AWS Shield) and enforce rate limits."
+            ),
+            "remediation": http_res["dos_fix"],
+        },
+        {
+            "gate_id": "7",
+            "vector": "Hardcoded Secrets, API Keys & Client Backdoors",
+            "cve_ref": "CWE-798",
+            "condition": "Zero hardcoded API keys, private keys, DB URIs, or .js.map leaks in source",
+            "state": bool(http_res["secrets_passed"]),
+            "status_label": "VERIFIED (TRUE)" if http_res["secrets_passed"] else "ATTENTION REQUIRED (FALSE)",
+            "severity": "LOW" if http_res["secrets_passed"] else "CRITICAL",
+            "finding": http_res["secrets_summary"],
+            "client_action": (
+                "No hardcoded credentials or source-map leaks detected."
+                if http_res["secrets_passed"]
+                else "Rotate leaked keys immediately and move secrets to backend environment variables."
+            ),
+            "remediation": http_res["secrets_fix"],
+        },
+        {
+            "gate_id": "8",
+            "vector": "Session Cookie & Auth Token Hardening",
+            "cve_ref": "CWE-614",
+            "condition": "Secure, HttpOnly, and SameSite flags enforced on Set-Cookie headers",
+            "state": bool(http_res["cookie_passed"]),
+            "status_label": "VERIFIED (TRUE)" if http_res["cookie_passed"] else "ATTENTION REQUIRED (FALSE)",
+            "severity": "LOW" if http_res["cookie_passed"] else "HIGH",
+            "finding": http_res["cookie_summary"],
+            "client_action": (
+                "Session cookie flags properly hardened."
+                if http_res["cookie_passed"]
+                else "Enforce Secure, HttpOnly, and SameSite flags on all session cookies."
+            ),
+            "remediation": http_res["cookie_fix"],
+        },
+        {
+            "gate_id": "9",
+            "vector": "SSRF & Unvalidated Open-Redirect Surface",
+            "cve_ref": "CWE-918",
+            "condition": "Strict allowlist validation on ?redirect=, ?next=, and ?url= parameters",
+            "state": bool(http_res["redirect_passed"]),
+            "status_label": "VERIFIED (TRUE)" if http_res["redirect_passed"] else "ATTENTION REQUIRED (FALSE)",
+            "severity": "LOW" if http_res["redirect_passed"] else "HIGH",
+            "finding": http_res["redirect_summary"],
+            "client_action": (
+                "No open-redirect or SSRF parameter reflection detected."
+                if http_res["redirect_passed"]
+                else "Enforce strict domain allowlists on all redirect and webhook URL parameters."
+            ),
+            "remediation": http_res["redirect_fix"],
+        },
+        {
+            "gate_id": "10",
+            "vector": "HTTP Verb Tampering & Unsafe Methods",
+            "cve_ref": "CWE-749",
+            "condition": "Dangerous HTTP verbs (TRACE, PUT, DELETE) disabled on public routes",
+            "state": bool(http_res["methods_passed"]),
+            "status_label": "VERIFIED (TRUE)" if http_res["methods_passed"] else "ATTENTION REQUIRED (FALSE)",
+            "severity": "LOW" if http_res["methods_passed"] else "MEDIUM",
+            "finding": http_res["methods_summary"],
+            "client_action": (
+                "Unsafe HTTP verbs restricted."
+                if http_res["methods_passed"]
+                else "Disable TRACE, PUT, and DELETE methods on public web server listeners."
+            ),
+            "remediation": http_res["methods_fix"],
+        },
+        {
+            "gate_id": "11",
+            "vector": "Third-Party Script Supply-Chain & SRI Integrity",
+            "cve_ref": "CWE-829",
+            "condition": "External CDN scripts verified with Subresource Integrity (SRI) hashes",
+            "state": bool(http_res["sri_passed"]),
+            "status_label": "VERIFIED (TRUE)" if http_res["sri_passed"] else "ATTENTION REQUIRED (FALSE)",
+            "severity": "LOW" if http_res["sri_passed"] else "MEDIUM",
+            "finding": http_res["sri_summary"],
+            "client_action": (
+                "External scripts protected or self-hosted."
+                if http_res["sri_passed"]
+                else "Add integrity='sha384-...' attributes to external CDN scripts or self-host assets."
+            ),
+            "remediation": http_res["sri_fix"],
+        },
+        {
+            "gate_id": "12",
             "vector": "Network Edge & DNS Routing Resilience",
-            "cve_ref": "",
-            "condition": "Multi-IP redundant DNS resolution and edge proxy listener",
+            "cve_ref": "CWE-693",
+            "condition": "Active DNS resolution and verified TLS termination listener",
             "state": bool(primary_ip and ssl_res["passed"]),
             "status_label": "VERIFIED (TRUE)" if (primary_ip and ssl_res["passed"]) else "ATTENTION REQUIRED (FALSE)",
             "severity": "LOW" if (primary_ip and ssl_res["passed"]) else "MEDIUM",
@@ -668,12 +992,16 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
                 if (primary_ip and ssl_res["passed"])
                 else "Route domain traffic through a verified cloud edge or CDN provider."
             ),
-            "remediation": "Deploy Cloudflare, AWS CloudFront, or Vercel Edge proxy.",
+            "remediation": (
+                None
+                if (primary_ip and ssl_res["passed"])
+                else "Deploy Cloudflare, AWS CloudFront, or Vercel Edge proxy."
+            ),
         },
     ]
 
-    # Surface score: Evaluates real verifiable telemetry across all 6 defense gates
-    weights = [22, 22, 18, 13, 13, 12]
+    # All-around score across all 12 deep security vectors (sums to 100)
+    weights = [14, 14, 12, 8, 10, 8, 10, 6, 6, 4, 4, 4]
     score = sum(w for g, w in zip(gates, weights) if g["state"])
 
     if score >= 95:

@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <div class="telemetry-cell">
               <span>Audit Depth</span>
-              <strong style="color: var(--accent-primary);">6 Perimeter Parameters</strong>
+              <strong style="color: var(--accent-primary);">${escapeHtml(String((data.gates && data.gates.length) || 12))} Deep Security Vectors</strong>
             </div>
           `;
         }
@@ -184,30 +184,36 @@ document.addEventListener("DOMContentLoaded", () => {
           let actionHtml = "";
           if (!g.state) {
             const clientNote = g.client_action
-              ? `<div style="margin-bottom: 8px; color: var(--text-muted); font-size: 0.84rem;">${escapeHtml(g.client_action)}</div>`
+              ? `<div style="margin-bottom: 6px; color: var(--text-muted); font-size: 0.84rem;">${escapeHtml(g.client_action)}</div>`
+              : "";
+            const codeFixBlock = g.remediation
+              ? `<pre style="margin: 6px 0 10px; padding: 10px 12px; background: rgba(11, 17, 32, 0.92); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; color: #38bdf8; font-family: var(--font-mono); font-size: 0.78rem; white-space: pre-wrap; word-break: break-word;">${escapeHtml(g.remediation)}</pre>`
               : "";
 
             const safeDomain = escapeJsArg(data.domain);
             const safeParam = escapeJsArg(g.gate_id);
             const safeVector = escapeJsArg(g.vector);
-            const safeCve = escapeJsArg(g.cve_ref || "2026-CVE");
+            const safeCve = escapeJsArg(g.cve_ref || "CWE");
 
             actionHtml = `
-              <div class="locked-patch-bar">
+              <div class="locked-patch-bar" style="flex-direction: column; align-items: stretch; gap: 8px;">
                 <div>
                   <strong style="color: var(--text-main); display: block; margin-bottom: 3px;">
-                    Remediation Guidance &amp; Engineering Scope
+                    Exact Technical Fix &amp; Configuration Command:
                   </strong>
                   ${clientNote}
+                  ${codeFixBlock}
                 </div>
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  style="padding: 8px 14px; font-size: 0.78rem; white-space: nowrap;"
-                  onclick="requestPatchForGate('${safeDomain}', '${safeParam}', '${safeVector}', '${safeCve}')"
-                >
-                  Deploy Fix with ADX ($350) &rarr;
-                </button>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    style="padding: 7px 14px; font-size: 0.78rem; white-space: nowrap;"
+                    onclick="requestPatchForGate('${safeDomain}', '${safeParam}', '${safeVector}', '${safeCve}')"
+                  >
+                    Deploy Fix with ADX Engineers &rarr;
+                  </button>
+                </div>
               </div>
             `;
           }
