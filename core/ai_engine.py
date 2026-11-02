@@ -32,7 +32,7 @@ def _resilient_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
                         params={"name": host, "type": "A"},
                         headers={"Accept": "application/dns-json"},
                         timeout=4.0,
-                        verify=False,
+                        verify=True,
                     )
                     if r.status_code == 200:
                         for ans in r.json().get("Answer", []):
@@ -177,11 +177,9 @@ async def ask_adx_ai_consultant(
         f"Corporate Motto: 'Silent Innovation. Absolute Defense.' "
         f"You are speaking with {user_name} ({user_company or 'Client Workspace'}). {scan_context_str}\n"
         "ADX Knowledge Base (RAG Context):\n"
-        "- 3 Operating Divisions: ADX Cyber (2026 CVE & Perimeter Security), ADX Cloud & Systems (FastAPI, Docker, Azure/AWS), ADX Intelligence (Private RAG AI Agents).\n"
-        "- 2026 Attack & CVE Signatures Tracked: TLS Cipher Downgrades, CWE-290 (BEC Email Spoofing), CWE-1021 (CSP/Frame Isolation), "
-        "OWASP-API1:2023 (API Authorization & Token Scoping), CVE-2026-109618 (Runtime Multipart OOM Cleanup RCE, CVSS 9.2), "
-        "CVE-2026-109619 (Use-After-Free Stale Worker RCE & API BOLA, CVSS 9.2).\n"
-        "- Why Gate-06 is capped at 88/100: Passive external scans cannot clear internal authenticated API authorization flaws or post-allocation memory corruption; requires a scoped, authorized assessment.\n"
+        "- 3 Operating Divisions: ADX Cyber (Perimeter & Email Security), ADX Cloud & Systems (FastAPI, Docker, Azure/AWS), ADX Intelligence (Private RAG AI Agents).\n"
+        "- Attack & CWE Signatures Tracked: CWE-326 (TLS Cipher Downgrades), CWE-290 (BEC Email Spoofing), CWE-1021 (CSP/Frame Isolation), "
+        "CWE-942 (Permissive CORS Boundaries), OWASP-API1:2023 (API Authorization & Token Scoping), and CWE-538 (Exposed Dotfiles & Runtime Banners).\n"
         "- Formatting Rule: NEVER use asterisks (**), markdown bolding, or hashtag headers (###). Write in clean, natural paragraphs and numbered lines.\n"
         "- Business Rule: Answer any technical, cybersecurity, fintech, coding, or architecture question intelligently, "
         "and invite the client to submit an inquiry through the contact form when they need hands-on engineering remediation."
@@ -189,7 +187,7 @@ async def ask_adx_ai_consultant(
 
     if copilot_token:
         try:
-            async with httpx.AsyncClient(timeout=14.0, verify=False) as client:
+            async with httpx.AsyncClient(timeout=14.0, verify=True) as client:
                 resp = await client.post(
                     "https://api.githubcopilot.com/chat/completions",
                     headers={
@@ -219,41 +217,14 @@ async def ask_adx_ai_consultant(
         except Exception:
             pass
 
-    # Cloud Serverless GPT-4o Engine (Ensures Vercel https://adxgroup.tech always has live LLM reasoning)
-    try:
-        async with httpx.AsyncClient(timeout=14.0, verify=False) as client:
-            resp = await client.post(
-                "https://text.pollinations.ai/openai",
-                headers={"Content-Type": "application/json"},
-                json={
-                    "model": "openai",
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_message},
-                    ],
-                    "temperature": 0.4,
-                },
-            )
-            if resp.status_code == 200 and "choices" in resp.text:
-                data = resp.json()
-                content = _clean_ai_text(data["choices"][0]["message"]["content"])
-                if content:
-                    return {
-                        "gate_3_passed": True,
-                        "reply": content,
-                        "engine": "ADX-Neural-GPT4o (Cloud Serverless)",
-                    }
-    except Exception:
-        pass
-
-    # Fallback Engine (100% clean text, zero asterisks)
+    # Deterministic Local Fallback Engine (Zero third-party data leakage, 100% clean text)
     if latest_scan:
         reply = (
             f"Hello {user_name}. Based on your latest diagnostic for {latest_scan['domain']} "
             f"(Score: {latest_scan['score']}/100, Grade {latest_scan['grade']}), here is my architectural assessment:\n\n"
             f"{latest_scan['summary']}\n\n"
-            "To remediate exposed gates or clear Gate-06 (CVE-2026-109618 / CVE-2026-109619 runtime & API BOLA testing), "
-            "open Tab 4 (Deploy ADX Engineers) to initiate a $350 fixed-scope deployment."
+            "To remediate exposed perimeter gates or schedule a scoped baseline review, "
+            "submit a request through our engineering contact desk."
         )
     else:
         reply = (

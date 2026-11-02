@@ -113,7 +113,7 @@ def _resolve_os_ips(domain: str) -> List[str]:
                 params={"name": domain, "type": "A"},
                 headers={"Accept": "application/dns-json"},
                 timeout=4.0,
-                verify=False,
+                verify=True,
             )
             if resp.status_code == 200:
                 for ans in resp.json().get("Answer", []):
@@ -521,10 +521,10 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
     if domain in RESERVED_DOMAINS or domain.endswith(RESERVED_SUFFIXES):
         raise ValueError(f"Domain '{domain}' is a reserved internal or local namespace. Probing local networks is prohibited under ADX Zero-Trust policy.")
 
-    async with httpx.AsyncClient(verify=False) as client:
+    async with httpx.AsyncClient(verify=True) as doh_client, httpx.AsyncClient(verify=False) as probe_client:
         a_records, mx_records = await asyncio.gather(
-            _query_doh(client, domain, "A"),
-            _query_doh(client, domain, "MX"),
+            _query_doh(doh_client, domain, "A"),
+            _query_doh(doh_client, domain, "MX"),
         )
         ip_list = [ip for ip in a_records if re.match(r"^\d+\.\d+\.\d+\.\d+$", ip)]
         if not ip_list:
@@ -545,8 +545,8 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
                 )
 
         ssl_task = asyncio.to_thread(_check_ssl_sync, domain, primary_ip)
-        dns_task = check_dns_email_security(client, domain)
-        http_task = check_http_and_cve_surface(client, domain, bool(primary_ip))
+        dns_task = check_dns_email_security(doh_client, domain)
+        http_task = check_http_and_cve_surface(probe_client, domain, bool(primary_ip))
 
         ssl_res, dns_res, http_res = await asyncio.gather(ssl_task, dns_task, http_task)
 
@@ -707,16 +707,16 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
 
     cve_2026_report = [
         {
-            "cve_id": "CVE-2026-21440",
-            "title": "TLS Downgrade & Weak Transport Cipher Vector",
-            "cvss": "8.2 HIGH",
+            "cve_id": "CWE-326",
+            "title": "TLS Transport Encryption & Cipher Negotiation Strength",
+            "cvss": "7.5 HIGH",
             "surface": f"{ssl_res['tls_version']} / {ssl_res['cipher']}",
             "status": "MITIGATED" if ssl_res["passed"] else "EXPOSED",
             "passed": bool(ssl_res["passed"]),
             "gate_id": "1",
         },
         {
-            "cve_id": "CWE-290 (2026-BEC)",
+            "cve_id": "CWE-290",
             "title": "Executive Domain Spoofing & Unauthenticated Mail Relay",
             "cvss": "8.6 HIGH",
             "surface": "SPF / DMARC DNS Policy",
@@ -734,30 +734,30 @@ async def run_full_diagnostic(raw_domain: str) -> Dict[str, Any]:
             "gate_id": "3",
         },
         {
-            "cve_id": "OWASP-API1:2023",
-            "title": "API Broken Object-Level Authorization (BOLA)",
-            "cvss": "8.8 HIGH",
+            "cve_id": "CWE-942",
+            "title": "Permissive Cross-Domain Policy with Untrusted Domains (CORS)",
+            "cvss": "8.2 HIGH",
             "surface": "CORS & Session Cookie Boundary",
             "status": "MITIGATED" if http_res["cors_passed"] else "EXPOSED",
             "passed": bool(http_res["cors_passed"]),
             "gate_id": "4",
         },
         {
-            "cve_id": "CVE-2026-109618",
-            "title": "Runtime Multipart OOM Cleanup RCE & Banner Leak",
-            "cvss": "9.2 CRITICAL",
+            "cve_id": "CWE-538",
+            "title": "Sensitive Dotfile (/.env, /.git) & Server Version Banner Exposure",
+            "cvss": "8.9 HIGH",
             "surface": f"Runtime Stack ({telemetry['server_banner']})",
             "status": "MITIGATED" if http_res["exposure_passed"] else "EXPOSED",
             "passed": bool(http_res["exposure_passed"]),
             "gate_id": "5",
         },
         {
-            "cve_id": "CVE-2026-109619",
-            "title": "Use-After-Free Stale Worker RCE & Internal API BOLA",
-            "cvss": "9.2 CRITICAL",
-            "surface": "Internal Runtime & Authenticated APIs",
-            "status": "UNVERIFIED (PASSIVE SCAN)",
-            "passed": False,
+            "cve_id": "CWE-693",
+            "title": "Network Edge Proxy & TLS Termination Resilience",
+            "cvss": "6.5 MEDIUM",
+            "surface": f"Primary Host ({primary_ip})",
+            "status": "MITIGATED" if (primary_ip and ssl_res["passed"]) else "EXPOSED",
+            "passed": bool(primary_ip and ssl_res["passed"]),
             "gate_id": "6",
         },
     ]

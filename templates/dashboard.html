@@ -606,12 +606,12 @@
               </thead>
               <tbody>
                 <tr>
-                  <td style="font-family: var(--font-mono); font-weight: 700; color: #38bdf8;">CVE-2026-109618</td>
-                  <td><span class="badge-false">CVSS 9.2</span></td>
+                  <td style="font-family: var(--font-mono); font-weight: 700; color: #38bdf8;">CWE-538 / CWE-200</td>
+                  <td><span class="badge-false">CVSS 8.9</span></td>
                   <td>
-                    <strong>Runtime Out-of-Memory (OOM) Cleanup RCE</strong>
+                    <strong>Sensitive Dotfile (/.env, /.git) &amp; Runtime Banner Exposure</strong>
                     <div style="font-size: 0.83rem; color: var(--text-muted); margin-top: 3px;">
-                      Malformed multipart requests trigger abrupt OOM termination, leaving memory executable before application logic runs.
+                      Publicly readable environment files and unmasked server version banners expose API keys and runtime fingerprints to automated scanners.
                     </div>
                   </td>
                   <td>
@@ -621,16 +621,16 @@
                   </td>
                 </tr>
                 <tr>
-                  <td style="font-family: var(--font-mono); font-weight: 700; color: #38bdf8;">CVE-2026-109619</td>
-                  <td><span class="badge-false">CVSS 9.2</span></td>
+                  <td style="font-family: var(--font-mono); font-weight: 700; color: #38bdf8;">CWE-942</td>
+                  <td><span class="badge-false">CVSS 8.2</span></td>
                   <td>
-                    <strong>Worker Process Stale-State Use-After-Free</strong>
+                    <strong>Permissive Cross-Origin Resource Sharing (CORS) Boundary</strong>
                     <div style="font-size: 0.83rem; color: var(--text-muted); margin-top: 3px;">
-                      Persistent worker processes reuse freed request state across subsequent HTTP connections, enabling memory disclosure.
+                      Wildcard Access-Control-Allow-Origin headers paired with credentialed cookies allow cross-origin session and token exfiltration.
                     </div>
                   </td>
                   <td>
-                    <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.78rem;" onclick="requestCveRemediation('CVE-2026-109619')">
+                    <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.78rem;" onclick="requestCveRemediation('CWE-942')">
                       Request Patch →
                     </button>
                   </td>

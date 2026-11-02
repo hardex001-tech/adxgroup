@@ -52,6 +52,7 @@ from core.auth import (
     resend_login_2fa_code,
     update_user_profile,
     verify_email_token,
+    verify_google_id_token,
 )
 from core.mailer import get_outbox, send_login_alert
 from core.notifier import get_all_leads, record_client_lead
@@ -174,10 +175,12 @@ class ResetPasswordRequest(BaseModel):
 
 
 class OAuthQuickRequest(BaseModel):
-    provider: str
-    email: str
+    provider: str = "google"
+    email: Optional[str] = ""
     name: Optional[str] = ""
     company: Optional[str] = ""
+    id_token: Optional[str] = ""
+    credential: Optional[str] = ""
 
 
 class AddDomainRequest(BaseModel):
@@ -406,25 +409,28 @@ async def owner_admin_console(request: Request):
 
 def _extract_client_security_context(request: Request) -> Dict[str, Any]:
     """Extract verifiable client IP, detect proxy/VPN hops, and capture user agent."""
+    trust_proxy = bool(os.getenv("VERCEL") or os.getenv("TRUST_PROXY_HEADERS") == "1")
     x_forwarded_for = request.headers.get("x-forwarded-for", "").strip()
     cf_connecting_ip = request.headers.get("cf-connecting-ip", "").strip()
     x_real_ip = request.headers.get("x-real-ip", "").strip()
 
-    ip = "127.0.0.1"
+    ip = request.client.host if (request.client and request.client.host) else "127.0.0.1"
     is_proxy_or_vpn = False
 
-    if cf_connecting_ip:
-        ip = cf_connecting_ip
-    elif x_forwarded_for:
-        parts = [p.strip() for p in x_forwarded_for.split(",") if p.strip()]
-        if parts:
-            ip = parts[0]
-            if len(parts) > 1:
-                is_proxy_or_vpn = True
-    elif x_real_ip:
-        ip = x_real_ip
-    elif request.client and request.client.host:
-        ip = request.client.host
+    if trust_proxy:
+        if cf_connecting_ip:
+            ip = cf_connecting_ip
+        elif x_forwarded_for:
+            parts = [p.strip() for p in x_forwarded_for.split(",") if p.strip()]
+            if parts:
+                ip = parts[-1]
+                if len(parts) > 1:
+                    is_proxy_or_vpn = True
+        elif x_real_ip:
+            ip = x_real_ip
+    elif x_forwarded_for or cf_connecting_ip:
+        # Untrusted direct connection supplying forwarding headers
+        is_proxy_or_vpn = True
 
     proxy_indicators = [
         "via",
@@ -444,6 +450,27 @@ def _extract_client_security_context(request: Request) -> Dict[str, Any]:
         "is_proxy_or_vpn": is_proxy_or_vpn,
         "user_agent": ua,
     }
+
+
+ALLOWED_OAUTH_HOSTS = {
+    "adxgroup.tech",
+    "www.adxgroup.tech",
+    "localhost",
+    "127.0.0.1",
+}
+
+
+def _get_safe_oauth_base_url(request: Request) -> str:
+    """Build OAuth redirect base URL strictly from whitelisted hosts to prevent Host Header Poisoning."""
+    configured = os.environ.get("APP_BASE_URL", "").strip().rstrip("/")
+    if configured:
+        return configured
+    raw_host = request.headers.get("host", "adxgroup.tech").strip().lower()
+    bare_host = raw_host.split(":")[0]
+    if bare_host not in ALLOWED_OAUTH_HOSTS:
+        return "https://adxgroup.tech"
+    proto = "https" if ("adxgroup.tech" in bare_host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
+    return f"{proto}://{raw_host}"
 
 
 def _set_auth_cookie(response: Response, token: str) -> None:
@@ -498,12 +525,14 @@ async def api_register(payload: RegisterRequest):
 
 @asgi_app.post("/api/auth/login")
 async def api_login(request: Request, payload: LoginRequest):
+    sec_ctx = _extract_client_security_context(request)
+    if not _check_rate_limit(f"login:{sec_ctx['ip']}", max_requests=10, window_seconds=300):
+        raise HTTPException(status_code=429, detail="Too many sign-in attempts. Please wait 5 minutes before trying again.")
     try:
         user_identifier = (payload.identifier or payload.email or "").strip()
         if not user_identifier:
             raise HTTPException(status_code=400, detail="Please enter your username or email address.")
 
-        sec_ctx = _extract_client_security_context(request)
         sess = login_email_user(
             identifier=user_identifier,
             password=payload.password,
@@ -552,8 +581,10 @@ class Verify2FARequest(BaseModel):
 @asgi_app.post("/api/auth/verify-2fa")
 async def api_verify_2fa(request: Request, payload: Verify2FARequest):
     """Verify 6-digit OTP confirmation code for anomalous new device or IP login."""
+    sec_ctx = _extract_client_security_context(request)
+    if not _check_rate_limit(f"2fa:{sec_ctx['ip']}", max_requests=5, window_seconds=300):
+        raise HTTPException(status_code=429, detail="Too many verification attempts. Please wait 5 minutes.")
     try:
-        sec_ctx = _extract_client_security_context(request)
         sess = verify_login_2fa_code(payload.email, payload.code, client_ip=sec_ctx["ip"])
         redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
         resp = JSONResponse(
@@ -607,8 +638,11 @@ async def api_resend_verification(request: Request):
 
 
 @asgi_app.post("/api/auth/forgot-password")
-async def api_forgot_password(payload: ForgotPasswordRequest):
+async def api_forgot_password(request: Request, payload: ForgotPasswordRequest):
     """Initiate zero-trust password recovery for a given username or email."""
+    sec_ctx = _extract_client_security_context(request)
+    if not _check_rate_limit(f"forgot:{sec_ctx['ip']}", max_requests=5, window_seconds=600):
+        raise HTTPException(status_code=429, detail="Too many password reset requests. Please wait 10 minutes.")
     try:
         res = request_password_reset(payload.identifier)
         return res
@@ -617,8 +651,11 @@ async def api_forgot_password(payload: ForgotPasswordRequest):
 
 
 @asgi_app.post("/api/auth/reset-password")
-async def api_reset_password(payload: ResetPasswordRequest):
+async def api_reset_password(request: Request, payload: ResetPasswordRequest):
     """Set new password via verified cryptographic reset token or 6-digit OTP."""
+    sec_ctx = _extract_client_security_context(request)
+    if not _check_rate_limit(f"reset:{sec_ctx['ip']}", max_requests=5, window_seconds=600):
+        raise HTTPException(status_code=429, detail="Too many password reset attempts. Please wait 10 minutes.")
     try:
         res = complete_password_reset(payload.token, payload.password)
         return res
@@ -633,13 +670,19 @@ class VerifyCodePayload(BaseModel):
 
 
 @asgi_app.post("/api/auth/verify-code")
-async def api_verify_code(payload: VerifyCodePayload):
+async def api_verify_code(request: Request, payload: VerifyCodePayload):
     """Verify 6-digit confirmation code from dashboard banner."""
     from core.auth import verify_email_token
+    sec_ctx = _extract_client_security_context(request)
+    if not _check_rate_limit(f"vcode:{sec_ctx['ip']}", max_requests=5, window_seconds=300):
+        raise HTTPException(status_code=429, detail="Too many verification attempts. Please wait 5 minutes.")
+    current = _current_user(request)
+    if not current:
+        raise HTTPException(status_code=401, detail="Authentication required to verify account code.")
     clean_code = (payload.code or "").strip()
     if not clean_code or len(clean_code) < 6:
         raise HTTPException(status_code=400, detail="Please enter a valid 6-digit confirmation code.")
-    user = verify_email_token(clean_code)
+    user = verify_email_token(clean_code, user_id=current["id"])
     if not user:
         raise HTTPException(status_code=400, detail="Invalid or expired confirmation code. Please check your email or click Resend.")
     return {"ok": True, "message": "Email identity cryptographically verified!", "user": user}
@@ -647,14 +690,40 @@ async def api_verify_code(payload: VerifyCodePayload):
 
 @asgi_app.post("/api/auth/oauth")
 async def api_oauth_signin(request: Request, payload: OAuthQuickRequest):
-    if not payload.email or "@" not in payload.email:
-        raise HTTPException(status_code=400, detail="Please enter a valid email address.")
+    """
+    Authenticate via cryptographically verified OAuth ID token.
+    Fails closed: Rejects raw unverified client-supplied identity payloads.
+    Requires server-side provider token verification before creating sessions or matching accounts.
+    """
+    token = (payload.id_token or payload.credential or "").strip()
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail="Direct unverified OAuth payloads are disabled. A cryptographically verified provider ID token is required."
+        )
+
+    provider = (payload.provider or "google").strip().lower()
+    if provider != "google":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Direct token authentication is not supported for provider '{payload.provider}'. Please use standard OAuth authorization flow."
+        )
+
+    try:
+        verified = await verify_google_id_token(token)
+    except ValueError as err:
+        raise HTTPException(status_code=401, detail=f"OAuth verification failed: {err}")
+
+    # Bind strictly to verified provider subject and email claims
     sess = create_or_login_oauth_user(
-        email=payload.email,
-        name=payload.name or "",
-        provider=payload.provider,
+        email=verified["email"],
+        name=verified["name"],
+        provider="google",
         company=payload.company or "",
+        provider_sub=verified["sub"],
+        email_verified=True,
     )
+
     sec_ctx = _extract_client_security_context(request)
     try:
         send_login_alert(
@@ -666,6 +735,7 @@ async def api_oauth_signin(request: Request, payload: OAuthQuickRequest):
         )
     except Exception as exc:
         print(f"[OAUTH ALERT ERROR] {exc}")
+
     redirect_to = "/admin" if sess["user"]["role"] == "admin" else "/dashboard"
     resp = JSONResponse(
         content={"ok": True, "user": sess["user"], "token": sess["token"], "redirect": redirect_to}
@@ -684,9 +754,7 @@ async def api_google_login(request: Request, scan: Optional[str] = ""):
             status_code=302,
         )
 
-    host = request.headers.get("host", "adxgroup.tech")
-    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
-    redirect_uri = f"{proto}://{host}/api/auth/google/callback"
+    redirect_uri = f"{_get_safe_oauth_base_url(request)}/api/auth/google/callback"
 
     state_payload = {
         "csrf": secrets.token_urlsafe(16),
@@ -730,9 +798,7 @@ async def api_google_callback(
     client_id = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
     client_secret = os.environ.get("GOOGLE_CLIENT_SECRET", "").strip()
 
-    host = request.headers.get("host", "adxgroup.tech")
-    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
-    redirect_uri = f"{proto}://{host}/api/auth/google/callback"
+    redirect_uri = f"{_get_safe_oauth_base_url(request)}/api/auth/google/callback"
 
     token_url = "https://oauth2.googleapis.com/token"
     token_payload = {
@@ -777,11 +843,21 @@ async def api_google_callback(
     if not email:
         return RedirectResponse(url="/login?error=No+email+returned+from+Google+account.", status_code=302)
 
+    raw_ev = profile.get("verified_email")
+    if raw_ev is None:
+        raw_ev = profile.get("email_verified")
+    is_ev = raw_ev is True or str(raw_ev).lower() in ("true", "1")
+    if not is_ev:
+        return RedirectResponse(url="/login?error=Google+account+email+is+not+verified.", status_code=302)
+
+    sub = str(profile.get("id") or profile.get("sub") or "").strip()
     sess = create_or_login_oauth_user(
         email=email,
         name=name,
         provider="google",
         company="",
+        provider_sub=sub,
+        email_verified=True,
     )
 
     sec_ctx = _extract_client_security_context(request)
@@ -834,36 +910,34 @@ class GoogleTokenPayload(BaseModel):
 @asgi_app.post("/api/auth/google/token")
 async def api_google_token_auth(request: Request, payload: GoogleTokenPayload):
     """Authenticate Google ID Token (credential) from Google Identity Services (GIS)."""
-    async with httpx.AsyncClient(timeout=8.0) as client:
-        res = await client.get(
-            f"https://oauth2.googleapis.com/tokeninfo?id_token={payload.credential}"
-        )
-        if res.status_code != 200:
-            raise HTTPException(status_code=400, detail="Invalid Google ID Token.")
-        info = res.json()
+    token = (payload.credential or "").strip()
+    if not token:
+        raise HTTPException(status_code=400, detail="Missing Google ID Token.")
 
-    email = (info.get("email") or "").strip().lower()
-    name = (info.get("name") or "").strip() or email.split("@")[0].title()
-    if not email:
-        raise HTTPException(status_code=400, detail="Google token did not contain an email address.")
+    try:
+        verified = await verify_google_id_token(token)
+    except ValueError as err:
+        raise HTTPException(status_code=401, detail=f"Google token verification failed: {err}")
 
     sess = create_or_login_oauth_user(
-        email=email,
-        name=name,
+        email=verified["email"],
+        name=verified["name"],
         provider="google",
         company="",
+        provider_sub=verified["sub"],
+        email_verified=True,
     )
 
     sec_ctx = _extract_client_security_context(request)
     try:
         alert_record = send_login_alert(
-            email=email,
-            name=name,
+            email=verified["email"],
+            name=verified["name"],
             ip=sec_ctx["ip"],
             user_agent=sec_ctx["user_agent"],
             is_proxy_or_vpn=sec_ctx["is_proxy_or_vpn"]
         )
-        print(f"[GIS GOOGLE LOGIN ALERT] Dispatched for {email} from IP {sec_ctx['ip']}: {alert_record.get('status')}")
+        print(f"[GIS GOOGLE LOGIN ALERT] Dispatched for {verified['email']} from IP {sec_ctx['ip']}: {alert_record.get('status')}")
     except Exception as exc:
         print(f"[GIS ALERT ERROR] {exc}")
 
@@ -890,9 +964,7 @@ async def api_microsoft_login(request: Request, scan: Optional[str] = ""):
             status_code=302,
         )
 
-    host = request.headers.get("host", "adxgroup.tech")
-    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
-    redirect_uri = f"{proto}://{host}/api/auth/microsoft/callback"
+    redirect_uri = f"{_get_safe_oauth_base_url(request)}/api/auth/microsoft/callback"
 
     state_payload = {"csrf": secrets.token_urlsafe(16), "scan": scan or ""}
     state_str = urllib.parse.quote_plus(json.dumps(state_payload))
@@ -932,9 +1004,7 @@ async def api_microsoft_callback(
 
     client_id = os.environ.get("MICROSOFT_CLIENT_ID", "").strip()
     client_secret = os.environ.get("MICROSOFT_CLIENT_SECRET", "").strip()
-    host = request.headers.get("host", "adxgroup.tech")
-    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
-    redirect_uri = f"{proto}://{host}/api/auth/microsoft/callback"
+    redirect_uri = f"{_get_safe_oauth_base_url(request)}/api/auth/microsoft/callback"
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as http_client:
@@ -976,7 +1046,15 @@ async def api_microsoft_callback(
     if not email:
         return RedirectResponse(url="/login?error=No+email+returned+from+Microsoft+account.", status_code=302)
 
-    sess = create_or_login_oauth_user(email=email, name=name, provider="microsoft", company="")
+    sub = str(profile.get("id") or "").strip()
+    sess = create_or_login_oauth_user(
+        email=email,
+        name=name,
+        provider="microsoft",
+        company="",
+        provider_sub=sub,
+        email_verified=True,
+    )
 
     sec_ctx = _extract_client_security_context(request)
     try:
@@ -1014,9 +1092,7 @@ async def api_github_login(request: Request, scan: Optional[str] = ""):
             status_code=302,
         )
 
-    host = request.headers.get("host", "adxgroup.tech")
-    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
-    redirect_uri = f"{proto}://{host}/api/auth/github/callback"
+    redirect_uri = f"{_get_safe_oauth_base_url(request)}/api/auth/github/callback"
 
     state_payload = {"csrf": secrets.token_urlsafe(16), "scan": scan or ""}
     state_str = urllib.parse.quote_plus(json.dumps(state_payload))
@@ -1053,9 +1129,7 @@ async def api_github_callback(
 
     client_id = os.environ.get("GITHUB_CLIENT_ID", "").strip()
     client_secret = os.environ.get("GITHUB_CLIENT_SECRET", "").strip()
-    host = request.headers.get("host", "adxgroup.tech")
-    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
-    redirect_uri = f"{proto}://{host}/api/auth/github/callback"
+    redirect_uri = f"{_get_safe_oauth_base_url(request)}/api/auth/github/callback"
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as http_client:
@@ -1110,7 +1184,15 @@ async def api_github_callback(
     name = (gh_user.get("name") or gh_user.get("login") or "").strip() or email.split("@")[0].title()
     company = (gh_user.get("company") or "").strip().lstrip("@")
 
-    sess = create_or_login_oauth_user(email=email, name=name, provider="github", company=company)
+    sub = str(gh_user.get("id") or "").strip()
+    sess = create_or_login_oauth_user(
+        email=email,
+        name=name,
+        provider="github",
+        company=company,
+        provider_sub=sub,
+        email_verified=True,
+    )
 
     sec_ctx = _extract_client_security_context(request)
     try:
@@ -1148,9 +1230,7 @@ async def api_apple_login(request: Request, scan: Optional[str] = ""):
             status_code=302,
         )
 
-    host = request.headers.get("host", "adxgroup.tech")
-    proto = "https" if ("adxgroup.tech" in host or request.headers.get("x-forwarded-proto") == "https") else request.url.scheme
-    redirect_uri = f"{proto}://{host}/api/auth/apple/callback"
+    redirect_uri = f"{_get_safe_oauth_base_url(request)}/api/auth/apple/callback"
 
     state_payload = {"csrf": secrets.token_urlsafe(16), "scan": scan or ""}
     state_str = urllib.parse.quote_plus(json.dumps(state_payload))

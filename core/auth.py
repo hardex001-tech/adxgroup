@@ -165,6 +165,11 @@ def init_db() -> None:
             "ALTER TABLE users ADD COLUMN temp_2fa_code TEXT DEFAULT ''",
             "ALTER TABLE users ADD COLUMN temp_2fa_expires TEXT DEFAULT ''",
             "ALTER TABLE users ADD COLUMN temp_2fa_pending_ip TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN provider_sub TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN oauth_provider TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN verification_expires TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN reset_expires TEXT DEFAULT ''",
+            "ALTER TABLE users ADD COLUMN failed_reset_attempts INTEGER DEFAULT 0",
         ):
             try:
                 conn.execute(col_stmt)
@@ -191,12 +196,131 @@ def _now_str() -> str:
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
 
-def create_or_login_oauth_user(email: str, name: str, provider: str = "google", company: str = "") -> Dict[str, Any]:
-    """Sign in or register a user via Google OAuth identity provider."""
+def _future_str(minutes: int = 15) -> str:
+    return (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=minutes)).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+
+def _is_expired(expires_str: str) -> bool:
+    if not expires_str:
+        return False
+    try:
+        exp_dt = datetime.datetime.strptime(expires_str, "%Y-%m-%d %H:%M:%S UTC").replace(tzinfo=datetime.timezone.utc)
+        return datetime.datetime.now(datetime.timezone.utc) > exp_dt
+    except Exception:
+        return True
+
+
+async def verify_google_id_token(
+    token: str,
+    expected_client_id: Optional[str] = None,
+    http_client: Optional[Any] = None,
+) -> Dict[str, Any]:
+    """
+    Cryptographically verify a Google ID token server-side via Google's tokeninfo API.
+    Validates:
+      - Token presence and format
+      - Token signature via Google tokeninfo
+      - Issuer: 'accounts.google.com' or 'https://accounts.google.com'
+      - Audience / Client ID: Must match configured application client ID
+      - Expiration: Must not be expired
+      - Verified email: 'email_verified' claim must be True
+      - Subject: 'sub' identifier must be present
+    Returns verified claims dict: {'sub': ..., 'email': ..., 'name': ..., 'email_verified': True, 'provider': 'google'}.
+    Raises ValueError on any validation failure. Never logs the token itself.
+    """
+    clean_token = (token or "").strip()
+    if not clean_token:
+        raise ValueError("Missing ID token.")
+
+    client_id = (expected_client_id or os.environ.get("GOOGLE_CLIENT_ID", "")).strip()
+    if not client_id:
+        raise ValueError("Server OAuth configuration error: GOOGLE_CLIENT_ID is not configured.")
+
+    token_url = "https://oauth2.googleapis.com/tokeninfo"
+    try:
+        import httpx
+        if http_client:
+            res = await http_client.get(token_url, params={"id_token": clean_token})
+        else:
+            async with httpx.AsyncClient(timeout=8.0) as client:
+                res = await client.get(token_url, params={"id_token": clean_token})
+
+        if res.status_code != 200:
+            raise ValueError("Invalid Google ID token signature or expired token.")
+        info = res.json()
+    except ValueError:
+        raise
+    except Exception as exc:
+        raise ValueError(f"Provider token verification service unreachable: {exc}")
+
+    # Validate Issuer
+    iss = info.get("iss", "")
+    if iss not in ("accounts.google.com", "https://accounts.google.com"):
+        raise ValueError(f"Untrusted token issuer: {iss}")
+
+    # Validate Audience
+    aud = info.get("aud", "")
+    if aud != client_id:
+        raise ValueError("Token audience does not match configured application client ID.")
+
+    # Validate Expiry
+    try:
+        exp = int(info.get("exp", 0))
+    except (ValueError, TypeError):
+        exp = 0
+    if exp <= time.time():
+        raise ValueError("Google ID token has expired.")
+
+    # Validate Email Verified
+    raw_ev = info.get("email_verified")
+    is_ev = raw_ev is True or str(raw_ev).lower() in ("true", "1")
+    if not is_ev:
+        raise ValueError("Google account email is not verified.")
+
+    # Validate Subject
+    sub = str(info.get("sub", "")).strip()
+    if not sub:
+        raise ValueError("Google token missing subject identifier.")
+
+    # Validate Email
+    email = str(info.get("email", "")).strip().lower()
+    if not email or "@" not in email:
+        raise ValueError("Google token did not contain a valid email address.")
+
+    name = str(info.get("name", "")).strip() or email.split("@")[0].title()
+
+    return {
+        "sub": sub,
+        "email": email,
+        "name": name,
+        "email_verified": True,
+        "provider": "google",
+    }
+
+
+def create_or_login_oauth_user(
+    email: str,
+    name: str,
+    provider: str = "google",
+    company: str = "",
+    provider_sub: str = "",
+    email_verified: bool = True,
+) -> Dict[str, Any]:
+    """Sign in or register a user via cryptographically verified OAuth identity provider."""
     init_db()
+    if not email_verified:
+        raise ValueError("OAuth identity cannot be accepted without provider email verification.")
+
     clean_email = email.strip().lower()
+    if not clean_email or "@" not in clean_email:
+        raise ValueError("A valid verified email address is required.")
+
     clean_name = name.strip() or clean_email.split("@")[0].title()
-    role = "admin" if clean_email in OWNER_EMAILS else "client"
+    clean_provider = (provider or "google").strip().lower()
+    clean_sub = (provider_sub or "").strip()
+
+    # Trusted server-side admin policy: only verified emails matching OWNER_EMAILS receive admin
+    role = "admin" if (clean_email in OWNER_EMAILS and email_verified) else "client"
 
     with _get_conn() as conn:
         deleted = conn.execute("SELECT 1 FROM deleted_accounts WHERE email = ?", (clean_email,)).fetchone()
@@ -206,9 +330,20 @@ def create_or_login_oauth_user(email: str, name: str, provider: str = "google", 
         row = conn.execute("SELECT * FROM users WHERE email = ?", (clean_email,)).fetchone()
         if row:
             user_id = row["id"]
+            row_keys = row.keys() if hasattr(row, "keys") else []
+            existing_sub = row["provider_sub"] if "provider_sub" in row_keys else ""
+            if existing_sub and clean_sub and existing_sub != clean_sub:
+                raise ValueError("Identity mismatch: provider subject does not match existing account binding.")
+
             conn.execute(
-                "UPDATE users SET email_verified = 1 WHERE id = ?",
-                (user_id,),
+                """
+                UPDATE users 
+                SET email_verified = 1,
+                    provider_sub = CASE WHEN (provider_sub IS NULL OR provider_sub = '') THEN ? ELSE provider_sub END,
+                    oauth_provider = CASE WHEN (oauth_provider IS NULL OR oauth_provider = '') THEN ? ELSE oauth_provider END
+                WHERE id = ?
+                """,
+                (clean_sub, clean_provider, user_id),
             )
             if role == "admin" and row["role"] != "admin":
                 conn.execute("UPDATE users SET role = 'admin' WHERE id = ?", (user_id,))
@@ -217,10 +352,10 @@ def create_or_login_oauth_user(email: str, name: str, provider: str = "google", 
             clean_username = clean_email.split("@")[0].lower()
             cur = conn.execute(
                 """
-                INSERT INTO users (name, email, username, company, password_hash, provider, role, email_verified, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)
+                INSERT INTO users (name, email, username, company, password_hash, provider, role, email_verified, provider_sub, oauth_provider, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
                 """,
-                (clean_name, clean_email, clean_username, company.strip(), random_pw, provider, role, _now_str()),
+                (clean_name, clean_email, clean_username, company.strip(), random_pw, clean_provider, role, clean_sub, clean_provider, _now_str()),
             )
             user_id = cur.lastrowid
         conn.commit()
@@ -239,11 +374,14 @@ def register_email_user(name: str, email: str, password: str, company: str = "",
     if len(password) < 6:
         raise ValueError("Password must be at least 6 characters.")
 
-    role = "admin" if clean_email in OWNER_EMAILS else "client"
+    # Security policy: Self-supplied registration payloads must never grant admin role.
+    # Admin authorization requires trusted server-side policy and verified identity.
+    role = "client"
     pw_hash = _hash_password(password)
     v_token = secrets.token_urlsafe(32)
     v_code = f"{secrets.randbelow(900000) + 100000}"
-    is_verified = 1 if role == "admin" else 0
+    v_expires = _future_str(minutes=24 * 60)
+    is_verified = 0
 
     with _get_conn() as conn:
         conn.execute("DELETE FROM deleted_accounts WHERE email = ?", (clean_email,))
@@ -253,10 +391,10 @@ def register_email_user(name: str, email: str, password: str, company: str = "",
 
         cur = conn.execute(
             """
-            INSERT INTO users (name, email, username, company, password_hash, provider, role, email_verified, verification_token, verification_code, created_at)
-            VALUES (?, ?, ?, ?, ?, 'email', ?, ?, ?, ?, ?)
+            INSERT INTO users (name, email, username, company, password_hash, provider, role, email_verified, verification_token, verification_code, verification_expires, created_at)
+            VALUES (?, ?, ?, ?, ?, 'email', ?, ?, ?, ?, ?, ?)
             """,
-            (clean_name, clean_email, clean_username, company.strip(), pw_hash, role, is_verified, v_token, v_code, _now_str()),
+            (clean_name, clean_email, clean_username, company.strip(), pw_hash, role, is_verified, v_token, v_code, v_expires, _now_str()),
         )
         user_id = cur.lastrowid
         conn.commit()
@@ -271,21 +409,35 @@ def register_email_user(name: str, email: str, password: str, company: str = "",
     return create_session(user_id)
 
 
-def verify_email_token(token_or_code: str) -> Optional[Dict[str, Any]]:
+def verify_email_token(token_or_code: str, user_id: Optional[int] = None) -> Optional[Dict[str, Any]]:
     """Validate verification token or 6-digit OTP code and mark account verified."""
     clean_val = (token_or_code or "").strip()
     if not clean_val:
         return None
     init_db()
     with _get_conn() as conn:
-        row = conn.execute(
-            "SELECT * FROM users WHERE verification_token = ? OR verification_code = ?",
-            (clean_val, clean_val),
-        ).fetchone()
+        # 6-digit numeric OTP codes must be bound to the authenticated user_id to prevent cross-account brute-forcing
+        if clean_val.isdigit() and len(clean_val) <= 8:
+            if not user_id:
+                return None
+            row = conn.execute(
+                "SELECT * FROM users WHERE id = ? AND verification_code = ?",
+                (user_id, clean_val),
+            ).fetchone()
+        else:
+            row = conn.execute(
+                "SELECT * FROM users WHERE verification_token = ?",
+                (clean_val,),
+            ).fetchone()
+
         if not row:
             return None
+        row_dict = dict(row)
+        if _is_expired(row_dict.get("verification_expires", "")):
+            return None
+
         conn.execute(
-            "UPDATE users SET email_verified = 1, verification_token = '', verification_code = '' WHERE id = ?",
+            "UPDATE users SET email_verified = 1, verification_token = '', verification_code = '', verification_expires = '' WHERE id = ?",
             (row["id"],),
         )
         conn.commit()
@@ -298,13 +450,14 @@ def resend_verification_email(user_id: int) -> Dict[str, Any]:
     init_db()
     v_token = secrets.token_urlsafe(32)
     v_code = f"{secrets.randbelow(900000) + 100000}"
+    v_expires = _future_str(minutes=24 * 60)
     with _get_conn() as conn:
         row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
         if not row:
             raise ValueError("Account not found.")
         conn.execute(
-            "UPDATE users SET verification_token = ?, verification_code = ? WHERE id = ?",
-            (v_token, v_code, user_id),
+            "UPDATE users SET verification_token = ?, verification_code = ?, verification_expires = ? WHERE id = ?",
+            (v_token, v_code, v_expires, user_id),
         )
         conn.commit()
         from core.mailer import send_verification_email
@@ -331,9 +484,10 @@ def request_password_reset(identifier: str) -> Dict[str, Any]:
 
         reset_token = secrets.token_urlsafe(32)
         reset_code = f"{secrets.randbelow(900000) + 100000}"
+        reset_expires = _future_str(minutes=15)
         conn.execute(
-            "UPDATE users SET reset_token = ?, reset_code = ? WHERE id = ?",
-            (reset_token, reset_code, row["id"]),
+            "UPDATE users SET reset_token = ?, reset_code = ?, reset_expires = ?, failed_reset_attempts = 0 WHERE id = ?",
+            (reset_token, reset_code, reset_expires, row["id"]),
         )
         conn.commit()
 
@@ -350,7 +504,7 @@ def request_password_reset(identifier: str) -> Dict[str, Any]:
         }
 
 
-def complete_password_reset(token_or_code: str, new_password: str) -> Dict[str, Any]:
+def complete_password_reset(token_or_code: str, new_password: str, email: Optional[str] = None) -> Dict[str, Any]:
     """Validate reset token or 6-digit code and update user's password."""
     init_db()
     clean_val = (token_or_code or "").strip()
@@ -360,16 +514,43 @@ def complete_password_reset(token_or_code: str, new_password: str) -> Dict[str, 
         raise ValueError("Password must be at least 6 characters.")
 
     with _get_conn() as conn:
-        row = conn.execute(
-            "SELECT * FROM users WHERE reset_token = ? OR reset_code = ?",
-            (clean_val, clean_val),
-        ).fetchone()
+        if clean_val.isdigit() and len(clean_val) <= 8:
+            clean_email = (email or "").strip().lower()
+            if clean_email:
+                user_row = conn.execute("SELECT * FROM users WHERE email = ?", (clean_email,)).fetchone()
+                if user_row and user_row["reset_code"] and user_row["reset_code"] != clean_val:
+                    attempts = int(dict(user_row).get("failed_reset_attempts") or 0) + 1
+                    if attempts >= 5:
+                        conn.execute("UPDATE users SET reset_code = '', reset_token = '', reset_expires = '', failed_reset_attempts = 0 WHERE id = ?", (user_row["id"],))
+                    else:
+                        conn.execute("UPDATE users SET failed_reset_attempts = ? WHERE id = ?", (attempts, user_row["id"]))
+                    conn.commit()
+                    raise ValueError("Invalid or expired password reset token. Please request a new link.")
+                row = user_row if (user_row and secrets.compare_digest(user_row["reset_code"] or "", clean_val)) else None
+            else:
+                # Without email binding, only accept high-entropy 32-byte reset_token, or enforce strict attempt counter
+                row = conn.execute(
+                    "SELECT * FROM users WHERE reset_code = ? AND failed_reset_attempts < 5",
+                    (clean_val,),
+                ).fetchone()
+        else:
+            row = conn.execute(
+                "SELECT * FROM users WHERE reset_token = ?",
+                (clean_val,),
+            ).fetchone()
+
         if not row:
             raise ValueError("Invalid or expired password reset token. Please request a new link.")
 
+        row_dict = dict(row)
+        if _is_expired(row_dict.get("reset_expires", "")):
+            conn.execute("UPDATE users SET reset_token = '', reset_code = '', reset_expires = '' WHERE id = ?", (row["id"],))
+            conn.commit()
+            raise ValueError("Password reset token has expired. Please request a new link.")
+
         new_hash = _hash_password(new_password)
         conn.execute(
-            "UPDATE users SET password_hash = ?, reset_token = '', reset_code = '' WHERE id = ?",
+            "UPDATE users SET password_hash = ?, reset_token = '', reset_code = '', reset_expires = '', failed_reset_attempts = 0 WHERE id = ?",
             (new_hash, row["id"]),
         )
         conn.commit()
@@ -400,12 +581,7 @@ def login_email_user(identifier: str, password: str, client_ip: str = "", is_pro
         if row:
             role = row["role"]
             if not _verify_password(password, row["password_hash"]):
-                if role == "admin" and (clean_id in OWNER_EMAILS or row["email"] in OWNER_EMAILS):
-                    pw_hash = _hash_password(password)
-                    conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (pw_hash, row["id"]))
-                    conn.commit()
-                else:
-                    raise ValueError("Incorrect password. Please verify your credentials or click Create Account.")
+                raise ValueError("Incorrect password. Please verify your credentials or click Create Account.")
             user_id = row["id"]
             user_email = row["email"]
             user_name = row["name"]
@@ -448,21 +624,7 @@ def login_email_user(identifier: str, password: str, client_ip: str = "", is_pro
                 conn.commit()
 
         else:
-            if "@" not in clean_id:
-                raise ValueError("Account not found. Please verify your username/email or click Create Account.")
-            clean_email = clean_id
-            role = "admin" if clean_email in OWNER_EMAILS else "client"
-            clean_name = clean_email.split("@")[0].title()
-            pw_hash = _hash_password(password)
-            cur = conn.execute(
-                """
-                INSERT INTO users (name, email, username, company, password_hash, provider, role, last_login_ip, known_ips, created_at)
-                VALUES (?, ?, ?, '', ?, 'email', ?, ?, ?, ?)
-                """,
-                (clean_name, clean_email, clean_email.split("@")[0].lower(), pw_hash, role, client_ip, client_ip, _now_str()),
-            )
-            user_id = cur.lastrowid
-            conn.commit()
+            raise ValueError("Invalid email or password. Please verify your credentials or click Create Account.")
 
     return create_session(user_id)
 
@@ -481,8 +643,13 @@ def verify_login_2fa_code(email: str, code: str, client_ip: str = "") -> Dict[st
             raise ValueError("Account not found.")
 
         stored_code = row["temp_2fa_code"] or ""
-        if not stored_code or stored_code != clean_code:
+        if not stored_code or not secrets.compare_digest(stored_code, clean_code):
             raise ValueError("Invalid verification code. Please check your email or click Resend Code.")
+
+        if _is_expired(row["temp_2fa_expires"] or ""):
+            conn.execute("UPDATE users SET temp_2fa_code = '', temp_2fa_expires = '' WHERE id = ?", (row["id"],))
+            conn.commit()
+            raise ValueError("Verification code has expired. Please click Resend Code.")
 
         # Approve this IP into known_ips
         current_known = [ip.strip() for ip in (row["known_ips"] or "").split(",") if ip.strip()]
