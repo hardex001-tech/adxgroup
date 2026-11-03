@@ -8,8 +8,8 @@
   <link rel="icon" type="image/svg+xml" href="/assets/brand/favicon.svg" />
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon.png" />
-  <link rel="stylesheet" href="/static/css/tokens.css?v=2026.65" />
-  <link rel="stylesheet" href="/static/css/style.css?v=2026.65" />
+  <link rel="stylesheet" href="/static/css/tokens.css?v=2026.1102" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.1102" />
   <style>
     *, *::before, *::after {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif !important;
@@ -25,23 +25,22 @@
       min-height: calc(100vh - 160px);
     }
     .console-sidebar {
-      background: rgba(15, 23, 42, 0.88);
-      border: 1px solid rgba(56, 189, 248, 0.24);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 16px;
       padding: 20px 14px;
       height: fit-content;
       position: sticky;
       top: 90px;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
-      backdrop-filter: blur(16px);
-      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 10px 25px -5px rgba(15, 23, 42, 0.04);
+      color: #0f172a;
     }
     .identity-card-mini {
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 8px 10px 18px;
-      border-bottom: 1px solid var(--border-subtle);
+      border-bottom: 1px solid #e2e8f0;
       margin-bottom: 14px;
     }
     .avatar-circle {
@@ -56,7 +55,7 @@
       font-weight: 800;
       font-size: 1.05rem;
       flex-shrink: 0;
-      box-shadow: 0 0 14px rgba(37, 99, 235, 0.45);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
     }
     .side-nav-btn {
       display: flex;
@@ -68,7 +67,7 @@
       border-radius: 10px;
       border: 1px solid transparent;
       background: transparent;
-      color: #94a3b8;
+      color: #475569;
       font-size: 0.89rem;
       font-weight: 600;
       cursor: pointer;
@@ -77,16 +76,16 @@
       font-family: var(--font-sans);
     }
     .side-nav-btn:hover {
-      background: rgba(30, 41, 59, 0.85);
-      color: #ffffff;
-      border-color: rgba(255, 255, 255, 0.08);
+      background: #f8fafc;
+      color: #0f172a;
+      border-color: #e2e8f0;
     }
     .side-nav-btn.active {
-      background: rgba(37, 99, 235, 0.25);
-      border-color: rgba(56, 189, 248, 0.5);
-      color: #38bdf8;
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1d4ed8;
       font-weight: 700;
-      box-shadow: 0 0 14px rgba(56, 189, 248, 0.18);
+      box-shadow: none;
     }
     .domain-pill-grid {
       display: grid;
@@ -95,15 +94,15 @@
       margin-top: 16px;
     }
     .domain-card {
-      background: rgba(15, 23, 42, 0.88);
-      border: 1px solid rgba(56, 189, 248, 0.2);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      color: #ffffff;
+      color: #0f172a;
     }
     .grade-circle {
       width: 44px;
@@ -115,10 +114,9 @@
       font-family: var(--font-mono);
       font-weight: 800;
       font-size: 1.1rem;
-      background: rgba(37, 99, 235, 0.2);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
     }
     .identity-grid {
       display: grid;
@@ -127,22 +125,22 @@
       margin-bottom: 24px;
     }
     .identity-field {
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.18);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 10px;
       padding: 14px 16px;
     }
     .identity-field span {
       display: block;
       font-size: 0.74rem;
-      color: #94a3b8;
+      color: #64748b;
       text-transform: uppercase;
       letter-spacing: 0.6px;
       margin-bottom: 4px;
     }
     .identity-field strong {
       font-size: 0.94rem;
-      color: #ffffff;
+      color: #0f172a;
       word-break: break-all;
     }
     .quick-chip {
@@ -185,7 +183,7 @@
           <polygon points="56,194 84,194 198,62 170,62" fill="#0ea5e9"/>
         </svg>
         <div style="display: flex; align-items: baseline; gap: 6px;">
-          <span style="font-weight: 800; font-size: 1.15rem; letter-spacing: 0.04em; color: #ffffff;">ADX GROUP</span>
+          <span style="font-weight: 800; font-size: 1.15rem; letter-spacing: 0.04em; color: #0f172a;">ADX GROUP</span>
           <span style="font-size: 0.65rem; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.08em;">CONSOLE</span>
         </div>
       </a>
@@ -258,27 +256,27 @@
     <!-- Right Workspace Content -->
     <main>
 
-      <!-- Real-Time Zero-Trust Security Notification (Clean, modern session status) -->
-      <div id="login-security-notice" style="background: rgba(15, 23, 42, 0.92); border: 1px solid rgba(56, 189, 248, 0.22); border-left: 4px solid #38bdf8; border-radius: 12px; padding: 12px 18px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35); backdrop-filter: blur(12px);">
+      <!-- Real-Time Zero-Trust Security Notification (Clean 2026/2027 Precision Status) -->
+      <div id="login-security-notice" style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb; border-radius: 12px; padding: 12px 18px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);">
         <div style="display: flex; align-items: center; gap: 12px; min-width: 260px;">
-          <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <div style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></div>
+          <div style="width: 32px; height: 32px; border-radius: 50%; background: #eff6ff; border: 1px solid #bfdbfe; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: #059669; box-shadow: 0 0 6px rgba(5, 150, 105, 0.4);"></div>
           </div>
           <div>
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <strong style="color: #ffffff; font-size: 0.88rem; font-weight: 600;">Active Authenticated Session</strong>
+              <strong style="color: #0f172a; font-size: 0.88rem; font-weight: 700;">Active Authenticated Session</strong>
               <span class="badge-true" style="font-size: 0.66rem; font-weight: 700; padding: 1px 6px;">SECURE</span>
             </div>
-            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 2px;">
-              Signed in as <strong style="color: #38bdf8;">{{ user.email }}</strong> via <strong style="color: #ffffff;">{{ user.provider | upper }} OAuth</strong> &bull; Edge IP: <strong style="color: #cbd5e1;">{{ client_ip or 'Verified Sovereign Edge' }}</strong> &bull; {{ login_time }}
+            <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">
+              Signed in as <strong style="color: #2563eb;">{{ user.email }}</strong> via <strong style="color: #0f172a;">{{ user.provider | upper }} OAuth</strong> &bull; Edge IP: <strong style="color: #334155;">{{ client_ip or 'Verified Sovereign Edge' }}</strong> &bull; {{ login_time }}
             </div>
           </div>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
-          <button type="button" class="btn btn-outline" style="padding: 5px 12px; font-size: 0.76rem; border-color: rgba(56, 189, 248, 0.35); color: #38bdf8;" onclick="openSecurityLedger()">
+          <button type="button" class="btn btn-outline" style="padding: 5px 12px; font-size: 0.78rem; font-weight: 600;" onclick="openSecurityLedger()">
             Security Ledger
           </button>
-          <button type="button" class="btn btn-outline" style="padding: 5px 9px; font-size: 0.76rem; border-color: rgba(255, 255, 255, 0.15); color: #94a3b8;" onclick="document.getElementById('login-security-notice').style.display = 'none';" title="Dismiss">
+          <button type="button" class="btn btn-outline" style="padding: 5px 9px; font-size: 0.78rem;" onclick="document.getElementById('login-security-notice').style.display = 'none';" title="Dismiss">
             &times;
           </button>
         </div>
@@ -311,15 +309,15 @@
 
       <!-- TAB: Overview (Task E) -->
       <div id="tab-view-overview" class="console-tab-view">
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid #e2e8f0;">
           <div>
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
               <span class="view-tag" style="margin-bottom: 0;">INFRASTRUCTURE TELEMETRY</span>
               <span style="font-size: 0.75rem; color: #64748b;">&bull;</span>
               <span style="font-size: 0.75rem; color: #94a3b8;">Continuous Perimeter Inspection</span>
             </div>
-            <h1 class="view-title" style="font-size: 1.85rem; font-weight: 800; color: #ffffff; letter-spacing: -0.025em; margin: 0; line-height: 1.2;">Enterprise Security Posture</h1>
-            <p style="font-size: 0.88rem; color: #94a3b8; margin: 6px 0 0 0;">Comprehensive 12-vector cryptographic, DNS, and HTTP security diagnostics.</p>
+            <h1 class="view-title" style="font-size: 1.85rem; font-weight: 800; color: #0f172a; letter-spacing: -0.025em; margin: 0; line-height: 1.2;">Enterprise Security Posture</h1>
+            <p style="font-size: 0.88rem; color: #64748b; margin: 6px 0 0 0;">Comprehensive 12-vector cryptographic, DNS, and HTTP security diagnostics.</p>
           </div>
           <button type="button" class="btn btn-primary" onclick="switchConsoleTab('scanner')" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; font-size: 0.86rem; font-weight: 600; border-radius: 8px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -334,55 +332,55 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 24px;">
           
           <!-- Card 1: Risk Score Card -->
-          <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.22); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
-            <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #38bdf8, #2563eb);"></div>
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <span style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em;">Perimeter Security Score</span>
-                <span id="overview-live-badge" style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.68rem; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 7px; border-radius: 999px;">
-                  <span style="width: 5px; height: 5px; border-radius: 50%; background: #10b981;"></span> Live Telemetry
-                </span>
-              </div>
-              <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px;">
-                <div id="overview-score-val" style="font-size: 2.3rem; font-weight: 800; color: #ffffff; line-height: 1; letter-spacing: -0.03em;">{{ latest_scan_detail.score }}<span style="font-size: 1.15rem; color: #64748b; font-weight: 500;">/100</span></div>
-                <span id="overview-grade-val" style="font-size: 0.76rem; font-weight: 700; color: {{ '#10b981' if latest_scan_detail.score >= 75 else '#fbbf24' }}; background: {{ 'rgba(16, 185, 129, 0.12)' if latest_scan_detail.score >= 75 else 'rgba(245, 158, 11, 0.12)' }}; border: 1px solid {{ 'rgba(16, 185, 129, 0.3)' if latest_scan_detail.score >= 75 else 'rgba(245, 158, 11, 0.3)' }}; padding: 2px 7px; border-radius: 5px;">Grade {{ latest_scan_detail.grade }}</span>
-              </div>
-              <div style="width: 100%; height: 5px; background: rgba(255, 255, 255, 0.08); border-radius: 999px; overflow: hidden; margin-bottom: 10px;">
-                <div style="width: {{ latest_scan_detail.score }}%; height: 100%; background: {{ '#10b981' if latest_scan_detail.score >= 75 else '#fbbf24' }}; border-radius: 999px;"></div>
-              </div>
-            </div>
-            <p id="overview-risk-val" style="font-size: 0.8rem; color: #94a3b8; margin: 0; line-height: 1.4;">{{ latest_scan_detail.risk_level }}</p>
-          </div>
-
-          <!-- Card 2: Latest Scan -->
-          <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.22); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px -4px rgba(15, 23, 42, 0.04);">
             <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2563eb, #38bdf8);"></div>
             <div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <span style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em;">Target Host</span>
-                <span style="font-size: 0.68rem; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 7px; border-radius: 999px;">Verified Host</span>
+                <span style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Perimeter Security Score</span>
+                <span id="overview-live-badge" style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.68rem; font-weight: 700; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 999px;">
+                  <span style="width: 5px; height: 5px; border-radius: 50%; background: #059669;"></span> Live Telemetry
+                </span>
               </div>
-              <div id="overview-domain-val" style="font-weight: 700; color: #ffffff; font-size: 1.15rem; margin-bottom: 6px; letter-spacing: -0.01em; word-break: break-all;">{{ latest_scan_detail.domain }}</div>
-              <div id="overview-passed-val" style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #10b981; font-weight: 600; margin-bottom: 12px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px;">
+                <div id="overview-score-val" style="font-size: 2.3rem; font-weight: 800; color: #0f172a; line-height: 1; letter-spacing: -0.03em;">{{ latest_scan_detail.score }}<span style="font-size: 1.15rem; color: #94a3b8; font-weight: 500;">/100</span></div>
+                <span id="overview-grade-val" style="font-size: 0.76rem; font-weight: 700; color: {{ '#047857' if latest_scan_detail.score >= 75 else '#b45309' }}; background: {{ '#ecfdf5' if latest_scan_detail.score >= 75 else '#fffbeb' }}; border: 1px solid {{ '#a7f3d0' if latest_scan_detail.score >= 75 else '#fde68a' }}; padding: 2px 7px; border-radius: 5px;">Grade {{ latest_scan_detail.grade }}</span>
+              </div>
+              <div style="width: 100%; height: 6px; background: #f1f5f9; border-radius: 999px; overflow: hidden; margin-bottom: 10px;">
+                <div style="width: {{ latest_scan_detail.score }}%; height: 100%; background: {{ '#059669' if latest_scan_detail.score >= 75 else '#d97706' }}; border-radius: 999px;"></div>
+              </div>
+            </div>
+            <p id="overview-risk-val" style="font-size: 0.8rem; color: #64748b; margin: 0; line-height: 1.4;">{{ latest_scan_detail.risk_level }}</p>
+          </div>
+
+          <!-- Card 2: Latest Scan -->
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px -4px rgba(15, 23, 42, 0.04);">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #0284c7, #2563eb);"></div>
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Target Host</span>
+                <span style="font-size: 0.68rem; font-weight: 700; color: #1d4ed8; background: #eff6ff; border: 1px solid #bfdbfe; padding: 2px 7px; border-radius: 999px;">Verified Host</span>
+              </div>
+              <div id="overview-domain-val" style="font-weight: 700; color: #0f172a; font-size: 1.15rem; margin-bottom: 6px; letter-spacing: -0.01em; word-break: break-all;">{{ latest_scan_detail.domain }}</div>
+              <div id="overview-passed-val" style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #047857; font-weight: 600; margin-bottom: 12px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                 <span>{{ latest_scan_detail.passed_count }} of {{ latest_scan_detail.total_gates }} Vectors Passed</span>
               </div>
             </div>
-            <a id="overview-rescan-link" href="javascript:void(0)" onclick="triggerQuickScan('{{ latest_scan_detail.domain }}')" style="display: inline-flex; align-items: center; gap: 6px; color: #38bdf8; font-size: 0.82rem; font-weight: 600; text-decoration: none;">
+            <a id="overview-rescan-link" href="javascript:void(0)" onclick="triggerQuickScan('{{ latest_scan_detail.domain }}')" style="display: inline-flex; align-items: center; gap: 6px; color: #2563eb; font-size: 0.82rem; font-weight: 600; text-decoration: none;">
               <span>Re-run 12-Vector Audit</span> &rarr;
             </a>
           </div>
 
           <!-- Card 3: Open Fixes -->
-          <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid {{ 'rgba(16, 185, 129, 0.25)' if (latest_failed | length) == 0 else 'rgba(239, 68, 68, 0.3)' }}; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
-            <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: {{ '#10b981' if (latest_failed | length) == 0 else '#ef4444' }};"></div>
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px -4px rgba(15, 23, 42, 0.04);">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: {{ '#059669' if (latest_failed | length) == 0 else '#dc2626' }};"></div>
             <div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <span style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em;">Active Findings</span>
-                <span id="overview-issues-badge" style="font-size: 0.68rem; font-weight: 700; color: {{ '#10b981' if (latest_failed | length) == 0 else '#f87171' }}; background: {{ 'rgba(16, 185, 129, 0.12)' if (latest_failed | length) == 0 else 'rgba(239, 68, 68, 0.12)' }}; border: 1px solid {{ 'rgba(16, 185, 129, 0.3)' if (latest_failed | length) == 0 else 'rgba(239, 68, 68, 0.3)' }}; padding: 2px 7px; border-radius: 999px;">{{ latest_failed | length }} Actionable</span>
+                <span style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Active Findings</span>
+                <span id="overview-issues-badge" style="font-size: 0.68rem; font-weight: 700; color: {{ '#047857' if (latest_failed | length) == 0 else '#b91c1c' }}; background: {{ '#ecfdf5' if (latest_failed | length) == 0 else '#fef2f2' }}; border: 1px solid {{ '#a7f3d0' if (latest_failed | length) == 0 else '#fecaca' }}; padding: 2px 7px; border-radius: 999px;">{{ latest_failed | length }} Actionable</span>
               </div>
-              <div id="overview-issues-val" style="font-size: 2rem; font-weight: 800; color: {{ '#10b981' if (latest_failed | length) == 0 else '#f87171' }}; margin-bottom: 6px; line-height: 1; letter-spacing: -0.02em;">{{ latest_failed | length }} Issue{{ '' if (latest_failed | length) == 1 else 's' }}</div>
-              <p id="overview-issues-desc" style="font-size: 0.8rem; color: #cbd5e1; margin: 0 0 10px 0; line-height: 1.45;">
+              <div id="overview-issues-val" style="font-size: 2rem; font-weight: 800; color: {{ '#047857' if (latest_failed | length) == 0 else '#b91c1c' }}; margin-bottom: 6px; line-height: 1; letter-spacing: -0.02em;">{{ latest_failed | length }} Issue{{ '' if (latest_failed | length) == 1 else 's' }}</div>
+              <p id="overview-issues-desc" style="font-size: 0.8rem; color: #475569; margin: 0 0 10px 0; line-height: 1.45;">
                 {% if latest_failed %}
                   Attention: {{ latest_failed | map(attribute='vector') | join(', ') }}
                 {% else %}
@@ -390,24 +388,24 @@
                 {% endif %}
               </p>
             </div>
-            <a href="#overview-fixes-section" style="display: inline-flex; align-items: center; gap: 6px; color: {{ '#10b981' if (latest_failed | length) == 0 else '#f87171' }}; font-size: 0.82rem; font-weight: 600; text-decoration: none;">
+            <a href="#overview-fixes-section" style="display: inline-flex; align-items: center; gap: 6px; color: {{ '#047857' if (latest_failed | length) == 0 else '#b91c1c' }}; font-size: 0.82rem; font-weight: 600; text-decoration: none;">
               <span>{{ 'Clean Sheet Confirmed' if (latest_failed | length) == 0 else 'Review Remediations Below' }}</span> &darr;
             </a>
           </div>
 
-          <!-- Card 4: Next-Step Button Card -->
-          <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.18) 0%, rgba(15, 23, 42, 0.85) 100%); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
-            <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #38bdf8, #818cf8);"></div>
+          <!-- Card 4: Hardening Engine Card -->
+          <div style="background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border: 1px solid #bfdbfe; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px -4px rgba(15, 23, 42, 0.04);">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2563eb, #6366f1);"></div>
             <div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <span style="font-size: 0.72rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.06em;">Hardening Engine</span>
-                <span style="font-size: 0.68rem; font-weight: 700; color: #a5b4fc; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.35); padding: 2px 7px; border-radius: 999px;">Continuous</span>
+                <span style="font-size: 0.72rem; font-weight: 700; color: #1d4ed8; text-transform: uppercase; letter-spacing: 0.06em;">Hardening Engine</span>
+                <span style="font-size: 0.68rem; font-weight: 700; color: #4338ca; background: #e0e7ff; border: 1px solid #c7d2fe; padding: 2px 7px; border-radius: 999px;">Continuous</span>
               </div>
-              <div style="font-weight: 800; color: #ffffff; font-size: 1.05rem; margin-bottom: 6px; letter-spacing: -0.01em;">Remediation Dispatch</div>
-              <p style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.45; margin: 0;">Automated copy-paste patches for TLS ciphers, DNS records, and security headers.</p>
+              <div style="font-weight: 800; color: #0f172a; font-size: 1.05rem; margin-bottom: 6px; letter-spacing: -0.01em;">Remediation Dispatch</div>
+              <p style="font-size: 0.8rem; color: #475569; line-height: 1.45; margin: 0;">Automated copy-paste patches for TLS ciphers, DNS records, and security headers.</p>
             </div>
             <div style="margin-top: 14px;">
-              <button type="button" onclick="switchConsoleTab('scanner')" class="btn btn-outline" style="width: 100%; justify-content: center; font-size: 0.82rem; font-weight: 600; padding: 8px 14px; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; background: rgba(56, 189, 248, 0.06);">
+              <button type="button" onclick="switchConsoleTab('scanner')" class="btn btn-outline" style="width: 100%; justify-content: center; font-size: 0.82rem; font-weight: 600; padding: 8px 14px; border-color: #cbd5e1; color: #2563eb; background: #ffffff;">
                 Open 12-Vector Matrix &rarr;
               </button>
             </div>
@@ -417,19 +415,19 @@
         <!-- Open Fixes Prioritized List from Real Latest Scan -->
         <div id="overview-fixes-section" style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px; margin-bottom: 24px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 id="overview-fixes-title" style="font-size: 1.05rem; color: #ffffff; margin: 0;">Open Perimeter Fixes on {{ latest_scan_detail.domain }}</h3>
+            <h3 id="overview-fixes-title" style="font-size: 1.05rem; color: #0f172a; margin: 0;">Open Perimeter Fixes on {{ latest_scan_detail.domain }}</h3>
             <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8;">Live Audit Findings</span>
           </div>
 
           <div id="overview-fixes-list" style="display: grid; gap: 12px;">
           {% if latest_failed %}
             {% for fg in latest_failed %}
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: rgba(11, 18, 32, 0.6); border: 1px solid var(--border-subtle); border-left: 3px solid #ef4444; border-radius: 8px; padding: 14px 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: #ffffff; border: 1px solid #e2e8f0; border-left: 3px solid #dc2626; border-radius: 8px; padding: 14px 16px;">
               <div style="flex: 1; min-width: 240px;">
-                <div style="font-size: 0.9rem; font-weight: 600; color: #ffffff; margin-bottom: 2px;">Vector {{ fg.gate_id }}: {{ fg.vector }} {% if fg.cve_ref %}<span class="cve-tag" style="margin-left: 6px;">{{ fg.cve_ref }}</span>{% endif %}</div>
+                <div style="font-size: 0.9rem; font-weight: 600; color: #0f172a; margin-bottom: 2px;">Vector {{ fg.gate_id }}: {{ fg.vector }} {% if fg.cve_ref %}<span class="cve-tag" style="margin-left: 6px;">{{ fg.cve_ref }}</span>{% endif %}</div>
                 <div style="font-size: 0.8rem; color: #94a3b8;">{{ fg.finding }}</div>
                 {% if fg.remediation %}
-                <div style="font-family: var(--font-mono); font-size: 0.76rem; color: #38bdf8; margin-top: 6px; background: rgba(15, 23, 42, 0.9); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.25); white-space: pre-wrap;">{{ fg.remediation }}</div>
+                <div style="font-family: var(--font-mono); font-size: 0.76rem; color: #38bdf8; margin-top: 6px; background: #f8fafc; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0; color: #0f172a; white-space: pre-wrap;">{{ fg.remediation }}</div>
                 {% endif %}
               </div>
               <button type="button" class="btn btn-primary" style="font-size: 0.76rem; padding: 6px 12px;" onclick="requestPatchForGate('{{ latest_scan_detail.domain }}', '{{ fg.gate_id }}', '{{ fg.vector }}', '{{ fg.cve_ref }}')">Deploy Fix &rarr;</button>
@@ -444,7 +442,7 @@
         <!-- Complete 12-Vector Audit Matrix Right on Overview -->
         <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px; margin-bottom: 24px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
-            <h3 id="overview-matrix-title" style="font-size: 1.05rem; color: #ffffff; margin: 0;">Complete 12-Vector Security Matrix ({{ latest_scan_detail.domain }})</h3>
+            <h3 id="overview-matrix-title" style="font-size: 1.05rem; color: #0f172a; margin: 0;">Complete 12-Vector Security Matrix ({{ latest_scan_detail.domain }})</h3>
             <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #10b981;">{{ latest_scan_detail.timestamp }}</span>
           </div>
           <div class="truth-table-wrap" style="margin-bottom: 0;">
@@ -556,14 +554,14 @@
           </div>
           <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px; margin-bottom: 24px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-              <h3 id="overview-fixes-title" style="font-size: 1.05rem; color: #ffffff; margin: 0;">Open Perimeter Fixes</h3>
+              <h3 id="overview-fixes-title" style="font-size: 1.05rem; color: #0f172a; margin: 0;">Open Perimeter Fixes</h3>
               <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8;">Live Audit Findings</span>
             </div>
             <div id="overview-fixes-list" style="display: grid; gap: 12px;"></div>
           </div>
           <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 22px; margin-bottom: 24px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
-              <h3 id="overview-matrix-title" style="font-size: 1.05rem; color: #ffffff; margin: 0;">Complete 12-Vector Security Matrix</h3>
+              <h3 id="overview-matrix-title" style="font-size: 1.05rem; color: #0f172a; margin: 0;">Complete 12-Vector Security Matrix</h3>
               <span id="overview-matrix-ts" style="font-family: var(--font-mono); font-size: 0.72rem; color: #10b981;"></span>
             </div>
             <div class="truth-table-wrap" style="margin-bottom: 0;">
@@ -1236,7 +1234,7 @@
     </div>
   </div>
 
-  <script src="/static/js/main.js?v=2026.65"></script>
+  <script src="/static/js/main.js?v=2026.1102"></script>
   <script>
     function copyText(val, btnId, successText = "Copied!") {
       if (!navigator.clipboard) {
