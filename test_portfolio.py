@@ -17,10 +17,16 @@ def test_portfolio_home_is_simple_and_complete():
     assert 'id="projects"' in response.text
     assert 'id="guild"' in response.text
     assert 'id="contact"' in response.text
-    assert "🛡️ S3 Shield Defense" in response.text
-    assert "⚡ NetGuard Scanner" in response.text
-    assert "🎯 Canary Deception Trap" in response.text
-    assert "🔐 SQLi Exploitation Lab" in response.text
+    assert "S3 Shield Defense" in response.text
+    assert "NetGuard Scanner" in response.text
+    assert "Canary Deception Trap" in response.text
+    assert "SQLi Exploitation Lab" in response.text
+    assert "Discuss a Security Assessment" in response.text
+    assert "Explore Engineering Work" in response.text
+    assert "🛡️" not in response.text
+    assert "⚡" not in response.text
+    assert "🎯" not in response.text
+    assert "🔐" not in response.text
     assert "https://github.com/hardex001-tech/S3-Shield-Protocol-Defense-Lab" in response.text
     assert "https://github.com/hardex001-tech/netguard-scanner" in response.text
     assert "https://github.com/hardex001-tech/Canary-Poison-Deception-Trap" in response.text
