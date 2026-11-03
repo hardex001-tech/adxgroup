@@ -1,5 +1,14 @@
 const menuButton = document.querySelector(".menu-button");
 const mobileMenu = document.querySelector(".mobile-menu");
+const founderPhoto = document.querySelector(".signature-photo");
+const founderFallback = document.querySelector(".signature-fallback");
+
+if (founderPhoto && founderFallback) {
+  founderPhoto.addEventListener("error", () => {
+    founderPhoto.hidden = true;
+    founderFallback.hidden = false;
+  });
+}
 
 if (menuButton && mobileMenu) {
   menuButton.addEventListener("click", () => {

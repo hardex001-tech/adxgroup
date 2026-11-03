@@ -12,6 +12,7 @@ def test_portfolio_home_is_simple_and_complete():
     assert "Offensive Research.<br><em>Automated Defense.</em>" in response.text
     assert "Abdulrazaq Adeyemi" in response.text
     assert "Founder, ADX Group" in response.text
+    assert "security weaknesses across public infrastructure" in response.text
     assert "Domain &amp; Email Armor" in response.text
     assert 'id="projects"' in response.text
     assert 'id="guild"' in response.text
@@ -37,6 +38,8 @@ def test_portfolio_home_is_simple_and_complete():
     assert 'src="/assets/brand/logo-lockup.svg"' in response.text
     assert 'href="/static/css/style.css?v=2"' in response.text
     assert 'src="/assets/profile.jpg?v=2"' in response.text
+    assert "signature-fallback" in response.text
+    assert "initiative in development" in response.text
     assert 'property="og:url"' in response.text
     assert 'name="twitter:card"' in response.text
 
