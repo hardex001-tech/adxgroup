@@ -9,16 +9,18 @@ client = TestClient(asgi_app)
 def test_portfolio_home_is_simple_and_complete():
     response = client.get("/")
     assert response.status_code == 200
-    assert "Small ideas." in response.text
+    assert "Security that" in response.text
+    assert "Domain &amp; email integrity" in response.text
+    assert "The guild" in response.text
     assert 'id="work"' in response.text
-    assert 'id="about"' in response.text
+    assert 'id="guild"' in response.text
     assert 'id="contact"' in response.text
-    assert "ArmorLLM — AI Security Audit Engine" in response.text
+    assert "ArmorLLM" in response.text
     assert "https://github.com/hardex001-tech/JobHunter" in response.text
     assert "https://github.com/hardex001-tech/Sentinel-X" in response.text
     assert 'rel="canonical"' in response.text
     assert 'property="og:image"' in response.text
-    assert 'src="/assets/profile.jpg"' in response.text
+    assert 'src="/assets/brand/logo-lockup-tagline.svg"' in response.text
     assert "https://www.linkedin.com/in/abdulrazaq-adeyemi-b874103b1" in response.text
 
 

@@ -1,4 +1,4 @@
-"""Small FastAPI site for the ADX Group student portfolio."""
+"""FastAPI site for ADX Group's defensive engineering collective."""
 
 import os
 import smtplib
@@ -16,8 +16,8 @@ from pydantic import BaseModel, EmailStr
 BASE_DIR = Path(__file__).resolve().parent
 
 asgi_app = FastAPI(
-    title="ADX Group | Student developer portfolio",
-    description="A simple portfolio for Abdulrazaq Adeyemi.",
+    title="ADX Group | Practical security automation",
+    description="Remote-first defensive engineering for growing teams.",
     version="1.0.0",
 )
 # Vercel's Python runtime looks for the conventional `app` entrypoint.
