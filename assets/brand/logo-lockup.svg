@@ -1,13 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 64" width="100%" height="100%" fill="none">
-  <!-- Brand Mark Icon (64x64 on Left) -->
-  <g transform="translate(4, 4) scale(0.21875)">
-    <polygon points="128,14 230,70 230,186 128,242 26,186 26,70" stroke="#0284c7" stroke-width="14" stroke-linejoin="round" fill="none" />
-    <polygon points="128,46 68,194 104,194 128,132" fill="#0284c7" />
-    <polygon points="128,46 128,132 152,194 188,194" fill="#0369a1" />
-    <polygon points="74,76 102,76 188,194 160,194" fill="#0284c7" />
-    <polygon points="56,194 84,194 198,62 170,62" fill="#2563eb" />
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" width="100%" height="100%" fill="none">
+  <!-- Clean Architectural Monogram Tile -->
+  <rect x="0" y="4" width="40" height="40" rx="10" fill="#0f172a" />
+  <path d="M 20 12 L 32 36 L 26 36 L 20 24 L 14 36 L 8 36 Z" fill="#ffffff" />
+  <polygon points="20,24.5 24,32.5 16,32.5" fill="#2563eb" />
 
-  <!-- Wordmark 'ADX GROUP' -->
-  <text x="74" y="42" fill="#0f172a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif" font-size="28" font-weight="900" letter-spacing="1.5">ADX GROUP</text>
+  <!-- Clean Wordmark 'ADX GROUP' -->
+  <text x="52" y="31" fill="#0f172a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, sans-serif" font-size="20" font-weight="800" letter-spacing="1">ADX GROUP</text>
 </svg>

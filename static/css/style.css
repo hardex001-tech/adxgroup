@@ -71,14 +71,7 @@ html {
 }
 
 body {
-  background-color: var(--bg-primary);
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(37, 99, 235, 0.07) 0%, transparent 70%),
-    radial-gradient(circle at 85% 80%, rgba(2, 132, 199, 0.04) 0%, transparent 60%),
-    linear-gradient(rgba(15, 23, 42, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 23, 42, 0.025) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
-  background-attachment: fixed;
+  background-color: #f8fafc;
   color: var(--text-main);
   font-family: var(--font-sans);
   line-height: 1.65;
@@ -87,29 +80,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Universal Subtle Watermark Emblem */
-.watermark-logo {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 720px;
-  max-width: 90vw;
-  height: auto;
-  opacity: 0.02;
-  pointer-events: none;
-  z-index: 0;
-}
-
+/* Watermark & Canvas Disabled for Clean Enterprise Aesthetic */
+.watermark-logo,
 #adx-quantum-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.18;
+  display: none !important;
 }
 
 .navbar,
