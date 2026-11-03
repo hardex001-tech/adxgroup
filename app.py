@@ -55,7 +55,7 @@ async def add_security_headers(request: Request, call_next):
 class ContactRequest(BaseModel):
     name: str
     email: EmailStr
-    scope: Literal["Audit", "Hardening", "Guild Collaboration"]
+    scope: Literal["Perimeter Audit", "Pipeline Hardening", "Guild Collaboration"]
     message: str
     website: str = ""
 
