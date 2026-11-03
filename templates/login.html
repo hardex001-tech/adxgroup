@@ -9,17 +9,17 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon.png" />
   <meta property="og:image" content="https://adxgroup.tech/assets/brand/og-image.png" />
-  <link rel="stylesheet" href="/static/css/style.css?v=2026.1102" />
+  <link rel="stylesheet" href="/static/css/style.css?v=2026.1103" />
   <style>
     :root {
-      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
-      --card-bg: rgba(15, 23, 42, 0.82);
-      --text-main: #ffffff;
-      --text-muted: #94a3b8;
-      --border-subtle: rgba(255, 255, 255, 0.1);
-      --border-focus: #38bdf8;
-      --accent-blue: #38bdf8;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border-subtle: #e2e8f0;
+      --border-focus: #2563eb;
+      --accent-blue: #2563eb;
     }
 
     * {
@@ -29,15 +29,15 @@
     }
 
     body {
-      background-color: #0b1120;
+      background-color: #f8fafc;
       background-image: 
-        radial-gradient(ellipse 70% 50% at 50% -10%, rgba(37, 99, 235, 0.35) 0%, transparent 75%),
-        radial-gradient(circle at 85% 80%, rgba(2, 132, 199, 0.22) 0%, transparent 60%),
-        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        radial-gradient(ellipse 70% 50% at 50% -10%, rgba(37, 99, 235, 0.08) 0%, transparent 70%),
+        radial-gradient(circle at 85% 80%, rgba(2, 132, 199, 0.05) 0%, transparent 60%),
+        linear-gradient(rgba(15, 23, 42, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.025) 1px, transparent 1px);
       background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
       background-attachment: fixed;
-      color: #f8fafc;
+      color: #0f172a;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -53,11 +53,10 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 860px;
-      max-width: 95vw;
+      width: 760px;
+      max-width: 90vw;
       height: auto;
-      opacity: 0.065;
-      filter: drop-shadow(0 0 100px rgba(37, 99, 235, 0.6));
+      opacity: 0.025;
       pointer-events: none;
       z-index: 1;
     }
@@ -78,24 +77,21 @@
       max-width: 1120px;
       display: grid;
       grid-template-columns: 480px 1fr;
-      gap: 42px;
+      gap: 48px;
       align-items: center;
     }
 
-    /* Left Card: Sleek Obsidian Cyber Glass Command Console */
+    /* Left Card: Clean Porcelain Command Console */
     .auth-card {
-      background: rgba(15, 23, 42, 0.84);
-      border: 1px solid rgba(56, 189, 248, 0.28);
-      border-top: 1px solid rgba(56, 189, 248, 0.55);
-      border-radius: 24px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-top: 3px solid #2563eb;
+      border-radius: 20px;
       padding: 38px 34px;
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
       box-shadow: 
-        0 0 0 1px rgba(255, 255, 255, 0.05),
-        0 25px 65px -15px rgba(0, 0, 0, 0.8),
-        0 0 45px -10px rgba(37, 99, 235, 0.35);
-      color: #f8fafc;
+        0 1px 3px rgba(15, 23, 42, 0.04),
+        0 20px 45px -10px rgba(15, 23, 42, 0.08);
+      color: #0f172a;
       position: relative;
     }
 
@@ -122,9 +118,9 @@
       gap: 7px;
       padding: 4px 12px;
       border-radius: 999px;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(52, 211, 153, 0.35);
-      color: #34d399;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #047857;
       font-family: var(--font-mono);
       font-size: 0.7rem;
       font-weight: 700;
@@ -137,12 +133,11 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 8px #10b981;
+      background: #059669;
     }
 
     .auth-header h1 {
-      font-size: 1.55rem;
+      font-size: 1.6rem;
       font-weight: 800;
       color: #0f172a;
       margin-bottom: 6px;
@@ -150,9 +145,9 @@
     }
 
     .auth-header p {
-      font-size: 0.86rem;
-      color: #94a3b8;
-      line-height: 1.45;
+      font-size: 0.88rem;
+      color: #475569;
+      line-height: 1.5;
     }
 
     /* 4-Provider Responsive SSO Grid */
@@ -170,36 +165,36 @@
       gap: 9px;
       padding: 10px 12px;
       border-radius: 10px;
-      background: rgba(30, 41, 59, 0.75);
-      color: #f8fafc;
-      border: 1px solid #e2e8f0;
-      font-size: 0.85rem;
+      background: #ffffff;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      font-size: 0.86rem;
       font-weight: 600;
       font-family: var(--font-sans);
       text-decoration: none;
       cursor: pointer;
       transition: all 0.18s ease;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     }
 
     .btn-sso:hover {
-      background: rgba(51, 65, 85, 0.95);
-      border-color: rgba(56, 189, 248, 0.6);
-      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+      background: #f8fafc;
+      border-color: #94a3b8;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
       color: #0f172a;
       transform: translateY(-1px);
     }
 
-    .btn-sso-google:hover { border-color: #4285f4; box-shadow: 0 4px 16px rgba(66, 133, 244, 0.3); }
-    .btn-sso-ms:hover { border-color: #05a6f0; box-shadow: 0 4px 16px rgba(5, 166, 240, 0.3); }
-    .btn-sso-gh:hover { border-color: #f8fafc; box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2); }
-    .btn-sso-apple:hover { border-color: #f8fafc; box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2); }
+    .btn-sso-google:hover { border-color: #4285f4; }
+    .btn-sso-ms:hover { border-color: #05a6f0; }
+    .btn-sso-gh:hover { border-color: #0f172a; }
+    .btn-sso-apple:hover { border-color: #000000; }
 
     .divider {
       display: flex;
       align-items: center;
       text-align: center;
-      color: #94a3b8;
+      color: #64748b;
       font-size: 0.72rem;
       font-family: var(--font-mono);
       letter-spacing: 0.08em;
@@ -210,7 +205,7 @@
     .divider::after {
       content: "";
       flex: 1;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid #e2e8f0;
     }
 
     .divider:not(:empty)::before { margin-right: 14px; }
@@ -219,31 +214,32 @@
     /* Switch Tabs */
     .auth-tabs {
       display: flex;
-      background: rgba(11, 17, 32, 0.85);
+      background: #f1f5f9;
       border-radius: 10px;
       padding: 4px;
       margin-bottom: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid #e2e8f0;
     }
 
     .auth-tab {
       flex: 1;
       text-align: center;
       padding: 8px;
-      font-size: 0.82rem;
+      font-size: 0.84rem;
       font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
-      color: #94a3b8;
+      color: #64748b;
       background: transparent;
       border: none;
       transition: all 0.16s ease;
     }
 
     .auth-tab.active {
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      background: #ffffff;
       color: #0f172a;
-      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.45);
+      font-weight: 700;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
     }
 
     .form-group {
@@ -254,7 +250,7 @@
       display: block;
       font-size: 0.82rem;
       font-weight: 600;
-      color: #cbd5e1;
+      color: #0f172a;
       margin-bottom: 6px;
     }
 
@@ -263,23 +259,23 @@
       height: 42px;
       padding: 0 12px;
       border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      background: rgba(11, 17, 32, 0.85);
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
       color: #0f172a;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       font-family: var(--font-sans);
       outline: none;
       transition: all 0.15s ease;
     }
 
     .form-control:focus {
-      border-color: #38bdf8;
-      background: rgba(11, 17, 32, 0.98);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22);
+      border-color: #2563eb;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     }
 
     .form-control::placeholder {
-      color: #64748b;
+      color: #94a3b8;
     }
 
     .pwd-field-wrap {
@@ -300,7 +296,7 @@
       transform: translateY(-50%);
       background: transparent;
       border: none;
-      color: #94a3b8;
+      color: #64748b;
       cursor: pointer;
       padding: 4px;
       display: flex;
@@ -311,29 +307,28 @@
     }
 
     .pwd-eye-btn:hover {
-      color: var(--accent-blue);
+      color: #2563eb;
     }
 
     .btn-submit {
       width: 100%;
       height: 44px;
       border-radius: 10px;
-      border: 1px solid #38bdf8;
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-      color: #0f172a;
+      border: 1px solid #1d4ed8;
+      background: #2563eb;
+      color: #ffffff !important;
       font-weight: 700;
       font-size: 0.92rem;
       cursor: pointer;
       font-family: var(--font-sans);
       margin-top: 6px;
       transition: all 0.18s ease;
-      box-shadow: 0 4px 18px rgba(37, 99, 235, 0.4);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
     }
 
     .btn-submit:hover {
-      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-      border-color: #60a5fa;
-      box-shadow: 0 6px 24px rgba(37, 99, 235, 0.6);
+      background: #1d4ed8;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
       transform: translateY(-1px);
     }
 
@@ -351,14 +346,14 @@
     }
 
     .auth-footer a {
-      color: #64748b;
+      color: #475569;
       font-size: 0.82rem;
       text-decoration: none;
       transition: color 0.15s ease;
     }
 
     .auth-footer a:hover {
-      color: #38bdf8;
+      color: #2563eb;
     }
 
     /* Right Column: High-Tech Enterprise Architecture Showcase */
@@ -374,7 +369,11 @@
       font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.08em;
-      color: #60a5fa;
+      color: #1d4ed8;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 3px 10px;
+      border-radius: 999px;
       text-transform: uppercase;
       margin-bottom: 14px;
     }
@@ -390,7 +389,7 @@
 
     .showcase-subtitle {
       font-size: 0.98rem;
-      color: #94a3b8;
+      color: #475569;
       line-height: 1.6;
       margin-bottom: 28px;
       max-width: 540px;
@@ -404,20 +403,20 @@
     }
 
     .pillar-item {
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(12px);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 14px;
-      padding: 16px 18px;
+      padding: 18px 20px;
       display: flex;
       gap: 14px;
       align-items: flex-start;
       transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
     }
 
     .pillar-item:hover {
-      border-color: rgba(96, 165, 250, 0.4);
-      background: rgba(30, 41, 59, 0.85);
+      border-color: #cbd5e1;
+      box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.08);
       transform: translateY(-2px);
     }
 
@@ -425,9 +424,9 @@
       width: 40px;
       height: 40px;
       border-radius: 10px;
-      background: rgba(37, 99, 235, 0.2);
-      border: 1px solid rgba(96, 165, 250, 0.35);
-      color: #60a5fa;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #2563eb;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -436,16 +435,16 @@
     }
 
     .pillar-content h3 {
-      font-size: 0.95rem;
+      font-size: 0.98rem;
       font-weight: 700;
       color: #0f172a;
       margin-bottom: 4px;
     }
 
     .pillar-content p {
-      font-size: 0.83rem;
-      color: #94a3b8;
-      line-height: 1.45;
+      font-size: 0.85rem;
+      color: #475569;
+      line-height: 1.5;
     }
 
     .cred-strip {
@@ -454,9 +453,9 @@
       gap: 12px;
       flex-wrap: wrap;
       padding-top: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid #e2e8f0;
       font-size: 0.8rem;
-      color: #94a3b8;
+      color: #64748b;
       font-family: var(--font-mono);
     }
 
@@ -464,7 +463,7 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #10b981;
+      background: #059669;
     }
 
     .hidden {
@@ -1230,6 +1229,6 @@
     }
 
   </script>
-  <script src="/static/js/main.js?v=2026.1102"></script>
+  <script src="/static/js/main.js?v=2026.1103"></script>
 </body>
 </html>
