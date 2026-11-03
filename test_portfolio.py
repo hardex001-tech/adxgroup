@@ -13,7 +13,13 @@ def test_portfolio_home_is_simple_and_complete():
     assert 'id="work"' in response.text
     assert 'id="about"' in response.text
     assert 'id="contact"' in response.text
-    assert "StudyFlow" in response.text
+    assert "ArmorLLM — AI Security Audit Engine" in response.text
+    assert "https://github.com/hardex001-tech/JobHunter" in response.text
+    assert "https://github.com/hardex001-tech/Sentinel-X" in response.text
+    assert 'rel="canonical"' in response.text
+    assert 'property="og:image"' in response.text
+    assert 'src="/assets/profile.jpg"' in response.text
+    assert "https://www.linkedin.com/in/abdulrazaq-adeyemi-b874103b1" in response.text
 
 
 def test_contact_form_accepts_valid_message(monkeypatch):

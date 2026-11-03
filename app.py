@@ -97,7 +97,21 @@ async def contact(request: Request, payload: ContactRequest):
         raise HTTPException(status_code=400, detail="Name and message are required.")
     if len(payload.message.strip()) > 2000:
         raise HTTPException(status_code=400, detail="Message must be under 2,000 characters.")
-    smtp_password = os.getenv("SMTP_PASSWORD") or os.getenv("ZOHO_PASSWORD")
+    gmail_user = os.getenv("GMAIL_USER", "").strip()
+    gmail_password = os.getenv("GMAIL_APP_PASSWORD", "").strip()
+    if gmail_user and gmail_password:
+        smtp_host = "smtp.gmail.com"
+        smtp_port = 587
+        smtp_username = gmail_user
+        smtp_password = gmail_password
+        smtp_security = "tls"
+    else:
+        smtp_host = "smtp.zoho.com"
+        smtp_port = 465
+        smtp_username = "contact@adxgroup.tech"
+        smtp_password = (os.getenv("SMTP_PASSWORD") or os.getenv("ZOHO_PASSWORD") or "").strip()
+        smtp_security = "ssl"
+
     if not smtp_password:
         raise HTTPException(
             status_code=503,
@@ -105,7 +119,7 @@ async def contact(request: Request, payload: ContactRequest):
         )
 
     email = EmailMessage()
-    email["From"] = "contact@adxgroup.tech"
+    email["From"] = smtp_username
     email["To"] = "contact@adxgroup.tech"
     email["Reply-To"] = str(payload.email)
     email["Subject"] = f"Portfolio message from {payload.name.strip()}"
@@ -115,8 +129,13 @@ async def contact(request: Request, payload: ContactRequest):
         f"Message:\n{payload.message.strip()}\n"
     )
     try:
-        with smtplib.SMTP_SSL("smtp.zoho.com", 465, timeout=15) as smtp:
-            smtp.login("contact@adxgroup.tech", smtp_password)
+        if smtp_security == "tls":
+            smtp_connection = smtplib.SMTP(smtp_host, smtp_port, timeout=15)
+            smtp_connection.starttls()
+        else:
+            smtp_connection = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=15)
+        with smtp_connection as smtp:
+            smtp.login(smtp_username, smtp_password)
             smtp.send_message(email)
     except (OSError, smtplib.SMTPException) as exc:
         raise HTTPException(
