@@ -17,6 +17,8 @@ asgi_app = FastAPI(
     description="A simple portfolio for Abdulrazaq Adeyemi.",
     version="1.0.0",
 )
+# Vercel's Python runtime looks for the conventional `app` entrypoint.
+app = asgi_app
 
 asgi_app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 asgi_app.mount("/assets", StaticFiles(directory=str(BASE_DIR / "assets")), name="assets")
