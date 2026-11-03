@@ -16,7 +16,28 @@ def test_portfolio_home_is_simple_and_complete():
     assert "StudyFlow" in response.text
 
 
-def test_contact_form_accepts_valid_message():
+def test_contact_form_accepts_valid_message(monkeypatch):
+    class FakeSMTP:
+        def __init__(self, *args, **kwargs):
+            self.sent = False
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def login(self, username, password):
+            assert username == "contact@adxgroup.tech"
+            assert password == "test-password"
+
+        def send_message(self, message):
+            self.sent = True
+            assert message["To"] == "contact@adxgroup.tech"
+            assert message["Reply-To"] == "ada@example.com"
+
+    monkeypatch.setenv("SMTP_PASSWORD", "test-password")
+    monkeypatch.setattr("app.smtplib.SMTP_SSL", FakeSMTP)
     response = client.post(
         "/api/contact",
         json={"name": "Ada", "email": "ada@example.com", "message": "Hello"},

@@ -1,6 +1,9 @@
 """Small FastAPI site for the ADX Group student portfolio."""
 
+import os
+import smtplib
 import time
+from email.message import EmailMessage
 from pathlib import Path
 from typing import Dict, List
 
@@ -94,6 +97,32 @@ async def contact(request: Request, payload: ContactRequest):
         raise HTTPException(status_code=400, detail="Name and message are required.")
     if len(payload.message.strip()) > 2000:
         raise HTTPException(status_code=400, detail="Message must be under 2,000 characters.")
+    smtp_password = os.getenv("SMTP_PASSWORD") or os.getenv("ZOHO_PASSWORD")
+    if not smtp_password:
+        raise HTTPException(
+            status_code=503,
+            detail="Contact email is not configured. Please email contact@adxgroup.tech directly.",
+        )
+
+    email = EmailMessage()
+    email["From"] = "contact@adxgroup.tech"
+    email["To"] = "contact@adxgroup.tech"
+    email["Reply-To"] = str(payload.email)
+    email["Subject"] = f"Portfolio message from {payload.name.strip()}"
+    email.set_content(
+        f"Name: {payload.name.strip()}\n"
+        f"Email: {payload.email}\n\n"
+        f"Message:\n{payload.message.strip()}\n"
+    )
+    try:
+        with smtplib.SMTP_SSL("smtp.zoho.com", 465, timeout=15) as smtp:
+            smtp.login("contact@adxgroup.tech", smtp_password)
+            smtp.send_message(email)
+    except (OSError, smtplib.SMTPException) as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="The message could not be delivered. Please email contact@adxgroup.tech directly.",
+        ) from exc
     return {"ok": True, "message": "Thanks — I’ll get back to you soon."}
 
 
