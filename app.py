@@ -5,7 +5,7 @@ import smtplib
 import time
 from email.message import EmailMessage
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Literal
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
@@ -55,6 +55,7 @@ async def add_security_headers(request: Request, call_next):
 class ContactRequest(BaseModel):
     name: str
     email: EmailStr
+    scope: Literal["Audit", "Hardening", "Guild Collaboration"]
     message: str
     website: str = ""
 
@@ -122,10 +123,11 @@ async def contact(request: Request, payload: ContactRequest):
     email["From"] = smtp_username
     email["To"] = "contact@adxgroup.tech"
     email["Reply-To"] = str(payload.email)
-    email["Subject"] = f"Portfolio message from {payload.name.strip()}"
+    email["Subject"] = f"{payload.scope} inquiry from {payload.name.strip()}"
     email.set_content(
         f"Name: {payload.name.strip()}\n"
         f"Email: {payload.email}\n\n"
+        f"Scope: {payload.scope}\n\n"
         f"Message:\n{payload.message.strip()}\n"
     )
     try:
