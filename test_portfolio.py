@@ -20,7 +20,10 @@ def test_portfolio_home_is_simple_and_complete():
     assert "S3 Shield Defense" in response.text
     assert "NetGuard Scanner" in response.text
     assert "Canary Deception Trap" in response.text
-    assert "SQLi Exploitation Lab" in response.text
+    assert "SQL Injection Exploitation Lab" in response.text
+    assert "PROFESSIONAL DEVELOPMENT" in response.text or "Professional development" in response.text
+    assert "Hands-on Security Platforms" in response.text
+    assert "View Repository →" in response.text
     assert "Discuss a Security Assessment" in response.text
     assert "Explore Engineering Work" in response.text
     assert "🛡️" not in response.text
@@ -33,7 +36,13 @@ def test_portfolio_home_is_simple_and_complete():
     assert "https://github.com/hardex001-tech/sql-injection-payroll-lab" in response.text
     assert 'name="scope"' in response.text
     assert "Lead Defensive Engineer" not in response.text
-    assert "SC-900" not in response.text
+    assert "SC-900" in response.text
+    assert "Cybersecurity Professional Certificate" in response.text
+    assert "In Progress" in response.text
+    assert "https://profile.hackthebox.com/profile/019d17d7-f0a3-73d1-a277-93c2bc8890ce" in response.text
+    assert "Sentinel-X — Academic Capstone Architecture" in response.text
+    assert "https://github.com/hardex001-tech/Sentinel-X" not in response.text
+    assert "Student Community Leader, AWS Student Cloud Community at FUNAAB" in response.text
     assert "Builder of ADX" not in response.text
     assert "SURFACE SCAN" not in response.text
     assert "Security operations" in response.text
