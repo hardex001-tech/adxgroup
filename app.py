@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict, List, Literal
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, EmailStr
@@ -16,8 +16,8 @@ from pydantic import BaseModel, EmailStr
 BASE_DIR = Path(__file__).resolve().parent
 
 asgi_app = FastAPI(
-    title="ADX Group | Practical security automation",
-    description="Remote-first defensive engineering for growing teams.",
+    title="Abdulrazaq Adeyemi | Cybersecurity Practitioner & Founder of ADX Group",
+    description="Professional cybersecurity portfolio of Abdulrazaq Adeyemi and the developing ADX Group venture.",
     version="1.0.0",
 )
 # Vercel's Python runtime looks for the conventional `app` entrypoint.
@@ -152,12 +152,13 @@ async def robots():
     return "User-agent: *\nAllow: /\nSitemap: https://adxgroup.tech/sitemap.xml\n"
 
 
-@asgi_app.get("/sitemap.xml", response_class=PlainTextResponse)
+@asgi_app.get("/sitemap.xml", response_class=Response)
 async def sitemap():
-    return (
+    return Response(
         '<?xml version="1.0" encoding="UTF-8"?>'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-        "<url><loc>https://adxgroup.tech/</loc></url></urlset>"
+        "<url><loc>https://adxgroup.tech/</loc></url></urlset>",
+        media_type="application/xml",
     )
 
 

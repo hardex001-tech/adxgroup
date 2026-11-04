@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 96" role="img" aria-labelledby="title desc">
+  <title id="title">ADX Group</title>
+  <desc id="desc">ADX Group geometric monogram and wordmark for dark backgrounds.</desc>
+  <g><path fill="#f9faf7" d="M12 12h26v10H22v52h16v10H12V12Zm72 0v72H72V22H58V12h26Z"/><path fill="#f9faf7" d="m31 72 17-48h10l17 48H64l-4-12H46l-4 12H31Zm18-22h8l-4-13-4 13Z"/><path fill="#d8663b" d="m48 28 8 8-8 8-8-8 8-8Zm0 24 8 8-8 8-8-8 8-8Zm-8-16 8-8 8 8-8 8-8-8Zm16 0 8-8 8 8-8 8-8-8Z"/></g>
+  <text x="116" y="52" fill="#f9faf7" font-family="Inter, Arial, sans-serif" font-size="29" font-weight="800" letter-spacing="2">ADX</text>
+  <text x="118" y="76" fill="#a9c1ad" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="3">GROUP</text>
+</svg>

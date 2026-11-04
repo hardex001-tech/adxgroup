@@ -1,5 +1,18 @@
 # ADX Group Brand Identity Specification
 
+The current website lockup uses the original geometric ADX monogram in
+`adx-symbol.svg`. The X is the accent crossing in the mark; the surrounding
+angular frame and A/D spine provide a compact engineering-oriented structure.
+
+Current web assets:
+
+- `adx-symbol.svg` — standalone mark.
+- `adx-logo-dark.svg` — lockup for light backgrounds.
+- `adx-logo-light.svg` — lockup for dark backgrounds.
+- `adx-monochrome.svg` — `currentColor` single-colour lockup.
+- `favicon.svg` — simplified square mark.
+- `adx-brand-preview.svg` — light/dark presentation sheet.
+
 ## 1. Brand Concept & Crest
 The ADX Group identity is defined by the precision **Hexagonal Cyber Shield** containing the interlocking stylized **'A' and 'X'** structural vector marks. It embodies our foundational philosophy: **"Silent Innovation. Absolute Defense."**
 

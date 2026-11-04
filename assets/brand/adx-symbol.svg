@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">ADX geometric monogram</title>
+  <desc id="desc">An original angular ADX monogram with a distinctive crossing X.</desc>
+  <path fill="#17231d" d="M12 12h26v10H22v52h16v10H12V12Zm72 0v72H72V22H58V12h26Z"/>
+  <path fill="#17231d" d="m31 72 17-48h10l17 48H64l-4-12H46l-4 12H31Zm18-22h8l-4-13-4 13Z"/>
+  <path fill="#d8663b" d="m48 28 8 8-8 8-8-8 8-8Zm0 24 8 8-8 8-8-8 8-8Zm-8-16 8-8 8 8-8 8-8-8Zm16 0 8-8 8 8-8 8-8-8Z"/>
+</svg>

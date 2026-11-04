@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title">
-  <title>ADX Group</title>
-  <rect width="256" height="256" rx="56" fill="#f6f7fb"/>
-  <text x="128" y="156" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="82" font-weight="700" letter-spacing="-8" text-anchor="middle">adx</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">ADX Group</title>
+  <rect width="64" height="64" rx="14" fill="#17231d"/>
+  <path fill="#f9faf7" d="M8 8h17v7H15v34h10v7H8V8Zm48 0v48h-8V15h-9V8h17Z"/>
+  <path fill="#d8663b" d="m32 18 7 7-7 7-7-7 7-7Zm0 14 7 7-7 7-7-7 7-7Zm-7-7 7-7 7 7-7 7-7-7Zm14 0 7-7 7 7-7 7-7-7Z"/>
 </svg>
